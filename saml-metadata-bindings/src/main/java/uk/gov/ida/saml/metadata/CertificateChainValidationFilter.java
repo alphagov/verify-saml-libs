@@ -1,10 +1,16 @@
 package uk.gov.ida.saml.metadata;
 
 import org.opensaml.core.xml.XMLObject;
+import org.opensaml.core.xml.io.MarshallingException;
+import org.opensaml.core.xml.io.UnmarshallingException;
+import org.opensaml.core.xml.util.XMLObjectSupport;
 import org.opensaml.saml.metadata.resolver.filter.MetadataFilter;
 import org.opensaml.saml.saml2.metadata.EntitiesDescriptor;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
+import org.opensaml.saml.saml2.metadata.KeyDescriptor;
 import org.opensaml.saml.saml2.metadata.RoleDescriptor;
+import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.xmlsec.signature.KeyInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +27,8 @@ import javax.xml.namespace.QName;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.opensaml.xmlsec.keyinfo.KeyInfoSupport.getCertificates;
 
@@ -57,102 +64,119 @@ public final class CertificateChainValidationFilter implements MetadataFilter {
 
     @Nullable
     @Override
-    public XMLObject filter(@Nullable XMLObject metadata) {
+    public XMLObject filter(@Nullable final XMLObject metadata) {
         if (metadata == null) {
             return null;
         }
 
         try {
             if (metadata instanceof EntityDescriptor) {
-                processEntityDescriptor((EntityDescriptor) metadata);
+                return getValidatedEntityDescriptor((EntityDescriptor) metadata);
             } else if (metadata instanceof EntitiesDescriptor) {
-                processEntityGroup((EntitiesDescriptor) metadata);
+                return getValidatedEntitiesDescriptor((EntitiesDescriptor) metadata);
             } else {
                 LOG.error("Internal error, metadata object was of an unsupported type: {}", metadata.getClass().getName());
                 return null;
             }
-        } catch (RoleDescriptorListEmptyException | EntityDescriptorListEmptyException | CertificateConversionException e) {
+        } catch (RoleDescriptorListEmptyException | EntityDescriptorListEmptyException | CertificateConversionException | MarshallingException | UnmarshallingException e) {
             LOG.error("Saw fatal error validating certificate chain, metadata will be filtered out", e);
             return null;
         }
-
-        return metadata;
     }
 
-    private void processEntityDescriptor(@Nonnull EntityDescriptor entityDescriptor) throws RoleDescriptorListEmptyException {
-        final String entityID = entityDescriptor.getEntityID();
-        LOG.trace("Processing EntityDescriptor: {}", entityID);
-
-        // Note that this is ok since we're iterating over an IndexedXMLObjectChildrenList directly,
-        // rather than a sublist like in processEntityGroup, and iterator remove() is supported there.
-        entityDescriptor.getRoleDescriptors()
-            .removeIf(roleDescriptor -> {
-                if (getRole().equals(roleDescriptor.getElementQName())) {
-                    try {
-                        processKeyDescriptor(roleDescriptor);
-                    } catch (KeyDescriptorListEmptyException e) {
-                        LOG.error("KeyDescriptor '{}' has empty key descriptor list, removing from metadata provider", entityID);
-                        return true;
-                    }
-                }
-                return false;
-            });
-
-        if (entityDescriptor.getRoleDescriptors().isEmpty()) {
-            throw new RoleDescriptorListEmptyException("Role Descriptor list is empty");
-        }
-    }
-
-    private void processKeyDescriptor(@Nonnull RoleDescriptor roleDescriptor) throws KeyDescriptorListEmptyException {
-
-        roleDescriptor.getKeyDescriptors().removeIf(
-            keyDescriptor -> {
-                KeyInfo keyInfo = keyDescriptor.getKeyInfo();
-                try {
-                    for (final X509Certificate certificate : getCertificates(keyInfo)) {
-                        if (!getCertificateChainValidator().validate(certificate, getKeyStore()).isValid()) {
-                            LOG.error("Certificate chain validation failed for metadata entry {}", certificate.getSubjectDN());
-                            return true;
-                        }
-                    }
-                    return false;
-                } catch (CertificateException e) {
-                    throw new CertificateConversionException(e);
-                }
-            }
-        );
-
-        if (roleDescriptor.getKeyDescriptors().isEmpty()) {
-            throw new KeyDescriptorListEmptyException("Key Descriptor list is empty");
-        }
-    }
-
-    private void processEntityGroup(@Nonnull EntitiesDescriptor entitiesDescriptor) throws EntityDescriptorListEmptyException {
+    private EntitiesDescriptor getValidatedEntitiesDescriptor(@Nonnull final EntitiesDescriptor entitiesDescriptor) throws EntityDescriptorListEmptyException, MarshallingException, UnmarshallingException {
         final String name = getGroupName(entitiesDescriptor);
         LOG.trace("Processing EntitiesDescriptor group: {}", name);
 
-        // Can't use IndexedXMLObjectChildrenList sublist iterator remove() to remove members,
-        // so just note them in a set and then remove after iteration has completed.
-        final HashSet<XMLObject> toRemove = new HashSet<>();
+        ArrayList<EntityDescriptor> validatedEntityDescriptors = new ArrayList<>();
+        for (final EntityDescriptor entityDescriptor : entitiesDescriptor.getEntityDescriptors()) {
+            try {
+                validatedEntityDescriptors.add(getValidatedEntityDescriptor(entityDescriptor));
+            } catch (final RoleDescriptorListEmptyException e) {
+                LOG.warn("EntityDescriptor '{}' has empty validated role descriptor list, removing from metadata provider", entityDescriptor.getEntityID());
+            }
+        }
 
-        entitiesDescriptor.getEntityDescriptors().forEach(
-            entityDescriptor -> {
-                try {
-                    processEntityDescriptor(entityDescriptor);
-                } catch (final RoleDescriptorListEmptyException e) {
-                    LOG.error("EntityDescriptor '{}' has empty role descriptor list, removing from metadata provider", entityDescriptor.getEntityID());
-                    toRemove.add(entityDescriptor);
+        if (validatedEntityDescriptors.isEmpty()) {
+            throw new EntityDescriptorListEmptyException("Validated entity descriptor list is empty");
+        }
+
+        EntitiesDescriptor validatedEntitiesDescriptor = XMLObjectSupport.cloneXMLObject(entitiesDescriptor);
+        validatedEntitiesDescriptor.getEntityDescriptors().clear();
+        validatedEntitiesDescriptor.getEntityDescriptors().addAll(validatedEntityDescriptors);
+        return validatedEntitiesDescriptor;
+    }
+
+    private EntityDescriptor getValidatedEntityDescriptor(@Nonnull final EntityDescriptor entityDescriptor) throws RoleDescriptorListEmptyException, MarshallingException, UnmarshallingException {
+        final String entityID = entityDescriptor.getEntityID();
+        LOG.trace("Validating EntityDescriptor: {}", entityID);
+
+        ArrayList<RoleDescriptor> validatedRoleDescriptors = new ArrayList<>();
+
+        for (final RoleDescriptor roleDescriptor : entityDescriptor.getRoleDescriptors()) {
+            if (getRole().equals(roleDescriptor.getElementQName())) {
+                if (SPSSODescriptor.DEFAULT_ELEMENT_NAME.equals(roleDescriptor.getElementQName())) {
+                    try {
+                        SPSSODescriptor spssoDescriptor = XMLObjectSupport.cloneXMLObject((SPSSODescriptor) roleDescriptor);
+                        spssoDescriptor.getKeyDescriptors().clear();
+                        spssoDescriptor.getKeyDescriptors().addAll(getValidatedKeyDescriptors(roleDescriptor));
+                        validatedRoleDescriptors.add(spssoDescriptor);
+                    } catch (final KeyDescriptorListEmptyException e) {
+                        LOG.warn("SPSSODescriptor '{}' has empty validated key descriptor list, removing from metadata provider", entityDescriptor.getEntityID());
+                    }
+                } else if (IDPSSODescriptor.DEFAULT_ELEMENT_NAME.equals(roleDescriptor.getElementQName())) {
+                    try {
+                        IDPSSODescriptor idpssoDescriptor = XMLObjectSupport.cloneXMLObject((IDPSSODescriptor) roleDescriptor);
+                        idpssoDescriptor.getKeyDescriptors().clear();
+                        idpssoDescriptor.getKeyDescriptors().addAll(getValidatedKeyDescriptors(roleDescriptor));
+                        validatedRoleDescriptors.add(idpssoDescriptor);
+                    } catch (final KeyDescriptorListEmptyException e) {
+                        LOG.warn("IDPSSODescriptor '{}' has empty validated key descriptor list, removing from metadata provider", entityDescriptor.getEntityID());
+                    }
                 }
-        });
-
-        if (!toRemove.isEmpty()) {
-            entitiesDescriptor.getEntityDescriptors().removeAll(toRemove);
-            toRemove.clear();
+            } else {
+                validatedRoleDescriptors.add(XMLObjectSupport.cloneXMLObject(roleDescriptor));
+            }
         }
 
-        if (entitiesDescriptor.getEntityDescriptors().isEmpty()) {
-            throw new EntityDescriptorListEmptyException("Entity Descriptor list is empty");
+        if (validatedRoleDescriptors.isEmpty()) {
+            throw new RoleDescriptorListEmptyException("Validated role descriptor list is empty");
         }
+
+        EntityDescriptor validatedEntityDescriptor = XMLObjectSupport.cloneXMLObject(entityDescriptor);
+        validatedEntityDescriptor.getRoleDescriptors().clear();
+        validatedEntityDescriptor.getRoleDescriptors().addAll(validatedRoleDescriptors);
+
+        return validatedEntityDescriptor;
+    }
+
+    private List<KeyDescriptor> getValidatedKeyDescriptors(@Nonnull final RoleDescriptor roleDescriptor) throws KeyDescriptorListEmptyException, MarshallingException, UnmarshallingException {
+        ArrayList<KeyDescriptor> validatedKeyDescriptors = new ArrayList<>();
+        boolean validCertificate;
+
+        for (final KeyDescriptor keyDescriptor : roleDescriptor.getKeyDescriptors()) {
+            validCertificate = true;
+            final KeyInfo keyInfo = keyDescriptor.getKeyInfo();
+            try {
+                for (final X509Certificate certificate : getCertificates(keyInfo)) {
+                    if (!getCertificateChainValidator().validate(certificate, getKeyStore()).isValid()) {
+                        LOG.error("Certificate chain validation failed for metadata entry {}", certificate.getSubjectDN());
+                        validCertificate = false;
+                    }
+                }
+            } catch (final CertificateException e) {
+                throw new CertificateConversionException(e);
+            }
+            if (validCertificate) {
+                validatedKeyDescriptors.add(XMLObjectSupport.cloneXMLObject(keyDescriptor));
+            }
+        }
+
+        if (validatedKeyDescriptors.isEmpty()) {
+            throw new KeyDescriptorListEmptyException("Validated key descriptor list is empty");
+        }
+
+        return validatedKeyDescriptors;
     }
 
     private String getGroupName(final EntitiesDescriptor group) {
