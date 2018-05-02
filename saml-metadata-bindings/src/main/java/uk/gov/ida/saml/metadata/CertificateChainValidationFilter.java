@@ -7,10 +7,8 @@ import org.opensaml.core.xml.util.XMLObjectSupport;
 import org.opensaml.saml.metadata.resolver.filter.MetadataFilter;
 import org.opensaml.saml.saml2.metadata.EntitiesDescriptor;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
-import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
 import org.opensaml.saml.saml2.metadata.RoleDescriptor;
-import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.xmlsec.signature.KeyInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,24 +113,13 @@ public final class CertificateChainValidationFilter implements MetadataFilter {
 
         for (final RoleDescriptor roleDescriptor : entityDescriptor.getRoleDescriptors()) {
             if (getRole().equals(roleDescriptor.getElementQName())) {
-                if (SPSSODescriptor.DEFAULT_ELEMENT_NAME.equals(roleDescriptor.getElementQName())) {
-                    try {
-                        SPSSODescriptor spssoDescriptor = XMLObjectSupport.cloneXMLObject((SPSSODescriptor) roleDescriptor);
-                        spssoDescriptor.getKeyDescriptors().clear();
-                        spssoDescriptor.getKeyDescriptors().addAll(getValidatedKeyDescriptors(roleDescriptor));
-                        validatedRoleDescriptors.add(spssoDescriptor);
-                    } catch (final KeyDescriptorListEmptyException e) {
-                        LOG.warn("SPSSODescriptor '{}' has empty validated key descriptor list, removing from metadata provider", entityDescriptor.getEntityID());
-                    }
-                } else if (IDPSSODescriptor.DEFAULT_ELEMENT_NAME.equals(roleDescriptor.getElementQName())) {
-                    try {
-                        IDPSSODescriptor idpssoDescriptor = XMLObjectSupport.cloneXMLObject((IDPSSODescriptor) roleDescriptor);
-                        idpssoDescriptor.getKeyDescriptors().clear();
-                        idpssoDescriptor.getKeyDescriptors().addAll(getValidatedKeyDescriptors(roleDescriptor));
-                        validatedRoleDescriptors.add(idpssoDescriptor);
-                    } catch (final KeyDescriptorListEmptyException e) {
-                        LOG.warn("IDPSSODescriptor '{}' has empty validated key descriptor list, removing from metadata provider", entityDescriptor.getEntityID());
-                    }
+                try {
+                    RoleDescriptor clonedRoleDescriptor = XMLObjectSupport.cloneXMLObject(roleDescriptor);
+                    clonedRoleDescriptor.getKeyDescriptors().clear();
+                    clonedRoleDescriptor.getKeyDescriptors().addAll(getValidatedKeyDescriptors(roleDescriptor));
+                    validatedRoleDescriptors.add(clonedRoleDescriptor);
+                } catch (KeyDescriptorListEmptyException e) {
+                    LOG.warn("RoleDescriptor '{}' has empty validated key descriptor list, removing from metadata provider", entityDescriptor.getEntityID());
                 }
             } else {
                 validatedRoleDescriptors.add(XMLObjectSupport.cloneXMLObject(roleDescriptor));
