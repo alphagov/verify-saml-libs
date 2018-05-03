@@ -10,9 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.saml.metadata.exception.CertificateConversionException;
-import uk.gov.ida.saml.metadata.exception.EntityDescriptorListEmptyException;
-import uk.gov.ida.saml.metadata.exception.KeyDescriptorListEmptyException;
-import uk.gov.ida.saml.metadata.exception.RoleDescriptorListEmptyException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -55,6 +52,10 @@ public final class CertificateChainValidationFilter implements MetadataFilter {
         return keyStore;
     }
 
+    private enum EntityDescriptorFilteringResult {OK, ROLE_DESCRIPTOR_LIST_EMPTY }
+    private enum EntityGroupFilteringResult {OK, ENTITY_DESCRIPTOR_LIST_EMPTY }
+    private enum KeyDescriptorFilteringResult {OK, KEY_DESCRIPTOR_LIST_EMPTY }
+
     @Nullable
     @Override
     public XMLObject filter(@Nullable XMLObject metadata) {
@@ -64,14 +65,20 @@ public final class CertificateChainValidationFilter implements MetadataFilter {
 
         try {
             if (metadata instanceof EntityDescriptor) {
-                processEntityDescriptor((EntityDescriptor) metadata);
+                if (processEntityDescriptor((EntityDescriptor) metadata) == EntityDescriptorFilteringResult.ROLE_DESCRIPTOR_LIST_EMPTY) {
+                    LOG.error("Fatal error - role descriptor list empty validating certificate chain, metadata will be filtered out");
+                    return null;
+                }
             } else if (metadata instanceof EntitiesDescriptor) {
-                processEntityGroup((EntitiesDescriptor) metadata);
+                if (processEntityGroup((EntitiesDescriptor) metadata) == EntityGroupFilteringResult.ENTITY_DESCRIPTOR_LIST_EMPTY) {
+                    LOG.error("Fatal error - entity descriptor list empty validating certificate chain, metadata will be filtered out");
+                    return null;
+                }
             } else {
                 LOG.error("Internal error, metadata object was of an unsupported type: {}", metadata.getClass().getName());
                 return null;
             }
-        } catch (RoleDescriptorListEmptyException | EntityDescriptorListEmptyException | CertificateConversionException e) {
+        } catch (CertificateConversionException e) {
             LOG.error("Saw fatal error validating certificate chain, metadata will be filtered out", e);
             return null;
         }
@@ -79,7 +86,7 @@ public final class CertificateChainValidationFilter implements MetadataFilter {
         return metadata;
     }
 
-    private void processEntityDescriptor(@Nonnull EntityDescriptor entityDescriptor) throws RoleDescriptorListEmptyException {
+    private EntityDescriptorFilteringResult processEntityDescriptor(@Nonnull EntityDescriptor entityDescriptor) {
         final String entityID = entityDescriptor.getEntityID();
         LOG.trace("Processing EntityDescriptor: {}", entityID);
 
@@ -88,9 +95,7 @@ public final class CertificateChainValidationFilter implements MetadataFilter {
         entityDescriptor.getRoleDescriptors()
             .removeIf(roleDescriptor -> {
                 if (getRole().equals(roleDescriptor.getElementQName())) {
-                    try {
-                        processKeyDescriptor(roleDescriptor);
-                    } catch (KeyDescriptorListEmptyException e) {
+                    if (processKeyDescriptor(roleDescriptor) == KeyDescriptorFilteringResult.KEY_DESCRIPTOR_LIST_EMPTY) {
                         LOG.error("KeyDescriptor '{}' has empty key descriptor list, removing from metadata provider", entityID);
                         return true;
                     }
@@ -99,11 +104,12 @@ public final class CertificateChainValidationFilter implements MetadataFilter {
             });
 
         if (entityDescriptor.getRoleDescriptors().isEmpty()) {
-            throw new RoleDescriptorListEmptyException("Role Descriptor list is empty");
+            return EntityDescriptorFilteringResult.ROLE_DESCRIPTOR_LIST_EMPTY;
         }
+        return EntityDescriptorFilteringResult.OK;
     }
 
-    private void processKeyDescriptor(@Nonnull RoleDescriptor roleDescriptor) throws KeyDescriptorListEmptyException {
+    private KeyDescriptorFilteringResult processKeyDescriptor(@Nonnull RoleDescriptor roleDescriptor) {
 
         roleDescriptor.getKeyDescriptors().removeIf(
             keyDescriptor -> {
@@ -123,11 +129,12 @@ public final class CertificateChainValidationFilter implements MetadataFilter {
         );
 
         if (roleDescriptor.getKeyDescriptors().isEmpty()) {
-            throw new KeyDescriptorListEmptyException("Key Descriptor list is empty");
+            return KeyDescriptorFilteringResult.KEY_DESCRIPTOR_LIST_EMPTY;
         }
+        return KeyDescriptorFilteringResult.OK;
     }
 
-    private void processEntityGroup(@Nonnull EntitiesDescriptor entitiesDescriptor) throws EntityDescriptorListEmptyException {
+    private EntityGroupFilteringResult processEntityGroup(@Nonnull EntitiesDescriptor entitiesDescriptor) {
         final String name = getGroupName(entitiesDescriptor);
         LOG.trace("Processing EntitiesDescriptor group: {}", name);
 
@@ -137,9 +144,7 @@ public final class CertificateChainValidationFilter implements MetadataFilter {
 
         entitiesDescriptor.getEntityDescriptors().forEach(
             entityDescriptor -> {
-                try {
-                    processEntityDescriptor(entityDescriptor);
-                } catch (final RoleDescriptorListEmptyException e) {
+                if (processEntityDescriptor(entityDescriptor) == EntityDescriptorFilteringResult.ROLE_DESCRIPTOR_LIST_EMPTY) {
                     LOG.error("EntityDescriptor '{}' has empty role descriptor list, removing from metadata provider", entityDescriptor.getEntityID());
                     toRemove.add(entityDescriptor);
                 }
@@ -151,8 +156,10 @@ public final class CertificateChainValidationFilter implements MetadataFilter {
         }
 
         if (entitiesDescriptor.getEntityDescriptors().isEmpty()) {
-            throw new EntityDescriptorListEmptyException("Entity Descriptor list is empty");
+            return EntityGroupFilteringResult.ENTITY_DESCRIPTOR_LIST_EMPTY;
         }
+
+        return EntityGroupFilteringResult.OK;
     }
 
     private String getGroupName(final EntitiesDescriptor group) {
