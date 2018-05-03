@@ -65,12 +65,12 @@ public final class CertificateChainValidationFilter implements MetadataFilter {
 
         try {
             if (metadata instanceof EntityDescriptor) {
-                if (processEntityDescriptor((EntityDescriptor) metadata) == EntityDescriptorFilteringResult.ROLE_DESCRIPTOR_LIST_EMPTY) {
+                if (processEntityDescriptor((EntityDescriptor) metadata) != EntityDescriptorFilteringResult.OK) {
                     LOG.error("Fatal error - role descriptor list empty validating certificate chain, metadata will be filtered out");
                     return null;
                 }
             } else if (metadata instanceof EntitiesDescriptor) {
-                if (processEntityGroup((EntitiesDescriptor) metadata) == EntityGroupFilteringResult.ENTITY_DESCRIPTOR_LIST_EMPTY) {
+                if (processEntityGroup((EntitiesDescriptor) metadata) != EntityGroupFilteringResult.OK) {
                     LOG.error("Fatal error - entity descriptor list empty validating certificate chain, metadata will be filtered out");
                     return null;
                 }
@@ -95,7 +95,7 @@ public final class CertificateChainValidationFilter implements MetadataFilter {
         entityDescriptor.getRoleDescriptors()
             .removeIf(roleDescriptor -> {
                 if (getRole().equals(roleDescriptor.getElementQName())) {
-                    if (processKeyDescriptor(roleDescriptor) == KeyDescriptorFilteringResult.KEY_DESCRIPTOR_LIST_EMPTY) {
+                    if (processKeyDescriptor(roleDescriptor) != KeyDescriptorFilteringResult.OK) {
                         LOG.error("KeyDescriptor '{}' has empty key descriptor list, removing from metadata provider", entityID);
                         return true;
                     }
@@ -144,7 +144,7 @@ public final class CertificateChainValidationFilter implements MetadataFilter {
 
         entitiesDescriptor.getEntityDescriptors().forEach(
             entityDescriptor -> {
-                if (processEntityDescriptor(entityDescriptor) == EntityDescriptorFilteringResult.ROLE_DESCRIPTOR_LIST_EMPTY) {
+                if (processEntityDescriptor(entityDescriptor) != EntityDescriptorFilteringResult.OK) {
                     LOG.error("EntityDescriptor '{}' has empty role descriptor list, removing from metadata provider", entityDescriptor.getEntityID());
                     toRemove.add(entityDescriptor);
                 }
