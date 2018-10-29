@@ -10,8 +10,8 @@ import org.opensaml.xmlsec.encryption.support.RSAOAEPParameters;
 public class EncrypterFactory {
     private String keyEncryptionAlgorithm = EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP;
     private String dataEncryptionAlgorithm = EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES128;
-    private String digestMethod = EncryptionConstants.ALGO_ID_DIGEST_SHA256;
     private Encrypter.KeyPlacement keyPlacement = Encrypter.KeyPlacement.PEER;
+    private boolean useSha256Digest = false;
 
     public EncrypterFactory withKeyEncryptionAlgorithm(String algorithm) {
         keyEncryptionAlgorithm = algorithm;
@@ -28,16 +28,24 @@ public class EncrypterFactory {
         return this;
     }
 
+    public EncrypterFactory withSha256KeySignatureDigest() {
+        useSha256Digest = true;
+        return this;
+    }
+
     public Encrypter createEncrypter(Credential credential) {
         DataEncryptionParameters encParams = new DataEncryptionParameters();
         encParams.setAlgorithm(dataEncryptionAlgorithm);
-        RSAOAEPParameters rsaoaepParams = new RSAOAEPParameters();
-        rsaoaepParams.setDigestMethod(digestMethod);
 
         KeyEncryptionParameters kekParams = new KeyEncryptionParameters();
         kekParams.setEncryptionCredential(credential);
         kekParams.setAlgorithm(keyEncryptionAlgorithm);
-        kekParams.setRSAOAEPParameters(rsaoaepParams);
+
+        if (useSha256Digest) {
+            RSAOAEPParameters rsaoaepParams = new RSAOAEPParameters();
+            rsaoaepParams.setDigestMethod(EncryptionConstants.ALGO_ID_DIGEST_SHA256);
+            kekParams.setRSAOAEPParameters(rsaoaepParams);
+        }
 
         Encrypter encrypter = new Encrypter(encParams, kekParams);
         encrypter.setKeyPlacement(keyPlacement);
