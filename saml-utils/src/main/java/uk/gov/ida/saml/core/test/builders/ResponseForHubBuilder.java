@@ -10,6 +10,7 @@ import uk.gov.ida.saml.core.domain.TransactionIdaStatus;
 import uk.gov.ida.saml.core.test.TestEntityIds;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
@@ -68,7 +69,7 @@ public class ResponseForHubBuilder {
                 TestEntityIds.HUB_ENTITY_ID,
                 issueInstant,
                 transactionIdpStatus,
-                matchingServiceAssertion,
+                matchingServiceAssertion.map(Collections::singletonList).orElse(Collections.emptyList()),
                 URI.create("blah"));
     }
 
