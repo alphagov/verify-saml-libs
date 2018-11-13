@@ -82,7 +82,8 @@ subprojects {
                 'org.assertj:assertj-core:1.6.0',
                 'junit:junit:4.11',
                 'uk.gov.ida:ida-dev-pki:1.1.0-32',
-                'org.mockito:mockito-core:1.9.5'
+                'org.mockito:mockito-core:1.9.5',
+                'javax.xml.bind:jaxb-api:2.3.1'
 
         xml_utils "uk.gov.ida:common-utils:2.0.0-$ida_utils_version"
     }
