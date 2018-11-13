@@ -20,6 +20,11 @@ apply plugin: 'com.github.ben-manes.versions'
 subprojects {
     apply plugin: 'java'
     apply plugin: 'maven-publish'
+    
+    if(JavaVersion.current() >= JavaVersion.VERSION_1_10) {
+        sourceCompatibility = JavaVersion.VERSION_1_10
+        targetCompatibility = JavaVersion.VERSION_1_10
+    }
 
     ext {
         opensaml_version = "3.3.0"
