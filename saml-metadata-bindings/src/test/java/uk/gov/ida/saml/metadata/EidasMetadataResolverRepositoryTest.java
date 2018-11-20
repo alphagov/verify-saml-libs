@@ -97,7 +97,6 @@ public class EidasMetadataResolverRepositoryTest {
     public void setUp() throws CertificateException, SignatureException, ParseException, JOSEException, ComponentInitializationException {
         trustAnchors = new ArrayList<>();
         when(trustAnchorResolver.getTrustAnchors()).thenReturn(trustAnchors);
-        when(metadataClientFactory.getClient(eq(environment), any(), any())).thenReturn(metadataClient);
         when(dropwizardMetadataResolverFactory.createMetadataResolverWithClient(any(), eq(true), eq(metadataClient))).thenReturn(metadataResolver);
         when(metadataSignatureTrustEngineFactory.createSignatureTrustEngine(metadataResolver)).thenReturn(explicitKeySignatureTrustEngine);
     }

@@ -32,9 +32,7 @@ public class ResponseSignatureCreatorTest {
         Issuer issuer = mock(Issuer.class);
         String id = "response-id";
         String issuerId = "some-issuer-id";
-        when(issuer.getValue()).thenReturn(issuerId);
         when(response.getSignatureReferenceID()).thenReturn(id);
-        when(response.getIssuer()).thenReturn(issuer);
 
         responseSignatureCreator.addUnsignedSignatureTo(response);
 
@@ -46,7 +44,6 @@ public class ResponseSignatureCreatorTest {
         Response response = mock(Response.class);
         Signature signature = mock(Signature.class);
         String id = "response-id";
-        when(response.getIssuer()).thenReturn(mock(Issuer.class));
         when(response.getSignatureReferenceID()).thenReturn(id);
         when(signatureFactory.createSignature(id)).thenReturn(signature);
 
