@@ -31,8 +31,10 @@ public class ResponseSignatureCreatorTest {
     }
 
     @Test
-    public void shouldGetSignatureAndAssignIt() {
-        when(response.getSignatureReferenceID()).thenReturn(RESPONSE_ID);
+    public void decorate_shouldGetSignatureAndAssignIt() {
+        Response response = mock(Response.class);
+        String id = "response-id";
+        when(response.getSignatureReferenceID()).thenReturn(id);
 
         responseSignatureCreator.addUnsignedSignatureTo(response);
 
@@ -42,9 +44,10 @@ public class ResponseSignatureCreatorTest {
     @Test
     public void shouldAssignSignatureToResponse() {
         Signature signature = mock(Signature.class);
-        when(response.getSignatureReferenceID()).thenReturn(RESPONSE_ID);
-        when(signatureFactory.createSignature(RESPONSE_ID)).thenReturn(signature);
-
+        String id = "response-id";
+        when(response.getSignatureReferenceID()).thenReturn(id);
+        when(signatureFactory.createSignature(id)).thenReturn(signature);
+        
         responseSignatureCreator.addUnsignedSignatureTo(response);
 
         verify(response).setSignature(signature);
