@@ -3,7 +3,8 @@ dependencies {
     compile configurations.opensaml,
             configurations.dropwizard,
             configurations.guice,
-            configurations.security
+            configurations.security,
+            configurations.jaxb
 
     testCompile configurations.test_deps,
             project(':saml-metadata-bindings-test')

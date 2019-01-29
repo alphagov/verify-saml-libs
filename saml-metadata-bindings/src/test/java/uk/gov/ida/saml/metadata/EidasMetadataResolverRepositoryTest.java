@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import org.slf4j.LoggerFactory;
@@ -48,8 +48,8 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -103,7 +103,6 @@ public class EidasMetadataResolverRepositoryTest {
     public void setUp() throws CertificateException, SignatureException, ParseException, JOSEException, ComponentInitializationException {
         trustAnchors = new ArrayList<>();
         when(trustAnchorResolver.getTrustAnchors()).thenReturn(trustAnchors);
-        when(metadataClientFactory.getClient(eq(environment), any(), any())).thenReturn(metadataClient);
         when(dropwizardMetadataResolverFactory.createMetadataResolverWithClient(any(), eq(true), eq(metadataClient))).thenReturn(metadataResolver);
         when(metadataSignatureTrustEngineFactory.createSignatureTrustEngine(metadataResolver)).thenReturn(explicitKeySignatureTrustEngine);
     }
@@ -195,7 +194,6 @@ public class EidasMetadataResolverRepositoryTest {
         logger.addAppender(mockAppender);
         ArgumentCaptor<LoggingEvent> loggingEventCaptor = ArgumentCaptor.forClass(LoggingEvent.class);
 
-        when(metadataConfiguration.getMetadataSourceUri()).thenReturn(UriBuilder.fromUri("https://source.com").build());
         String entityId = "http://signin.gov.uk/entity-id";
         List<String> certificateChain = asList(
             CACertificates.TEST_ROOT_CA,
@@ -222,7 +220,6 @@ public class EidasMetadataResolverRepositoryTest {
 
     @Test
     public void shouldNotCreateMetadataResolverRepositoryWhenCertificateIsInvalid() {
-        when(metadataConfiguration.getMetadataSourceUri()).thenReturn(UriBuilder.fromUri("https://source.com").build());
         String entityId = "http://signin.gov.uk/entity-id";
         List<String> invalidCertChain = asList(
                 CACertificates.TEST_ROOT_CA,
