@@ -13,6 +13,7 @@ Affected libraries:
 * saml-serializers
 * saml-metadata-bindings
 * saml-metadata-bindings-test
+* trust-anchor
 
 ### Building the project
 
