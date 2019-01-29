@@ -2,7 +2,7 @@ package uk.gov.ida.saml.hub.validators;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper;
 import uk.gov.ida.saml.hub.errors.SamlTransformationErrorFactory;
 
