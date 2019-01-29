@@ -1,14 +1,10 @@
 plugins { id "com.jfrog.bintray" version "1.8.4" }
 dependencies {
     compile configurations.opensaml,
-            configurations.dropwizard,
-            configurations.guice,
-            configurations.security,
-            configurations.jaxb,
-            project(':trust-anchor')
+            project(':saml-serializers'),
+            project(':saml-security')
 
-    testCompile configurations.test_deps,
-            project(':saml-metadata-bindings-test')
+    testCompile configurations.test_deps
 }
 
 bintray {
@@ -18,7 +14,7 @@ bintray {
     publish = true
     pkg {
         repo = 'maven-test'
-        name = 'ida-saml-metadata-bindings'
+        name = 'verify-eidas-trust-anchor'
         userOrg = 'alphagov'
         licenses = ['MIT']
         vcsUrl = 'https://github.com/alphagov/verify-saml-libs.git'

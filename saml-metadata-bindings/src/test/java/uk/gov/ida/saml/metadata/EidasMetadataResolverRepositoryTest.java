@@ -63,9 +63,6 @@ public class EidasMetadataResolverRepositoryTest {
     private EidasTrustAnchorResolver trustAnchorResolver;
 
     @Mock
-    private Environment environment;
-
-    @Mock
     private EidasMetadataConfiguration metadataConfiguration;
 
     @Mock
@@ -82,9 +79,6 @@ public class EidasMetadataResolverRepositoryTest {
 
     @Mock
     private ExplicitKeySignatureTrustEngine explicitKeySignatureTrustEngine;
-
-    @Mock
-    private MetadataClientFactory metadataClientFactory;
 
     @Mock
     private Client metadataClient;
