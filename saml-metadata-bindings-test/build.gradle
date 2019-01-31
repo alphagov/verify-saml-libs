@@ -2,7 +2,8 @@ plugins { id "com.jfrog.bintray" version "1.8.4" }
 dependencies {
     compile configurations.opensaml,
             configurations.xml_utils,
-            project(':saml-serializers')
+            project(':saml-serializers'),
+            project(':saml-test-utils')
 }
 
 bintray {

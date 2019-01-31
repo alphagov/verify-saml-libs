@@ -1,10 +1,10 @@
 plugins { id "com.jfrog.bintray" version "1.8.4" }
 dependencies {
     compile configurations.opensaml,
-            configurations.slf4j,
-            configurations.test_deps
+            configurations.slf4j
 
-    testCompile configurations.test_deps
+    testCompile configurations.test_deps,
+                project(':saml-test-utils')
 }
 
 bintray {

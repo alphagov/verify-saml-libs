@@ -4,4 +4,5 @@ include "saml-extensions",
         "saml-serializers",
         "saml-metadata-bindings",
         "saml-metadata-bindings-test",
+        "saml-test-utils",
         "trust-anchor"

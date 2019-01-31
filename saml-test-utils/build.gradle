@@ -1,12 +1,9 @@
 plugins { id "com.jfrog.bintray" version "1.8.4" }
 dependencies {
     compile configurations.opensaml,
-            project(':saml-extensions'),
-            project(':saml-serializers'),
-            project(':saml-security')
-
-    testCompile configurations.test_deps,
-                project(':saml-test-utils')
+            configurations.test_deps,
+            project(':saml-utils'),
+            project(':saml-extensions')
 }
 
 bintray {
@@ -16,7 +13,7 @@ bintray {
     publish = true
     pkg {
         repo = 'maven-test'
-        name = 'ida-saml-utils'
+        name = 'ida-saml-security'
         userOrg = 'alphagov'
         licenses = ['MIT']
         vcsUrl = 'https://github.com/alphagov/verify-saml-libs.git'
