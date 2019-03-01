@@ -7,11 +7,12 @@ import org.joda.time.LocalDate;
 import org.opensaml.security.crypto.JCAConstants;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class EidasResponseAttributesHashLogger {
@@ -41,15 +42,15 @@ public final class EidasResponseAttributesHashLogger {
     }
 
     public void addSurname(String surname) {
-        this.responseAttributes.addSurName(surname);
+        this.responseAttributes.addSurname(surname);
     }
 
     public void setDateOfBirth(DateTime dateOfBirth) {
         this.responseAttributes.setDateOfBirth(dateOfBirth.toLocalDate());
     }
 
-    public void logHashFor(Level level, String pid) {
-        log.log(level, () -> String.format("Hash of eIDAS user attributes for pid '%s' is '%s'", pid, buildHash()));
+    public void logHashFor(String requestId, String destination) {
+        log.info(() -> String.format("Hash of eIDAS user attributes for requestId '%s', destination '%s' is '%s'", requestId, destination, buildHash()));
     }
 
     protected String buildHash() {
@@ -62,7 +63,7 @@ public final class EidasResponseAttributesHashLogger {
             oos.writeObject(this.responseAttributes);
             MessageDigest md = MessageDigest.getInstance(JCAConstants.DIGEST_SHA256);
             return Hex.encodeHexString(md.digest(baos.toByteArray()));
-        } catch (Exception e) {
+        } catch (IOException | NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
         }
     }
@@ -86,7 +87,7 @@ public final class EidasResponseAttributesHashLogger {
             this.middleNames.add(middleName);
         }
 
-        public void addSurName(String surname) {
+        public void addSurname(String surname) {
             this.surnames.add(surname);
         }
 

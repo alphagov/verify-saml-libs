@@ -129,8 +129,8 @@ public class EidasResponseAttributesHashLoggerTest {
         FieldUtils.writeField(logger, "log", mockLogger, true);
         logger.setPid("a");
         String hash = logger.buildHash();
-        logger.logHashFor(Level.INFO, "some pid");
-        verify(mockLogger).log(ArgumentMatchers.eq(Level.INFO), logCaptor.capture());
-        assertThat(logCaptor.getValue().get()).contains(hash);
+        logger.logHashFor("a request id", "a destination");
+        verify(mockLogger).info(logCaptor.capture());
+        assertThat(logCaptor.getValue().get()).contains("a request id", "a destination", hash);
     }
 }
