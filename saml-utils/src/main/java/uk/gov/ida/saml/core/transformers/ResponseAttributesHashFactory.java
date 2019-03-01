@@ -14,6 +14,7 @@ public class ResponseAttributesHashFactory {
     private ResponseAttributesHashFactory() {
     }
 
+    @Deprecated
     public static String hashResponseDetails(String pid, String firstName, String middlename, String lastName, String dateOfBirth) {
 
         Pattern dateFormat = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
