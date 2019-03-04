@@ -5,12 +5,13 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Captor;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.function.Supplier;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,9 +20,6 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EidasResponseAttributesHashLoggerTest {
-
-    @Captor
-    private ArgumentCaptor<Supplier<String>> logCaptor;
 
     @Test
     public void testAHashCanBeCreatedWithNoInput() {
@@ -124,13 +122,52 @@ public class EidasResponseAttributesHashLoggerTest {
 
     @Test
     public void testLoggingOfHashAndLevel() throws IllegalAccessException {
-        Logger mockLogger = mock(Logger.class);
+        Handler logHandler = mock(Handler.class);
+        ArgumentCaptor<LogRecord> logRecordArgumentCaptor = ArgumentCaptor.forClass(LogRecord.class);
+        EidasResponseAttributesHashLogger hashLogger = EidasResponseAttributesHashLogger.instance();
+        Logger logger = Logger.getLogger(EidasResponseAttributesHashLogger.class.getName());
+        logger.addHandler(logHandler);
+        FieldUtils.writeField(hashLogger, "log", logger, true);
+        hashLogger.setPid("a");
+        String hash = hashLogger.buildHash();
+        hashLogger.logHashFor("a request id", "a destination");
+        verify(logHandler).publish(logRecordArgumentCaptor.capture());
+
+        List<LogRecord> allLogRecords = logRecordArgumentCaptor.getAllValues();
+        assertThat(allLogRecords.size()).isEqualTo(1);
+        LogRecord logRecord = allLogRecords.iterator().next();
+        assertThat(logRecord.getMessage()).contains(hash);
+        assertThat(logRecord.getLevel()).isEqualTo(Level.INFO);
+    }
+
+    @Test
+    public void testExpectedJsonProvidesSameHashCode() throws NoSuchAlgorithmException {
         EidasResponseAttributesHashLogger logger = EidasResponseAttributesHashLogger.instance();
-        FieldUtils.writeField(logger, "log", mockLogger, true);
+        String expectedStringToHash = "{\"pid\":\"a\",\"firstName\":\"fn\",\"middleNames\":[\"m1\",\"mn2\"],\"surnames\":[\"sn\"],\"dateOfBirth\":\"2019-03-24\"}";
+        String expectedHash = logger.hashFor(expectedStringToHash);
+
+        DateTime startOfToday = DateTime.now()
+                .withYear(2019)
+                .withMonthOfYear(3)
+                .withDayOfMonth(24)
+                .withTimeAtStartOfDay();
         logger.setPid("a");
-        String hash = logger.buildHash();
-        logger.logHashFor("a request id", "a destination");
-        verify(mockLogger).info(logCaptor.capture());
-        assertThat(logCaptor.getValue().get()).contains("a request id", "a destination", hash);
+        logger.setFirstName("fn");
+        logger.addMiddleName("m1");
+        logger.addMiddleName("mn2");
+        logger.addSurname("sn");
+        logger.setDateOfBirth(startOfToday);
+        assertThat(logger.buildHash()).isEqualTo(expectedHash);
+    }
+
+    @Test
+    public void testExpectedMininalJsonProvidesSameHashCode() throws NoSuchAlgorithmException {
+        EidasResponseAttributesHashLogger logger = EidasResponseAttributesHashLogger.instance();
+        String expectedStringToHash = "{\"pid\":\"a\",\"firstName\":\"fn\",\"surnames\":[\"sn\"]}";
+        String expectedHash = logger.hashFor(expectedStringToHash);
+        logger.setPid("a");
+        logger.setFirstName("fn");
+        logger.addSurname("sn");
+        assertThat(logger.buildHash()).isEqualTo(expectedHash);
     }
 }

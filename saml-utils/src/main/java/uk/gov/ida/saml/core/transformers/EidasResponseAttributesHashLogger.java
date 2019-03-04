@@ -1,15 +1,22 @@
 package uk.gov.ida.saml.core.transformers;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Lists;
 import org.apache.commons.codec.binary.Hex;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.opensaml.security.crypto.JCAConstants;
+import org.slf4j.MDC;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -20,9 +27,13 @@ public final class EidasResponseAttributesHashLogger {
     private Logger log = Logger.getLogger(getClass().getName());
 
     private transient final ResponseAttributes responseAttributes;
+    private final ObjectMapper objectMapper;
 
     private EidasResponseAttributesHashLogger() {
         responseAttributes = new ResponseAttributes();
+        objectMapper = new ObjectMapper();
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.registerModule(new JodaModule());
     }
 
     public static EidasResponseAttributesHashLogger instance() {
@@ -50,29 +61,46 @@ public final class EidasResponseAttributesHashLogger {
     }
 
     public void logHashFor(String requestId, String destination) {
-        log.info(() -> String.format("Hash of eIDAS user attributes for requestId '%s', destination '%s' is '%s'", requestId, destination, buildHash()));
+        try {
+            MDC.put("eidasRequestId", requestId);
+            MDC.put("eidasDestination", destination);
+            log.info(() -> String.format("Hash of eIDAS user attributes: '%s'", buildHash()));
+        } finally {
+            MDC.clear();
+        }
     }
 
-    protected String buildHash() {
-
-        try (
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(baos)
-        ) {
-
-            oos.writeObject(this.responseAttributes);
-            MessageDigest md = MessageDigest.getInstance(JCAConstants.DIGEST_SHA256);
-            return Hex.encodeHexString(md.digest(baos.toByteArray()));
-        } catch (IOException | NoSuchAlgorithmException e) {
+    String buildHash() {
+        try {
+            return hashFor(objectMapper.writeValueAsString(responseAttributes));
+        } catch (NoSuchAlgorithmException | JsonProcessingException e) {
             throw new IllegalStateException(e);
         }
     }
 
+    String hashFor(String toHash) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance(JCAConstants.DIGEST_SHA256);
+        return Hex.encodeHexString(md.digest(toHash.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    @JsonPropertyOrder(value = {"pid", "firstName", "middleNames", "surnames", "dateOfBirth"})
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final static class ResponseAttributes implements Serializable {
+
+        @JsonProperty
         private String pid;
+
+        @JsonProperty
         private String firstName;
+
+        @JsonProperty
         private List<String> middleNames = Lists.newArrayList();
+
+        @JsonProperty
         private List<String> surnames = Lists.newArrayList();
+
+        @JsonProperty
+        @JsonFormat(pattern = "yyyy-MM-dd")
         private LocalDate dateOfBirth;
 
         public void setPid(String pid) {
