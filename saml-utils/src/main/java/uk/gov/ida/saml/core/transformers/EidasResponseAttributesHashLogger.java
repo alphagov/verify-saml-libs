@@ -13,6 +13,8 @@ import org.apache.commons.codec.binary.Hex;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.opensaml.security.crypto.JCAConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.io.Serializable;
@@ -20,11 +22,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.logging.Logger;
 
 public final class EidasResponseAttributesHashLogger {
 
-    private Logger log = Logger.getLogger(getClass().getName());
+    private Logger log = LoggerFactory.getLogger(EidasResponseAttributesHashLogger.class);
 
     private transient final ResponseAttributes responseAttributes;
     private final ObjectMapper objectMapper;
@@ -64,7 +65,8 @@ public final class EidasResponseAttributesHashLogger {
         try {
             MDC.put("eidasRequestId", requestId);
             MDC.put("eidasDestination", destination);
-            log.info(() -> String.format("Hash of eIDAS user attributes: '%s'", buildHash()));
+            MDC.put("eidasUserHash", buildHash());
+            log.info("Hash of eIDAS user attributes");
         } finally {
             MDC.clear();
         }

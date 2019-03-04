@@ -1,18 +1,19 @@
 package uk.gov.ida.saml.core.transformers;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import org.apache.commons.lang.reflect.FieldUtils;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.List;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -123,22 +124,24 @@ public class EidasResponseAttributesHashLoggerTest {
 
     @Test
     public void testLoggingOfHashAndLevel() throws IllegalAccessException {
-        Handler logHandler = mock(Handler.class);
-        ArgumentCaptor<LogRecord> logRecordArgumentCaptor = ArgumentCaptor.forClass(LogRecord.class);
+        Appender<ILoggingEvent> appender = mock(Appender.class);
+        Logger logger = (Logger) LoggerFactory.getLogger(EidasResponseAttributesHashLogger.class);
+        logger.addAppender(appender);
+        ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
+
         EidasResponseAttributesHashLogger hashLogger = EidasResponseAttributesHashLogger.instance();
-        Logger logger = Logger.getLogger(EidasResponseAttributesHashLogger.class.getName());
-        logger.addHandler(logHandler);
         FieldUtils.writeField(hashLogger, "log", logger, true);
         hashLogger.setPid("a");
         String hash = buildHash(hashLogger);
         hashLogger.logHashFor("a request id", "a destination");
-        verify(logHandler).publish(logRecordArgumentCaptor.capture());
-
-        List<LogRecord> allLogRecords = logRecordArgumentCaptor.getAllValues();
-        assertThat(allLogRecords.size()).isEqualTo(1);
-        LogRecord logRecord = allLogRecords.iterator().next();
-        assertThat(logRecord.getMessage()).contains(hash);
-        assertThat(logRecord.getLevel()).isEqualTo(Level.INFO);
+        verify(appender).doAppend(loggingEventArgumentCaptor.capture());
+        ILoggingEvent loggingEvent = loggingEventArgumentCaptor.getValue();
+        assertThat(loggingEvent.getLevel()).isEqualTo(Level.INFO);
+        assertThat(loggingEvent.getMessage()).doesNotContain("a request id", "a destination", hash);
+        Map<String, String> mdcPropertyMap = loggingEvent.getMDCPropertyMap();
+        assertThat(mdcPropertyMap.get("eidasRequestId")).isEqualTo("a request id");
+        assertThat(mdcPropertyMap.get("eidasDestination")).isEqualTo("a destination");
+        assertThat(mdcPropertyMap.get("eidasUserHash")).isEqualTo(hash);
     }
 
     @Test
