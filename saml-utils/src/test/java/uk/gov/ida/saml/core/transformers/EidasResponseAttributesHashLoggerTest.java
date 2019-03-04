@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.security.NoSuchAlgorithmException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -23,7 +23,8 @@ public class EidasResponseAttributesHashLoggerTest {
 
     @Test
     public void testAHashCanBeCreatedWithNoInput() {
-        String hash = EidasResponseAttributesHashLogger.instance().buildHash();
+        EidasResponseAttributesHashLogger logger = EidasResponseAttributesHashLogger.instance();
+        String hash = buildHash(logger);
         assertThat(hash).isNotBlank();
     }
 
@@ -37,7 +38,7 @@ public class EidasResponseAttributesHashLoggerTest {
         logger1.addMiddleName("mn");
         logger1.addSurname("sn");
         logger1.setDateOfBirth(now);
-        String hash1 = logger1.buildHash();
+        String hash1 = buildHash(logger1);
 
         EidasResponseAttributesHashLogger logger2 = EidasResponseAttributesHashLogger.instance();
         logger2.setPid("different pid");
@@ -45,7 +46,7 @@ public class EidasResponseAttributesHashLoggerTest {
         logger2.addMiddleName("mn");
         logger2.addSurname("sn");
         logger2.setDateOfBirth(now);
-        String hash2 = logger2.buildHash();
+        String hash2 = buildHash(logger2);
 
         assertThat(hash1).isNotEqualTo(hash2);
     }
@@ -60,7 +61,7 @@ public class EidasResponseAttributesHashLoggerTest {
         logger1.addMiddleName("mn");
         logger1.addSurname("sn");
         logger1.setDateOfBirth(now);
-        String hash1 = logger1.buildHash();
+        String hash1 = buildHash(logger1);
 
         EidasResponseAttributesHashLogger logger2 = EidasResponseAttributesHashLogger.instance();
         logger2.setPid("a");
@@ -68,7 +69,7 @@ public class EidasResponseAttributesHashLoggerTest {
         logger2.addMiddleName("mn");
         logger2.addSurname("sn");
         logger2.setDateOfBirth(now);
-        String hash2 = logger2.buildHash();
+        String hash2 = buildHash(logger2);
         assertThat(hash1).isEqualTo(hash2);
     }
 
@@ -77,17 +78,17 @@ public class EidasResponseAttributesHashLoggerTest {
         EidasResponseAttributesHashLogger logger1 = EidasResponseAttributesHashLogger.instance();
         logger1.addMiddleName("mn1");
         logger1.addMiddleName("mn2");
-        String hash1 = logger1.buildHash();
+        String hash1 = buildHash(logger1);
 
         EidasResponseAttributesHashLogger logger2 = EidasResponseAttributesHashLogger.instance();
         logger2.addMiddleName("mn1");
         logger2.addMiddleName("mn2");
-        assertThat(hash1).isEqualTo(logger2.buildHash());
+        assertThat(hash1).isEqualTo(buildHash(logger2));
 
         EidasResponseAttributesHashLogger logger3 = EidasResponseAttributesHashLogger.instance();
         logger3.addMiddleName("mn2");
         logger3.addMiddleName("mn1");
-        assertThat(hash1).isNotEqualTo(logger3.buildHash());
+        assertThat(hash1).isNotEqualTo(buildHash(logger3));
 
 
     }
@@ -100,14 +101,14 @@ public class EidasResponseAttributesHashLoggerTest {
 
         EidasResponseAttributesHashLogger logger = EidasResponseAttributesHashLogger.instance();
         logger.setDateOfBirth(beginningOfToday);
-        String hash1 = logger.buildHash();
+        String hash1 = buildHash(logger);
 
         logger.setDateOfBirth(oneHourLater);
-        String hash2 = logger.buildHash();
+        String hash2 = buildHash(logger);
         assertThat(hash1).isEqualTo(hash2);
 
         logger.setDateOfBirth(tomorrow);
-        String hash3 = logger.buildHash();
+        String hash3 = buildHash(logger);
         assertThat(hash2).isNotEqualTo(hash3);
     }
 
@@ -115,9 +116,9 @@ public class EidasResponseAttributesHashLoggerTest {
     public void testUpdatingFieldsChangesHash() {
         EidasResponseAttributesHashLogger logger1 = EidasResponseAttributesHashLogger.instance();
         logger1.setPid("a");
-        String hash1 = logger1.buildHash();
+        String hash1 = buildHash(logger1);
         logger1.setPid("b");
-        assertThat(hash1).isNotEqualTo(logger1.buildHash());
+        assertThat(hash1).isNotEqualTo(buildHash(logger1));
     }
 
     @Test
@@ -129,7 +130,7 @@ public class EidasResponseAttributesHashLoggerTest {
         logger.addHandler(logHandler);
         FieldUtils.writeField(hashLogger, "log", logger, true);
         hashLogger.setPid("a");
-        String hash = hashLogger.buildHash();
+        String hash = buildHash(hashLogger);
         hashLogger.logHashFor("a request id", "a destination");
         verify(logHandler).publish(logRecordArgumentCaptor.capture());
 
@@ -141,10 +142,10 @@ public class EidasResponseAttributesHashLoggerTest {
     }
 
     @Test
-    public void testExpectedJsonProvidesSameHashCode() throws NoSuchAlgorithmException {
+    public void testExpectedJsonProvidesSameHashCode() {
         EidasResponseAttributesHashLogger logger = EidasResponseAttributesHashLogger.instance();
         String expectedStringToHash = "{\"pid\":\"a\",\"firstName\":\"fn\",\"middleNames\":[\"m1\",\"mn2\"],\"surnames\":[\"sn\"],\"dateOfBirth\":\"2019-03-24\"}";
-        String expectedHash = logger.hashFor(expectedStringToHash);
+        String expectedHash = getExpectedHash(logger, expectedStringToHash);
 
         DateTime startOfToday = DateTime.now()
                 .withYear(2019)
@@ -157,17 +158,37 @@ public class EidasResponseAttributesHashLoggerTest {
         logger.addMiddleName("mn2");
         logger.addSurname("sn");
         logger.setDateOfBirth(startOfToday);
-        assertThat(logger.buildHash()).isEqualTo(expectedHash);
+        assertThat(buildHash(logger)).isEqualTo(expectedHash);
     }
 
     @Test
-    public void testExpectedMininalJsonProvidesSameHashCode() throws NoSuchAlgorithmException {
+    public void testExpectedMininalJsonProvidesSameHashCode() {
         EidasResponseAttributesHashLogger logger = EidasResponseAttributesHashLogger.instance();
         String expectedStringToHash = "{\"pid\":\"a\",\"firstName\":\"fn\",\"surnames\":[\"sn\"]}";
-        String expectedHash = logger.hashFor(expectedStringToHash);
+        String expectedHash = getExpectedHash(logger, expectedStringToHash);
         logger.setPid("a");
         logger.setFirstName("fn");
         logger.addSurname("sn");
-        assertThat(logger.buildHash()).isEqualTo(expectedHash);
+        assertThat(buildHash(logger)).isEqualTo(expectedHash);
+    }
+
+    private String getExpectedHash(EidasResponseAttributesHashLogger logger, String expectedStringToHash) {
+        try {
+            Method method = logger.getClass().getDeclaredMethod("hashFor", String.class);
+            method.setAccessible(true);
+            return (String) method.invoke(logger, expectedStringToHash);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private String buildHash(EidasResponseAttributesHashLogger logger) {
+        try {
+            Method method = logger.getClass().getDeclaredMethod("buildHash");
+            method.setAccessible(true);
+            return (String) method.invoke(logger);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 }

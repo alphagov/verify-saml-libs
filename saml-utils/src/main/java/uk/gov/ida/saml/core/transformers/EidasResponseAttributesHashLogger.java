@@ -70,7 +70,7 @@ public final class EidasResponseAttributesHashLogger {
         }
     }
 
-    String buildHash() {
+    private String buildHash() {
         try {
             return hashFor(objectMapper.writeValueAsString(responseAttributes));
         } catch (NoSuchAlgorithmException | JsonProcessingException e) {
@@ -78,7 +78,7 @@ public final class EidasResponseAttributesHashLogger {
         }
     }
 
-    String hashFor(String toHash) throws NoSuchAlgorithmException {
+    private String hashFor(String toHash) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance(JCAConstants.DIGEST_SHA256);
         return Hex.encodeHexString(md.digest(toHash.getBytes(StandardCharsets.UTF_8)));
     }
