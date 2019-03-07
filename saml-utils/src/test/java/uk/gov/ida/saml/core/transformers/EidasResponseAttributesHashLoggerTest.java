@@ -18,6 +18,9 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static uk.gov.ida.saml.core.transformers.EidasResponseAttributesHashLogger.MDC_KEY_EIDAS_DESTINATION;
+import static uk.gov.ida.saml.core.transformers.EidasResponseAttributesHashLogger.MDC_KEY_EIDAS_REQUEST_ID;
+import static uk.gov.ida.saml.core.transformers.EidasResponseAttributesHashLogger.MDC_KEY_EIDAS_USER_HASH;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EidasResponseAttributesHashLoggerTest {
@@ -139,9 +142,9 @@ public class EidasResponseAttributesHashLoggerTest {
         assertThat(loggingEvent.getLevel()).isEqualTo(Level.INFO);
         assertThat(loggingEvent.getMessage()).doesNotContain("a request id", "a destination", hash);
         Map<String, String> mdcPropertyMap = loggingEvent.getMDCPropertyMap();
-        assertThat(mdcPropertyMap.get("eidasRequestId")).isEqualTo("a request id");
-        assertThat(mdcPropertyMap.get("eidasDestination")).isEqualTo("a destination");
-        assertThat(mdcPropertyMap.get("eidasUserHash")).isEqualTo(hash);
+        assertThat(mdcPropertyMap.get(MDC_KEY_EIDAS_REQUEST_ID)).isEqualTo("a request id");
+        assertThat(mdcPropertyMap.get(MDC_KEY_EIDAS_DESTINATION)).isEqualTo("a destination");
+        assertThat(mdcPropertyMap.get(MDC_KEY_EIDAS_USER_HASH)).isEqualTo(hash);
     }
 
     @Test

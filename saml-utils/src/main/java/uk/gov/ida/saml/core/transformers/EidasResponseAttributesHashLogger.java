@@ -25,6 +25,9 @@ import java.util.List;
 
 public final class EidasResponseAttributesHashLogger {
 
+    public static final String MDC_KEY_EIDAS_REQUEST_ID = "eidasRequestId";
+    public static final String MDC_KEY_EIDAS_DESTINATION = "eidasDestination";
+    public static final String MDC_KEY_EIDAS_USER_HASH = "eidasUserHash";
     private Logger log = LoggerFactory.getLogger(EidasResponseAttributesHashLogger.class);
 
     private transient final ResponseAttributes responseAttributes;
@@ -63,12 +66,14 @@ public final class EidasResponseAttributesHashLogger {
 
     public void logHashFor(String requestId, String destination) {
         try {
-            MDC.put("eidasRequestId", requestId);
-            MDC.put("eidasDestination", destination);
-            MDC.put("eidasUserHash", buildHash());
+            MDC.put(MDC_KEY_EIDAS_REQUEST_ID, requestId);
+            MDC.put(MDC_KEY_EIDAS_DESTINATION, destination);
+            MDC.put(MDC_KEY_EIDAS_USER_HASH, buildHash());
             log.info("Hash of eIDAS user attributes");
         } finally {
-            MDC.clear();
+            MDC.remove(MDC_KEY_EIDAS_REQUEST_ID);
+            MDC.remove(MDC_KEY_EIDAS_DESTINATION);
+            MDC.remove(MDC_KEY_EIDAS_USER_HASH);
         }
     }
 
