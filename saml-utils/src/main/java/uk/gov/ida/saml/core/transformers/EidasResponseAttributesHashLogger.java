@@ -25,8 +25,8 @@ import java.util.List;
 
 public final class EidasResponseAttributesHashLogger {
 
-    public static final String MDC_KEY_EIDAS_REQUEST_ID = "eidasRequestId";
-    public static final String MDC_KEY_EIDAS_DESTINATION = "eidasDestination";
+    public static final String MDC_KEY_EIDAS_REQUEST_ID = "hubRequestId";
+    public static final String MDC_KEY_EIDAS_DESTINATION = "destination";
     public static final String MDC_KEY_EIDAS_USER_HASH = "eidasUserHash";
     private Logger log = LoggerFactory.getLogger(EidasResponseAttributesHashLogger.class);
 
