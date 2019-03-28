@@ -1,8 +1,2 @@
-include "saml-extensions",
-        "saml-security",
-        "saml-utils",
-        "saml-serializers",
-        "saml-metadata-bindings",
-        "saml-metadata-bindings-test",
-        "saml-test-utils",
-        "trust-anchor"
+include "saml-lib",
+        "saml-test"
