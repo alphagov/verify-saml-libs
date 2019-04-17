@@ -18,7 +18,6 @@ import uk.gov.ida.saml.core.validation.errors.SamlValidationSpecification;
 import javax.xml.namespace.QName;
 import java.net.URI;
 
-import static java.lang.String.format;
 import static uk.gov.ida.saml.core.validation.errors.ResponseProcessingValidationSpecification.ATTRIBUTE_STATEMENT_EMPTY;
 
 public final class SamlTransformationErrorFactory {
@@ -271,7 +270,7 @@ public final class SamlTransformationErrorFactory {
     }
 
     public static SamlValidationSpecificationFailure exceededNotOnOrAfter(DateTime expiredTime) {
-        return new BearerSubjectConfirmationValidationSpecification(format(BearerSubjectConfirmationValidationSpecification.EXCEEDED_NOT_ON_OR_AFTER, expiredTime));
+        return new BearerSubjectConfirmationValidationSpecification(BearerSubjectConfirmationValidationSpecification.EXCEEDED_NOT_ON_OR_AFTER, expiredTime);
     }
 
     public static SamlValidationSpecificationFailure notBeforeExists() {
