@@ -4,7 +4,7 @@
     stages {
         stage('Build') {
             agent {
-                docker { image 'govukverify/java8:latest' }
+                docker { image 'openjdk:11-jdk' }
             }
             steps {
                 sh './gradlew clean build'
@@ -27,7 +27,7 @@
         stage('Publish') {
             when { branch 'master' }
             agent {
-                docker { image 'govukverify/java8:latest' }
+                docker { image 'openjdk:11-jdk' }
             }
             environment {
                 // Artifactory credentials
