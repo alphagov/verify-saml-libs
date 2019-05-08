@@ -21,10 +21,15 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'maven-publish'
 
+    configurations.all {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
     ext {
         opensaml_version = "3.4.2"
         dropwizard_version = "1.3.9"
-        ida_utils_version = '359'
+        ida_utils_version = '360'
         trust_anchor_version = '1.0-56'
         build_version = "$opensaml_version-${System.env.BUILD_NUMBER ?: 'SNAPSHOT'}"
     }
