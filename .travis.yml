@@ -3,6 +3,8 @@ env:
   - VERIFY_USE_PUBLIC_BINARIES=true
 jdk:
   - openjdk11
+  - openjdk8
+  - oraclejdk8
 matrix:
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
