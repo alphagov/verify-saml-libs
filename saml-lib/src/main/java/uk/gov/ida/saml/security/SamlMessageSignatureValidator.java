@@ -22,10 +22,17 @@ public class SamlMessageSignatureValidator {
 
     private static final Logger LOG = LoggerFactory.getLogger(SamlMessageSignatureValidator.class);
     private final SignatureValidator signatureValidator;
+    private final boolean isEidasAssertion;
 
 
     public SamlMessageSignatureValidator(SignatureValidator signatureValidator) {
         this.signatureValidator = signatureValidator;
+        this.isEidasAssertion = false;
+    }
+
+    public SamlMessageSignatureValidator(SignatureValidator signatureValidator, boolean isEidasAssertion) {
+        this.signatureValidator = signatureValidator;
+        this.isEidasAssertion = isEidasAssertion;
     }
 
     public SamlValidationResponse validate(Response response, QName role) {
@@ -57,7 +64,9 @@ public class SamlMessageSignatureValidator {
 
     private SamlValidationResponse validateWithIssuer(SignableSAMLObject signableSAMLObject, String issuerId, QName role) {
         if (signableSAMLObject.getSignature() == null){
-            return SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.missingSignature());
+            return isEidasAssertion ?
+                SamlValidationResponse.aValidResponse() :
+                SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.missingSignature());
         }
         if (!SamlSignatureUtil.isSignaturePresent(signableSAMLObject.getSignature())) {
             return SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.signatureNotSigned());

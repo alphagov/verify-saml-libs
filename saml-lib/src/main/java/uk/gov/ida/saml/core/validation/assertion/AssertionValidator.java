@@ -34,17 +34,25 @@ public class AssertionValidator {
             Assertion assertion,
             String requestId,
             String expectedRecipientId) {
+        validate(assertion, requestId, expectedRecipientId, false);
+    }
+
+    public void validate(
+            Assertion assertion,
+            String requestId,
+            String expectedRecipientId,
+            boolean isEidasAssertion) {
 
         Signature signature = assertion.getSignature();
         if (assertion.getID() == null) {
             SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingId();
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
-        if (signature == null) {
+        if (signature == null && !isEidasAssertion) {
             SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.assertionSignatureMissing(assertion.getID());
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
-        if (!SamlSignatureUtil.isSignaturePresent(signature)) {
+        if (signature != null && !SamlSignatureUtil.isSignaturePresent(signature)) {
             SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.assertionNotSigned(assertion.getID());
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
