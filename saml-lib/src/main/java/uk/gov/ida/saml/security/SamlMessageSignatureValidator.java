@@ -36,11 +36,26 @@ public class SamlMessageSignatureValidator {
     }
 
     public SamlValidationResponse validate(Response response, QName role) {
-        return validateWithIssuer(response, response.getIssuer(), role);
+        Issuer issuer = response.getIssuer();
+        SamlValidationResponse issuerResponse = validateIssuer(response, issuer, role);
+        if (issuerResponse != null) return issuerResponse;
+        return validateSignature(response, issuer.getValue(), role);
     }
 
     public SamlValidationResponse validate(Assertion assertion, QName role) {
-        return validateWithIssuer(assertion, assertion.getIssuer(), role);
+        Issuer issuer = assertion.getIssuer();
+        SamlValidationResponse issuerResponse = validateIssuer(assertion, issuer, role);
+        if (issuerResponse != null) return issuerResponse;
+        return validateSignature(assertion, issuer.getValue(), role);
+    }
+
+    public SamlValidationResponse validateEidasAssertion(Assertion assertion, QName role) {
+        Issuer issuer = assertion.getIssuer();
+        SamlValidationResponse issuerResponse = validateIssuer(assertion, issuer, role);
+        if (issuerResponse != null) return issuerResponse;
+
+        if (assertion.getSignature() == null) return SamlValidationResponse.aValidResponse();
+        return validateSignature(assertion, issuer.getValue(), role);
     }
 
     /**
@@ -48,25 +63,25 @@ public class SamlMessageSignatureValidator {
      * @return a SamlValidationResponse indicating if the signature was valid
      */
     public SamlValidationResponse validate(RequestAbstractType request, QName role) {
-        return validateWithIssuer(request, request.getIssuer(), role);
+        Issuer issuer = request.getIssuer();
+        SamlValidationResponse issuerResponse = validateIssuer(request, issuer, role);
+        if (issuerResponse != null) return issuerResponse;
+        return validateSignature(request, issuer.getValue(), role);
     }
 
-    private SamlValidationResponse validateWithIssuer(SignableSAMLObject request, Issuer issuer, QName role) {
+    private SamlValidationResponse validateIssuer(SignableSAMLObject request, Issuer issuer, QName role) {
         if (issuer == null) {
             return SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.missingIssuer());
         }
-        String issuerString = issuer.getValue();
-        if (Strings.isNullOrEmpty(issuerString)) {
+        if (Strings.isNullOrEmpty(issuer.getValue())) {
             return SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.emptyIssuer());
         }
-        return validateWithIssuer(request, issuerString, role);
+        return null;
     }
 
-    private SamlValidationResponse validateWithIssuer(SignableSAMLObject signableSAMLObject, String issuerId, QName role) {
+    private SamlValidationResponse validateSignature(SignableSAMLObject signableSAMLObject, String issuerId, QName role) {
         if (signableSAMLObject.getSignature() == null){
-            return isEidasAssertion ?
-                SamlValidationResponse.aValidResponse() :
-                SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.missingSignature());
+            return SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.missingSignature());
         }
         if (!SamlSignatureUtil.isSignaturePresent(signableSAMLObject.getSignature())) {
             return SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.signatureNotSigned());

@@ -10,6 +10,7 @@ import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper;
+import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.core.validation.assertion.AssertionAttributeStatementValidator;
 import uk.gov.ida.saml.core.validation.assertion.AssertionValidator;
@@ -18,6 +19,7 @@ import uk.gov.ida.saml.security.validators.issuer.IssuerValidator;
 
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static uk.gov.ida.saml.core.test.builders.AssertionBuilder.anAssertion;
 import static uk.gov.ida.saml.core.test.builders.SubjectBuilder.aSubject;
@@ -88,11 +90,19 @@ public class AssertionValidatorTest {
     }
 
     @Test
-    public void validateShouldAllowAnEidasAssertionToNotContainASignature() {
+    public void validateEidasShouldAllowAnEidasAssertionToNotContainASignature() {
         String someID = UUID.randomUUID().toString();
         Assertion assertion = anAssertion().withSignature(null).withId(someID).buildUnencrypted();
 
-        validator.validate(assertion, "", assertion.getID(), true);
+        validator.validateEidas(assertion, "", assertion.getID());
+    }
+
+    @Test
+    public void validateEidasShouldValidateSignaturePresentIfSignatureExists() {
+        String someID = UUID.randomUUID().toString();
+        Assertion assertion = anAssertion().withoutSigning().withId(someID).buildUnencrypted();
+
+        assertThrows(SamlTransformationErrorException.class, () -> validator.validateEidas(assertion, "", assertion.getID()));
     }
 
     @Test

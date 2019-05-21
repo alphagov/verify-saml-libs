@@ -34,26 +34,33 @@ public class AssertionValidator {
             Assertion assertion,
             String requestId,
             String expectedRecipientId) {
-        validate(assertion, requestId, expectedRecipientId, false);
-    }
-
-    public void validate(
-            Assertion assertion,
-            String requestId,
-            String expectedRecipientId,
-            boolean isEidasAssertion) {
 
         Signature signature = assertion.getSignature();
-        if (assertion.getID() == null) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingId();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-        if (signature == null && !isEidasAssertion) {
+        if (signature == null) {
             SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.assertionSignatureMissing(assertion.getID());
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
-        if (signature != null && !SamlSignatureUtil.isSignaturePresent(signature)) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.assertionNotSigned(assertion.getID());
+        validateSignaturePresent(signature, assertion);
+        validateCommon(assertion, requestId, expectedRecipientId);
+    }
+
+    public void validateEidas(
+            Assertion assertion,
+            String requestId,
+            String expectedRecipientId) {
+
+        Signature signature = assertion.getSignature();
+        if (signature != null) validateSignaturePresent(signature, assertion);
+        validateCommon(assertion, requestId, expectedRecipientId);
+    }
+
+    private void validateCommon(
+            Assertion assertion,
+            String requestId,
+            String expectedRecipientId) {
+
+        if (assertion.getID() == null) {
+            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingId();
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
         if (assertion.getIssueInstant() == null) {
@@ -74,6 +81,13 @@ public class AssertionValidator {
 
         validateSubject(assertion, requestId, expectedRecipientId);
         basicAssertionSubjectConfirmationValidator.validate(assertion.getSubject().getSubjectConfirmations().get(0));
+    }
+
+    private void validateSignaturePresent(Signature signature, Assertion assertion) {
+        if (!SamlSignatureUtil.isSignaturePresent(signature)) {
+            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.assertionNotSigned(assertion.getID());
+            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
+        }
     }
 
     protected void validateSubject(
