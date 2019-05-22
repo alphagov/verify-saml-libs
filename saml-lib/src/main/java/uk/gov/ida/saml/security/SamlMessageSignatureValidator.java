@@ -22,36 +22,29 @@ public class SamlMessageSignatureValidator {
 
     private static final Logger LOG = LoggerFactory.getLogger(SamlMessageSignatureValidator.class);
     private final SignatureValidator signatureValidator;
-    private final boolean isEidasAssertion;
 
 
     public SamlMessageSignatureValidator(SignatureValidator signatureValidator) {
         this.signatureValidator = signatureValidator;
-        this.isEidasAssertion = false;
-    }
-
-    public SamlMessageSignatureValidator(SignatureValidator signatureValidator, boolean isEidasAssertion) {
-        this.signatureValidator = signatureValidator;
-        this.isEidasAssertion = isEidasAssertion;
     }
 
     public SamlValidationResponse validate(Response response, QName role) {
         Issuer issuer = response.getIssuer();
-        SamlValidationResponse issuerResponse = validateIssuer(response, issuer, role);
+        SamlValidationResponse issuerResponse = validateIssuer(issuer);
         if (issuerResponse != null) return issuerResponse;
         return validateSignature(response, issuer.getValue(), role);
     }
 
     public SamlValidationResponse validate(Assertion assertion, QName role) {
         Issuer issuer = assertion.getIssuer();
-        SamlValidationResponse issuerResponse = validateIssuer(assertion, issuer, role);
+        SamlValidationResponse issuerResponse = validateIssuer(issuer);
         if (issuerResponse != null) return issuerResponse;
         return validateSignature(assertion, issuer.getValue(), role);
     }
 
     public SamlValidationResponse validateEidasAssertion(Assertion assertion, QName role) {
         Issuer issuer = assertion.getIssuer();
-        SamlValidationResponse issuerResponse = validateIssuer(assertion, issuer, role);
+        SamlValidationResponse issuerResponse = validateIssuer(issuer);
         if (issuerResponse != null) return issuerResponse;
 
         if (assertion.getSignature() == null) return SamlValidationResponse.aValidResponse();
@@ -64,12 +57,12 @@ public class SamlMessageSignatureValidator {
      */
     public SamlValidationResponse validate(RequestAbstractType request, QName role) {
         Issuer issuer = request.getIssuer();
-        SamlValidationResponse issuerResponse = validateIssuer(request, issuer, role);
+        SamlValidationResponse issuerResponse = validateIssuer(issuer);
         if (issuerResponse != null) return issuerResponse;
         return validateSignature(request, issuer.getValue(), role);
     }
 
-    private SamlValidationResponse validateIssuer(SignableSAMLObject request, Issuer issuer, QName role) {
+    private SamlValidationResponse validateIssuer(Issuer issuer) {
         if (issuer == null) {
             return SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.missingIssuer());
         }

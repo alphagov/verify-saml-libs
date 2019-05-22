@@ -51,7 +51,7 @@ public class SamlMessageSignatureValidatorTest {
             .withSignature(null)
             .build();
 
-        SamlMessageSignatureValidator eidasSamlMessageSignatureValidator = new SamlMessageSignatureValidator(signatureValidator, true);
+        SamlMessageSignatureValidator eidasSamlMessageSignatureValidator = new SamlMessageSignatureValidator(signatureValidator);
 
         SamlValidationResponse signatureValidationResponse = eidasSamlMessageSignatureValidator.validateEidasAssertion(unsignedAssertion, SPSSODescriptor.DEFAULT_ELEMENT_NAME);
 
