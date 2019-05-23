@@ -52,6 +52,18 @@ public class SamlAssertionsSignatureValidatorTest {
         verify(samlMessageSignatureValidator).validate(assertion2, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
     }
 
+    @Test
+    public void shouldValidateEidasAssertionsWithAndWithoutSignature() {
+        final Assertion assertion1 = AssertionBuilder.anAssertion().withSignature(null).build();
+        final Assertion assertion2 = AssertionBuilder.anAssertion().build();
+        final List<Assertion> assertions = asList(assertion1, assertion2);
+
+        samlAssertionsSignatureValidator.validateEidas(assertions, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
+
+        verify(samlMessageSignatureValidator).validateEidasAssertion(assertion1, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
+        verify(samlMessageSignatureValidator).validateEidasAssertion(assertion2, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
+    }
+
     @Test(expected = SamlTransformationErrorException.class)
     public void shouldFailOnFirstBadlySignedAssertion() {
         final Assertion assertion1 = AssertionBuilder.anAssertion().withoutSigning().build();
