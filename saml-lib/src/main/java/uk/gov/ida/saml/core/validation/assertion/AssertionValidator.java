@@ -41,7 +41,7 @@ public class AssertionValidator {
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
         validateSignaturePresent(signature, assertion);
-        validateCommon(assertion, requestId, expectedRecipientId);
+        validateAssertonProperties(assertion, requestId, expectedRecipientId);
     }
 
     public void validateEidas(
@@ -51,10 +51,10 @@ public class AssertionValidator {
 
         Signature signature = assertion.getSignature();
         if (signature != null) validateSignaturePresent(signature, assertion);
-        validateCommon(assertion, requestId, expectedRecipientId);
+        validateAssertonProperties(assertion, requestId, expectedRecipientId);
     }
 
-    private void validateCommon(
+    private void validateAssertonProperties(
             Assertion assertion,
             String requestId,
             String expectedRecipientId) {
