@@ -21,10 +21,6 @@ allprojects {
     apply plugin: 'jacoco'
 }
 
-repositories {
-    jcenter()
-}
-
 subprojects {
     apply plugin: 'java'
     apply plugin: 'maven-publish'
