@@ -27,6 +27,7 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.jodatime.api.Assertions.assertThat;
 
 @RunWith(OpenSAMLMockitoRunner.class)
 public class AttributeFactory_1_1Test {
