@@ -9,7 +9,7 @@ import uk.gov.ida.saml.deserializers.parser.SamlObjectParser;
 
 import java.util.function.Function;
 
-import static uk.gov.ida.saml.errors.SamlTransformationErrorFactory.unableToUnmarshallElementToOpenSaml;
+import static uk.gov.ida.saml.core.validation.errors.SamlTransformationErrorFactory.unableToUnmarshallElementToOpenSaml;
 
 public class ElementToOpenSamlXMLObjectTransformer<TOutput extends XMLObject> implements Function<Element,TOutput> {
     private final SamlObjectParser samlObjectParser;

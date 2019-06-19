@@ -17,6 +17,7 @@ import uk.gov.ida.saml.core.validation.errors.SamlValidationSpecification;
 
 import javax.xml.namespace.QName;
 import java.net.URI;
+import org.slf4j.event.Level;
 
 import static uk.gov.ida.saml.core.validation.errors.ResponseProcessingValidationSpecification.ATTRIBUTE_STATEMENT_EMPTY;
 
@@ -178,7 +179,7 @@ public final class SamlTransformationErrorFactory {
     }
 
     public static SamlValidationSpecificationFailure duplicateMatchingDataset(final String id, final String responseIssuerId) {
-        return new GenericHubProfileValidationSpecification(GenericHubProfileValidationSpecification.DUPLICATE_MATCHING_DATASET, id, responseIssuerId);
+        return new GenericHubProfileValidationSpecification(Level.WARN, GenericHubProfileValidationSpecification.DUPLICATE_MATCHING_DATASET, id, responseIssuerId);
     }
 
     public static SamlValidationSpecificationFailure mdsStatementMissing() {

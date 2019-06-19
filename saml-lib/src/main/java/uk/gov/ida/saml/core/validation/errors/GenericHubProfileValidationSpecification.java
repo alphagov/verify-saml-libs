@@ -1,5 +1,6 @@
 package uk.gov.ida.saml.core.validation.errors;
 
+import org.slf4j.event.Level;
 import uk.gov.ida.saml.core.validation.SamlDocumentReference;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 
@@ -84,6 +85,10 @@ public class GenericHubProfileValidationSpecification extends SamlValidationSpec
 
     public GenericHubProfileValidationSpecification(String errorFormat, Object... params) {
         super(MessageFormat.format(errorFormat, params), true);
+    }
+
+    public GenericHubProfileValidationSpecification(Level level, String errorFormat, Object... params) {
+        super(MessageFormat.format(errorFormat, params), true, level);
     }
 
     @Override
