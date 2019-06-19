@@ -10,7 +10,7 @@ import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static uk.gov.ida.saml.errors.SamlTransformationErrorFactory.invalidBase64Encoding;
+import static uk.gov.ida.saml.core.validation.errors.SamlTransformationErrorFactory.invalidBase64Encoding;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Base64StringDecoderTest {

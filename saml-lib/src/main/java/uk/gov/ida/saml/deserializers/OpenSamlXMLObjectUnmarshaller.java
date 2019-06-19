@@ -7,7 +7,7 @@ import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.deserializers.parser.SamlObjectParser;
 
-import static uk.gov.ida.saml.errors.SamlTransformationErrorFactory.unableToDeserializeStringToOpenSaml;
+import static uk.gov.ida.saml.core.validation.errors.SamlTransformationErrorFactory.unableToDeserializeStringToOpenSaml;
 
 public class OpenSamlXMLObjectUnmarshaller<TOutput extends XMLObject> {
 

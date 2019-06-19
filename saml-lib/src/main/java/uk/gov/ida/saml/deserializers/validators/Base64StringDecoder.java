@@ -6,7 +6,7 @@ import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 
 import static java.util.regex.Pattern.matches;
-import static uk.gov.ida.saml.errors.SamlTransformationErrorFactory.invalidBase64Encoding;
+import static uk.gov.ida.saml.core.validation.errors.SamlTransformationErrorFactory.invalidBase64Encoding;
 
 public class Base64StringDecoder {
 
