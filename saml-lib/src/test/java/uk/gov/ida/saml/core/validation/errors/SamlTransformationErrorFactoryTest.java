@@ -16,7 +16,7 @@ public class SamlTransformationErrorFactoryTest {
 
     }
     @Test // arbitrary choice of error
-    public void shouldHaveLevelErrorFormissingIssueInstant() {
+    public void shouldHaveLevelErrorForMissingIssueInstant() {
         SamlValidationSpecificationFailure failure =
                 SamlTransformationErrorFactory.missingIssueInstant("id");
         assertThat(failure.getLogLevel()).isEqualTo(Level.ERROR);
