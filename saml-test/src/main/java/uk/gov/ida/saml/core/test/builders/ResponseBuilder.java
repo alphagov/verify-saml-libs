@@ -32,8 +32,8 @@ public class ResponseBuilder {
 
     private static OpenSamlXmlObjectFactory openSamlXmlObjectFactory = new OpenSamlXmlObjectFactory();
 
-    public static final String DEFAULT_REQUEST_ID = "default-request-id";
-    public static final String DEFAULT_RESPONSE_ID = "default-response-id";
+    public static final String DEFAULT_REQUEST_ID = "_default-request-id_min-20-chars";
+    public static final String DEFAULT_RESPONSE_ID = "_default-response-id_min-20-chars";
 
     private EncryptedAssertion defaultEncryptedAssertion;
     private boolean addDefaultEncryptedAssertionIfNoneIsAdded = true;
