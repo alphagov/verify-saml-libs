@@ -18,6 +18,7 @@ public class SamlObjectParser {
     @SuppressWarnings("unchecked")
     public <T extends XMLObject> T getSamlObject(String xmlString) throws UnmarshallingException, XMLParserException {
         ParserPool parserPool = XMLObjectProviderRegistrySupport.getParserPool();
+
         ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_8));
         return (T) XMLObjectSupport.unmarshallFromInputStream(parserPool, inputStream);
     }
