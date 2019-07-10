@@ -3,25 +3,28 @@ env:
   global:
     - VERIFY_USE_PUBLIC_BINARIES=true
     # CODACY_PROJECT_TOKEN
-    - secure: "oxKr68jSBUMtqG9djhRpkt1Wek7WNqbs5EwUXcxLAx4izMbQR2MpXS7wj7IF4FXCq2ZyHIuPookzi4aqZyA9LEcEKYIotr8fq2QZ27EXrNsAXNwWJNnYO1GfP7PuDwcNKaFrubxCshA6Yga8nOV/11A1hq8ngiQ6YRMSEvU64NXqvEgp4jVIDRAW6ZHtEWn9BiNiLm1Bf/5wQ7+VLWIzSPEjdQc1qIwlpcr1c+IzmWkcAoOSRlZQlB1CM5ZAo3OY+9lACr2vhL07AufkwiiCQ0uMBv/zcvG0iexp8U9IA1EMNgvW+zsEyVYyVf3AvQWsAOV+RQn2Pia3tfHdi9miWIzIjvwVnVCK3eWkBnGoWm/k7V30aeV8yRsMwTzaSgFMLXk2C6LJfIGbH7RZE96K/SkJ4wYMJe0PbZwoYaE6wX44AVrDZpSFPeop7rdbfRBBmzHTs0npRvN7bPp+PGbQ3jOK/PMmkrlm7z7OX55DHglZfoywyQj3+3k42bbjXe75eIPr6KQ+DA0pTGUfSoJRnjhIck9tGQ32EFGewwn+eDkv/iRchyzvZF2vmJe0TAtRCQR5LSGj/TlvFdvPHMGg+3n5qzbHMpIS1WN/SEKp++6oxMZbgvt/of8Tvlv3OQb43gFtDFbvp6Jyz6WAH4fm24oehw+4Cq95TEsqBSJPCa8="
+    - secure: "mWVhXYEHRlO8wwNd6+uzO4NHq26yXhJsuuYl9QCkKcbyO0Nx3PdnSoVr4f0VFD5i5PXaImIGjZm1ERKNEDog2JN5nDqRC5DrdH8i9dC69WQbN7JtCiMlcl9mrjAteDDfXGjh1VfmqLaPPuclCgTOP5QbCvYxN+6cF6tLINeugY0MIuoezLktpD8cVSG0r5VylfspCMF4K2IFmQjeE8yxQRWdSqFQY6MvNmeGZARepFV7rYloNfMGdqU3EwPKsC8zTv9tdujv0GElEh4ifTvCsxdjIun26AMoj8/spfesqOBryI7wWc8aQNqNsra2h+Uth6Q1/zfZ5KfHOVzl5ssP8WS5szDduaJO0OhFMwsb9VZN0EIcEezljzRoQjVfFXiqk5Wiv86UgUQYNN4WfstSbOmCT8nPW/ufcLkBF5sRPBAReERltB0ga5h8jqwUODxmIYuzZ4kEY5Oseq9cSJatkwDrA/fOWEfdoNbsjs5JUdEv9IYziMlRU/1yyFLdlpWET5KZS1u6T994a8YzLGXR86Oksjtlcd8/EUoCQlsp/mvUI/PiNsI7n3b7LrmUeJH87iVib8tA1h13hqKlk0ynMz0jEKgCas57z3LQYIQOyUQfIOJfFQL+NZapPp6cKfwYAuZmTwdsuYUfmokeh/cARyeY9yq4v6h27E05kUrmUHM="
     # GITHUB_PAT
-    - secure: "imuYgcceehUVjF5tQ2SXtQXc7VqhvTT2yTaEyx3wE/V+tKGkk4Y7h/dI8Jie5L507ogrKWzZFz95DCn6teEdymHSd+ZTMoDN7izBs17eJ3YU2P5VNyTjjlF1cpZZepe94mRTYj4/MyclQM87FzFaBd1662KJY1WhO3rC0/PrMAVoqGnsVZed50VXemztl/fkdroPGzwRH6eMV2CZ1QWHyWNyQbdnqc6lpgdC1SYTiHX2CmUrud95zCRJyTKV52XDckINvNbIqUW7fkxpKt9gZiSgVeW1jmYb8RI0SvOp0DjFtesZzYFkAB36hB582qjsdG7a8qzM/Zc0f5hpUf2mpOZI2LH84XiDTIstigvSX0UZVt5DmzBzJMMKPfr+hy8glVvihPWdr/JDm72TjnTqJFLTTXGSWW8vvlIVEdjwwnZOFP11GU6WMzGswJEW5IqtuPeclL16CHdjhF6oQDL0DFGlYTDtlXMApwHmS0tKc1d6qENSy4FihapIXWehv2WwVCvyu/OxPMC4nUHnZZlsRsmcAeevfwegyyxDVwQhLzs9mVm11vSDlLfM2QzbRpUthLqfmsbLvhvdx0d2dzxuDgblwpujBGzJI2khvo/a34s79WDbIN2rZ9deFuiR0i6DOusJU2Iivp30AYXVqD1KyIxrH2JyVtWDaV6LwXXXQ2s="
+    - secure: "WDj1O4/JNd/hi0nGsTgv49iaBkvqBsoH7I11oY+KuaPWkttz/8qV4cXT3yAjMQX/5iigpG3r/zrUwnIfzAUODy2dhxr+utsmTly3WqkXSpyaxwNpXVR0wvq6YiiPEGuh4essZcAW0Lwh2Zcxk5nKKYk3d6A7OFTV8OplmUdAH1036VylRkkRnpLNlMMslv5h8KnB/WfVU4V6ltKOBOJbp1/k1iUCt0Nh3iThIv0HkDF1S6neRtqEUxHQSa7T14GjTgefg+/hU/PBVbNjmc1/qKibm7eri0DZkgnuSlbTAH6uulfvIUhypBeslNMIMIZDTf96cxOHkZyaPqYkOFHev5Lezl2sdkgoOW//SMi+UXMGTXZSsrSQ1NNXvpQldEyy5xJoiuVJYLFqF0os2btxhgacash4UHQ1yhfBHknCxWE3IZHXEdO1ClZR/SASHe4CdH3rs8XbPpTeV6iXL7UNNEHI8WquQQtv/xzHZKSrn8jbFl4i2bH93Q1QDJ+PQH2IWzlddb6uEUofJAn4/05Ja36QMbc4sRC85OKmtd8Y8JSktDDb+dFrZYwM8JXNMQATWzuHleXnknBNW2WD3DU3uVvcRoswYjkPFmJtCxANhd3HSxxCTblDk3cqKi7/+9uS2eyN2fhSlEc2ylhaLBeM4OPzpfKCTsRy9teXA10UGoQ="
 
 jdk:
   - openjdk11
   - openjdk8
   - oraclejdk8
-matrix:
+
 before_install:
   - sudo apt-get install jq
   - curl -u ida-codacy-bot:$GITHUB_PAT -LSs $(curl -u ida-codacy-bot:$GITHUB_PAT -LSs https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets | map({content_type, browser_download_url} | select(.content_type | contains("java-archive"))) | .[0].browser_download_url') -o codacy-coverage-reporter-assembly.jar
+
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
 cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+
 after_success:
   - "./gradlew jacocoRootReport"
   - java -jar codacy-coverage-reporter-assembly.jar report -l Java -r build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml
