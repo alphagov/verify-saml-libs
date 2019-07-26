@@ -7,6 +7,8 @@ env:
     # GITHUB_PAT
     - secure: "WDj1O4/JNd/hi0nGsTgv49iaBkvqBsoH7I11oY+KuaPWkttz/8qV4cXT3yAjMQX/5iigpG3r/zrUwnIfzAUODy2dhxr+utsmTly3WqkXSpyaxwNpXVR0wvq6YiiPEGuh4essZcAW0Lwh2Zcxk5nKKYk3d6A7OFTV8OplmUdAH1036VylRkkRnpLNlMMslv5h8KnB/WfVU4V6ltKOBOJbp1/k1iUCt0Nh3iThIv0HkDF1S6neRtqEUxHQSa7T14GjTgefg+/hU/PBVbNjmc1/qKibm7eri0DZkgnuSlbTAH6uulfvIUhypBeslNMIMIZDTf96cxOHkZyaPqYkOFHev5Lezl2sdkgoOW//SMi+UXMGTXZSsrSQ1NNXvpQldEyy5xJoiuVJYLFqF0os2btxhgacash4UHQ1yhfBHknCxWE3IZHXEdO1ClZR/SASHe4CdH3rs8XbPpTeV6iXL7UNNEHI8WquQQtv/xzHZKSrn8jbFl4i2bH93Q1QDJ+PQH2IWzlddb6uEUofJAn4/05Ja36QMbc4sRC85OKmtd8Y8JSktDDb+dFrZYwM8JXNMQATWzuHleXnknBNW2WD3DU3uVvcRoswYjkPFmJtCxANhd3HSxxCTblDk3cqKi7/+9uS2eyN2fhSlEc2ylhaLBeM4OPzpfKCTsRy9teXA10UGoQ="
 
+dist: trusty
+
 jdk:
   - openjdk11
   - openjdk8
