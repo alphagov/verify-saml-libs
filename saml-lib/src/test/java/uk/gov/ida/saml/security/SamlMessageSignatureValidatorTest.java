@@ -32,7 +32,7 @@ public class SamlMessageSignatureValidatorTest {
     private final SamlMessageSignatureValidator samlMessageSignatureValidator = new SamlMessageSignatureValidator(signatureValidator);
 
     @Test
-    public void validateWithIssue_shouldReturnBadResponseIfRequestSignatureIsMissing() {
+    public void validateWithIssueShouldReturnBadResponseIfRequestSignatureIsMissing() {
         final AuthnRequest unsignedAuthnRequest = anAuthnRequest()
                 .withIssuer(anIssuer().withIssuerId(issuerId).build())
                 .withoutSignatureElement()
@@ -45,7 +45,7 @@ public class SamlMessageSignatureValidatorTest {
     }
 
     @Test
-    public void validateWithIssue_shouldReturnBadResponseIfRequestIsNotSigned() {
+    public void validateWithIssueShouldReturnBadResponseIfRequestIsNotSigned() {
         final AuthnRequest unsignedAuthnRequest = anAuthnRequest()
                 .withIssuer(anIssuer().withIssuerId(issuerId).build())
                 .withoutSigning()
@@ -58,7 +58,7 @@ public class SamlMessageSignatureValidatorTest {
     }
 
     @Test
-    public void validateWithIssue_shouldReturnBadResponseIfRequestSignatureIsBad() {
+    public void validateWithIssueShouldReturnBadResponseIfRequestSignatureIsBad() {
         Credential badCredential = new TestCredentialFactory(TestCertificateStrings.UNCHAINED_PUBLIC_CERT, TestCertificateStrings.UNCHAINED_PRIVATE_KEY).getSigningCredential();
         final AuthnRequest unsignedAuthnRequest = anAuthnRequest()
                 .withIssuer(anIssuer().withIssuerId(issuerId).build())
@@ -72,7 +72,7 @@ public class SamlMessageSignatureValidatorTest {
     }
 
     @Test
-    public void validate_shouldAcceptSignedAuthnRequest() {
+    public void validateShouldAcceptSignedAuthnRequest() {
         final AuthnRequest signedAuthnRequest = anAuthnRequest().build();
 
         SamlValidationResponse signatureValidationResponse = samlMessageSignatureValidator.validate(signedAuthnRequest, SPSSODescriptor.DEFAULT_ELEMENT_NAME);
@@ -81,7 +81,7 @@ public class SamlMessageSignatureValidatorTest {
     }
 
     @Test
-    public void validate_shouldAcceptSignedAssertion() {
+    public void validateShouldAcceptSignedAssertion() {
         final Assertion signedAssertion = anAssertion().build();
 
         SamlValidationResponse signatureValidationResponse = samlMessageSignatureValidator.validate(signedAssertion, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
@@ -90,7 +90,7 @@ public class SamlMessageSignatureValidatorTest {
     }
 
     @Test
-    public void validate_shouldAcceptSignedAttributeQuery() {
+    public void validateShouldAcceptSignedAttributeQuery() {
         final AttributeQuery signedAttributeQuery = AttributeQueryBuilder.anAttributeQuery().build();
 
         SamlValidationResponse signatureValidationResponse = samlMessageSignatureValidator.validate(signedAttributeQuery, SPSSODescriptor.DEFAULT_ELEMENT_NAME);
@@ -99,7 +99,7 @@ public class SamlMessageSignatureValidatorTest {
     }
 
     @Test
-    public void validate_shouldAcceptSignedResponse() throws Exception {
+    public void validateShouldAcceptSignedResponse() throws Exception {
         final Response signedResponse = ResponseBuilder.aResponse().build();
 
         SamlValidationResponse signatureValidationResponse = samlMessageSignatureValidator.validate(signedResponse, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
@@ -108,7 +108,7 @@ public class SamlMessageSignatureValidatorTest {
     }
 
     @Test
-    public void validate_shouldReturnBadResponseIfIssuerIsMissing() {
+    public void validateShouldReturnBadResponseIfIssuerIsMissing() {
         final AuthnRequest signedAuthnRequest = anAuthnRequest()
                 .withIssuer(null)
                 .build();
@@ -120,7 +120,7 @@ public class SamlMessageSignatureValidatorTest {
     }
 
     @Test
-    public void validate_shouldReturnBadResponseIfIssuerIsEmpty() {
+    public void validateShouldReturnBadResponseIfIssuerIsEmpty() {
         final AuthnRequest signedAuthnRequest = anAuthnRequest()
                 .withIssuer(anIssuer().withIssuerId("").build())
                 .build();
