@@ -20,26 +20,14 @@ public class SamlAssertionsSignatureValidator {
     public ValidatedAssertions validate(List<Assertion> assertions, QName role) {
         for (Assertion assertion : assertions) {
             final SamlValidationResponse samlValidationResponse = samlMessageSignatureValidator.validate(assertion, role);
-            checkResponseisOk(samlValidationResponse);
+            if(!samlValidationResponse.isOK()) {
+                SamlValidationSpecificationFailure failure = samlValidationResponse.getSamlValidationSpecificationFailure();
+                if (samlValidationResponse.getCause() != null)
+                    throw new SamlTransformationErrorException(failure.getErrorMessage(), samlValidationResponse.getCause(), failure.getLogLevel());
+                throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
+            }
         }
         return new ValidatedAssertions(assertions);
-    }
-
-    public ValidatedAssertions validateEidas(List<Assertion> assertions, QName role) {
-        for (Assertion assertion : assertions) {
-            final SamlValidationResponse samlValidationResponse = samlMessageSignatureValidator.validateEidasAssertion(assertion, role);
-            checkResponseisOk(samlValidationResponse);
-        }
-        return new ValidatedAssertions(assertions);
-    }
-
-    private void checkResponseisOk(SamlValidationResponse samlValidationResponse) {
-        if(!samlValidationResponse.isOK()) {
-            SamlValidationSpecificationFailure failure = samlValidationResponse.getSamlValidationSpecificationFailure();
-            if (samlValidationResponse.getCause() != null)
-                throw new SamlTransformationErrorException(failure.getErrorMessage(), samlValidationResponse.getCause(), failure.getLogLevel());
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
     }
 
 }

@@ -10,7 +10,6 @@ import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper;
-import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.core.validation.assertion.AssertionAttributeStatementValidator;
 import uk.gov.ida.saml.core.validation.assertion.AssertionValidator;
@@ -19,7 +18,6 @@ import uk.gov.ida.saml.security.validators.issuer.IssuerValidator;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static uk.gov.ida.saml.core.test.builders.AssertionBuilder.anAssertion;
 import static uk.gov.ida.saml.core.test.builders.SubjectBuilder.aSubject;
@@ -45,7 +43,7 @@ public class AssertionValidatorTest {
     }
 
     @Test
-    public void validateShouldDelegateSubjectValidation() {
+    public void validate_shouldDelegateSubjectValidation() throws Exception {
         String requestId = UUID.randomUUID().toString();
         Assertion assertion = anAssertion()
                 .withSubject(aSubject().build())
@@ -57,7 +55,7 @@ public class AssertionValidatorTest {
     }
 
     @Test
-    public void validateShouldDelegateSubjectConfirmationValidation() {
+    public void validate_shouldDelegateSubjectConfirmationValidation() throws Exception {
         String requestId = UUID.randomUUID().toString();
         SubjectConfirmation subjectConfirmation = aSubjectConfirmation().build();
         Assertion assertion = anAssertion()
@@ -70,7 +68,7 @@ public class AssertionValidatorTest {
     }
 
     @Test
-    public void validateShouldDelegateAttributeValidation() {
+    public void validate_shouldDelegateAttributeValidation() throws Exception {
         String requestId = UUID.randomUUID().toString();
         Assertion assertion = anAssertion()
                 .withSubject(aSubject().build())
@@ -82,7 +80,7 @@ public class AssertionValidatorTest {
     }
 
     @Test
-    public void validateShouldThrowExceptionIfAnyAssertionDoesNotContainASignature() {
+    public void validate_shouldThrowExceptionIfAnyAssertionDoesNotContainASignature() throws Exception {
         String someID = UUID.randomUUID().toString();
         Assertion assertion = anAssertion().withSignature(null).withId(someID).buildUnencrypted();
 
@@ -90,23 +88,7 @@ public class AssertionValidatorTest {
     }
 
     @Test
-    public void validateEidasShouldAllowAnEidasAssertionToNotContainASignature() {
-        String someID = UUID.randomUUID().toString();
-        Assertion assertion = anAssertion().withSignature(null).withId(someID).buildUnencrypted();
-
-        validator.validateEidas(assertion, "", assertion.getID());
-    }
-
-    @Test
-    public void validateEidasShouldValidateSignaturePresentIfSignatureExists() {
-        String someID = UUID.randomUUID().toString();
-        Assertion assertion = anAssertion().withoutSigning().withId(someID).buildUnencrypted();
-
-        assertThrows(SamlTransformationErrorException.class, () -> validator.validateEidas(assertion, "", assertion.getID()));
-    }
-
-    @Test
-    public void validateShouldThrowExceptionIfAnAssertionIsNotSigned() {
+    public void validate_shouldThrowExceptionIfAnAssertionIsNotSigned() throws Exception {
         String someID = UUID.randomUUID().toString();
 
         Assertion assertion = anAssertion().withoutSigning().withId(someID).buildUnencrypted();
@@ -115,35 +97,35 @@ public class AssertionValidatorTest {
     }
 
     @Test
-    public void validateShouldDoNothingIfAllAssertionsAreSigned() {
+    public void validate_shouldDoNothingIfAllAssertionsAreSigned() throws Exception {
         Assertion assertion = anAssertion().buildUnencrypted();
 
         validator.validate(assertion, "", assertion.getID());
     }
 
     @Test
-    public void validateShouldThrowExceptionIfIdIsMissing() {
+    public void validate_shouldThrowExceptionIfIdIsMissing() throws Exception {
         Assertion assertion = anAssertion().withId(null).buildUnencrypted();
 
         assertExceptionMessage(assertion, SamlTransformationErrorFactory.missingId());
     }
 
     @Test
-    public void validateShouldThrowExceptionIfVersionIsMissing() {
+    public void validate_shouldThrowExceptionIfVersionIsMissing() throws Exception {
         Assertion assertion = anAssertion().withVersion(null).buildUnencrypted();
 
         assertExceptionMessage(assertion, SamlTransformationErrorFactory.missingVersion(assertion.getID()));
     }
 
     @Test
-    public void validateShouldThrowExceptionIfVersionIsNotSamlTwoPointZero() {
+    public void validate_shouldThrowExceptionIfVersionIsNotSamlTwoPointZero() throws Exception {
         Assertion assertion = anAssertion().withVersion(SAMLVersion.VERSION_10).buildUnencrypted();
 
         assertExceptionMessage(assertion, SamlTransformationErrorFactory.illegalVersion(assertion.getID()));
     }
 
     @Test
-    public void validateShouldThrowExceptionIfIssueInstantIsMissing() {
+    public void validate_shouldThrowExceptionIfIssueInstantIsMissing() throws Exception {
         Assertion assertion = anAssertion().withIssueInstant(null).buildUnencrypted();
 
         assertExceptionMessage(assertion, SamlTransformationErrorFactory.missingIssueInstant(assertion.getID()));
