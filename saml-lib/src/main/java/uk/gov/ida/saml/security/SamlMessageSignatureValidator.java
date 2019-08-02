@@ -15,8 +15,6 @@ import uk.gov.ida.saml.security.validators.signature.SamlSignatureUtil;
 
 import javax.xml.namespace.QName;
 
-import java.util.Optional;
-
 import static uk.gov.ida.saml.security.errors.SamlTransformationErrorFactory.invalidMessageSignature;
 import static uk.gov.ida.saml.security.errors.SamlTransformationErrorFactory.unableToValidateMessageSignature;
 
@@ -31,26 +29,11 @@ public class SamlMessageSignatureValidator {
     }
 
     public SamlValidationResponse validate(Response response, QName role) {
-        Issuer issuer = response.getIssuer();
-        Optional<SamlValidationResponse> issuerResponse = validateIssuer(issuer);
-        if (issuerResponse.isPresent()) return issuerResponse.get();
-        return validateSignature(response, issuer.getValue(), role);
+        return validateWithIssuer(response, response.getIssuer(), role);
     }
 
     public SamlValidationResponse validate(Assertion assertion, QName role) {
-        Issuer issuer = assertion.getIssuer();
-        Optional<SamlValidationResponse> issuerResponse = validateIssuer(issuer);
-        if (issuerResponse.isPresent()) return issuerResponse.get();
-        return validateSignature(assertion, issuer.getValue(), role);
-    }
-
-    public SamlValidationResponse validateEidasAssertion(Assertion assertion, QName role) {
-        Issuer issuer = assertion.getIssuer();
-        Optional<SamlValidationResponse> issuerResponse = validateIssuer(issuer);
-        if (issuerResponse.isPresent()) return issuerResponse.get();
-
-        if (assertion.getSignature() == null) return SamlValidationResponse.aValidResponse();
-        return validateSignature(assertion, issuer.getValue(), role);
+        return validateWithIssuer(assertion, assertion.getIssuer(), role);
     }
 
     /**
@@ -58,23 +41,21 @@ public class SamlMessageSignatureValidator {
      * @return a SamlValidationResponse indicating if the signature was valid
      */
     public SamlValidationResponse validate(RequestAbstractType request, QName role) {
-        Issuer issuer = request.getIssuer();
-        Optional<SamlValidationResponse> issuerResponse = validateIssuer(issuer);
-        if (issuerResponse.isPresent()) return issuerResponse.get();
-        return validateSignature(request, issuer.getValue(), role);
+        return validateWithIssuer(request, request.getIssuer(), role);
     }
 
-    private Optional<SamlValidationResponse> validateIssuer(Issuer issuer) {
+    private SamlValidationResponse validateWithIssuer(SignableSAMLObject request, Issuer issuer, QName role) {
         if (issuer == null) {
-            return Optional.of(SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.missingIssuer()));
+            return SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.missingIssuer());
         }
-        if (Strings.isNullOrEmpty(issuer.getValue())) {
-            return Optional.of(SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.emptyIssuer()));
+        String issuerString = issuer.getValue();
+        if (Strings.isNullOrEmpty(issuerString)) {
+            return SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.emptyIssuer());
         }
-        return Optional.empty();
+        return validateWithIssuer(request, issuerString, role);
     }
 
-    private SamlValidationResponse validateSignature(SignableSAMLObject signableSAMLObject, String issuerId, QName role) {
+    private SamlValidationResponse validateWithIssuer(SignableSAMLObject signableSAMLObject, String issuerId, QName role) {
         if (signableSAMLObject.getSignature() == null){
             return SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.missingSignature());
         }
