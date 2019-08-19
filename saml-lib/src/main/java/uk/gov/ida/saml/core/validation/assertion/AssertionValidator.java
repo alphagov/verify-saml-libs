@@ -3,9 +3,9 @@ package uk.gov.ida.saml.core.validation.assertion;
 import org.opensaml.saml.common.SAMLVersion;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.xmlsec.signature.Signature;
+import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
-import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.saml.core.validation.subjectconfirmation.BasicAssertionSubjectConfirmationValidator;
 import uk.gov.ida.saml.core.validators.subject.AssertionSubjectValidator;
 import uk.gov.ida.saml.security.validators.issuer.IssuerValidator;
@@ -28,6 +28,10 @@ public class AssertionValidator {
         this.subjectValidator = subjectValidator;
         this.assertionAttributeStatementValidator = assertionAttributeStatementValidator;
         this.basicAssertionSubjectConfirmationValidator = basicAssertionSubjectConfirmationValidator;
+    }
+
+    public boolean isAssertionUnsigned(Assertion assertion) {
+        return assertion.getSignature() == null;
     }
 
     public void validate(
