@@ -32,7 +32,7 @@ public class SamlMessageSignatureValidatorTest {
     private final SamlMessageSignatureValidator samlMessageSignatureValidator = new SamlMessageSignatureValidator(signatureValidator);
 
     @Test
-    public void validateWithIssueShouldReturnBadResponseIfRequestSignatureIsMissing() {
+    public void validateShouldReturnBadResponseIfRequestSignatureIsMissing() {
         final AuthnRequest unsignedAuthnRequest = anAuthnRequest()
                 .withIssuer(anIssuer().withIssuerId(issuerId).build())
                 .withoutSignatureElement()
@@ -45,7 +45,21 @@ public class SamlMessageSignatureValidatorTest {
     }
 
     @Test
-    public void validateWithIssueShouldReturnBadResponseIfRequestIsNotSigned() {
+    public void validateEidasAssertionShouldAcceptUnsignedAssertionsFromEidasCountries() {
+        final Assertion unsignedAssertion = anAssertion()
+            .withIssuer(anIssuer().withIssuerId(issuerId).build())
+            .withSignature(null)
+            .build();
+
+        SamlMessageSignatureValidator eidasSamlMessageSignatureValidator = new SamlMessageSignatureValidator(signatureValidator);
+
+        SamlValidationResponse signatureValidationResponse = eidasSamlMessageSignatureValidator.validateEidasAssertion(unsignedAssertion, SPSSODescriptor.DEFAULT_ELEMENT_NAME);
+
+        assertThat(signatureValidationResponse.isOK()).isTrue();
+    }
+
+    @Test
+    public void validateShouldReturnBadResponseIfRequestIsNotSigned() {
         final AuthnRequest unsignedAuthnRequest = anAuthnRequest()
                 .withIssuer(anIssuer().withIssuerId(issuerId).build())
                 .withoutSigning()
@@ -58,7 +72,7 @@ public class SamlMessageSignatureValidatorTest {
     }
 
     @Test
-    public void validateWithIssueShouldReturnBadResponseIfRequestSignatureIsBad() {
+    public void validateShouldReturnBadResponseIfRequestSignatureIsBad() {
         Credential badCredential = new TestCredentialFactory(TestCertificateStrings.UNCHAINED_PUBLIC_CERT, TestCertificateStrings.UNCHAINED_PRIVATE_KEY).getSigningCredential();
         final AuthnRequest unsignedAuthnRequest = anAuthnRequest()
                 .withIssuer(anIssuer().withIssuerId(issuerId).build())
