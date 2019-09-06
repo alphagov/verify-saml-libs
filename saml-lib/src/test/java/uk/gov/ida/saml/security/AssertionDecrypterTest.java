@@ -30,6 +30,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static uk.gov.ida.saml.security.saml.builders.EncryptedAssertionBuilder.anEncryptedAssertionBuilder;
 import static uk.gov.ida.saml.security.saml.builders.IssuerBuilder.anIssuer;
 import static uk.gov.ida.saml.security.saml.builders.ResponseBuilder.aResponse;
@@ -67,6 +70,18 @@ public class AssertionDecrypterTest {
         final Response response = responseForAssertion(EncryptedAssertionBuilder.anEncryptedAssertionBuilder().withPublicEncryptionCert(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT).withId(assertionId).build());
         final List<Assertion> assertions = assertionDecrypter.decryptAssertions(new ValidatedResponse(response));
         assertEquals(assertions.get(0).getID(), assertionId);
+    }
+
+    @Test
+    public void shouldProvideReEncryptedSymmetricKeys() throws Exception {
+        String AN_ENTITY_ID = "ministry-of-pies";
+        KeyStoreBackedEncryptionCredentialResolver credentialResolver = mock(KeyStoreBackedEncryptionCredentialResolver.class);
+        Credential credential = new TestCredentialFactory(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT, null).getEncryptingCredential();
+        when(credentialResolver.getEncryptingCredential(AN_ENTITY_ID)).thenReturn(credential);
+        SecretKeyEncrypter secretKeyEncrypter = new SecretKeyEncrypter(credentialResolver);
+        final Response response = responseForAssertion(EncryptedAssertionBuilder.anEncryptedAssertionBuilder().withPublicEncryptionCert(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT).withId(assertionId).build());
+        final List<String> base64EncryptedSymmetricKeys = assertionDecrypter.getReEncryptedKeys(new ValidatedResponse(response), secretKeyEncrypter, AN_ENTITY_ID);
+        assertThat(base64EncryptedSymmetricKeys.size()).isGreaterThan(0);
     }
 
     @Test (expected = SamlFailedToDecryptException.class)
