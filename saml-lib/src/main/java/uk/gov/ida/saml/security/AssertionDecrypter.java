@@ -10,11 +10,7 @@ import uk.gov.ida.saml.security.exception.SamlFailedToDecryptException;
 import uk.gov.ida.saml.security.validators.ValidatedEncryptedAssertionContainer;
 import uk.gov.ida.saml.security.validators.encryptedelementtype.EncryptionAlgorithmValidator;
 
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.security.InvalidKeyException;
 import java.security.Key;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -57,18 +53,18 @@ public class AssertionDecrypter {
                                            SecretKeyEncrypter secretKeyEncrypter,
                                            String entityId) {
 
-        final List<String> base64String = new ArrayList<>();
+        final List<String> base64EncryptedKeys = new ArrayList<>();
         String algorithm = "";
 
         for (EncryptedAssertion encryptedAssertion : container.getEncryptedAssertions()) {
             Iterator<EncryptedKey> encryptedKeyIterator = encryptedAssertion.getEncryptedKeys().iterator();
-            while (encryptedKeyIterator.hasNext()) {
+            Key decryptedKey = null;
+            while (encryptedKeyIterator.hasNext() && decryptedKey == null) {
                 try {
                     EncryptedKey encryptedKey = encryptedKeyIterator.next();
                     algorithm = encryptedKey.getEncryptionMethod().getAlgorithm();
-                    Key decryptedKey = decrypter.decryptKey(encryptedKey, algorithm);
-
-                    base64String.add(secretKeyEncrypter.encryptKeyForEntity(decryptedKey, entityId));
+                    decryptedKey = decrypter.decryptKey(encryptedKey, algorithm);
+                    base64EncryptedKeys.add(secretKeyEncrypter.encryptKeyForEntity(decryptedKey, entityId));
                 } catch (DecryptionException e) {
                     if (!encryptedKeyIterator.hasNext()) {
                         throw new SamlFailedToDecryptException(unableToDecryptXMLEncryptionKey(algorithm), e);
@@ -76,6 +72,6 @@ public class AssertionDecrypter {
                 }
             }
         }
-        return base64String;
+        return base64EncryptedKeys;
     }
 }

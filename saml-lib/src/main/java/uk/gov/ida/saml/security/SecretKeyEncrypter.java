@@ -18,11 +18,10 @@ public class SecretKeyEncrypter {
     private KeyStoreBackedEncryptionCredentialResolver credentialFactory;
 
     public SecretKeyEncrypter(KeyStoreBackedEncryptionCredentialResolver credentialFactory) {
-            this.credentialFactory = credentialFactory;
+        this.credentialFactory = credentialFactory;
     }
 
-    public String encryptKeyForEntity(Key secretKey, String entityId)
-             {
+    public String encryptKeyForEntity(Key secretKey, String entityId) {
         PublicKey publicKey = credentialFactory.getEncryptingCredential(entityId).getPublicKey();
         try {
             Cipher cipher = Cipher.getInstance(publicKey.getAlgorithm());
