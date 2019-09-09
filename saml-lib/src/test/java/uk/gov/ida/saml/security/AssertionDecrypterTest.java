@@ -94,45 +94,41 @@ public class AssertionDecrypterTest {
 
     @Test
     public void shouldProvideOneReEncryptedSymmetricKey() throws Exception {
-        String AN_ENTITY_ID = "ministry-of-pies";
         KeyStoreBackedEncryptionCredentialResolver credentialResolver = mock(KeyStoreBackedEncryptionCredentialResolver.class);
         Credential credential = new TestCredentialFactory(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT, null).getEncryptingCredential();
-        when(credentialResolver.getEncryptingCredential(AN_ENTITY_ID)).thenReturn(credential);
+        when(credentialResolver.getEncryptingCredential(TestEntityIds.HUB_ENTITY_ID)).thenReturn(credential);
         SecretKeyEncrypter secretKeyEncrypter = new SecretKeyEncrypter(credentialResolver);
         final Response response = responseForAssertion(EncryptedAssertionBuilder.anEncryptedAssertionBuilder().withPublicEncryptionCert(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT).withId(assertionId).build());
-        final List<String> base64EncryptedSymmetricKeys = assertionDecrypter.getReEncryptedKeys(new ValidatedResponse(response), secretKeyEncrypter, AN_ENTITY_ID);
+        final List<String> base64EncryptedSymmetricKeys = assertionDecrypter.getReEncryptedKeys(new ValidatedResponse(response), secretKeyEncrypter, TestEntityIds.HUB_ENTITY_ID);
         assertThat(base64EncryptedSymmetricKeys.size()).isEqualTo(1);
     }
 
     @Test
     public void shouldProvideThreeReEncryptedSymmetricKeys() throws Exception {
-        String AN_ENTITY_ID = "ministry-of-pies";
         KeyStoreBackedEncryptionCredentialResolver credentialResolver = mock(KeyStoreBackedEncryptionCredentialResolver.class);
         Credential credential = new TestCredentialFactory(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT, null).getEncryptingCredential();
-        when(credentialResolver.getEncryptingCredential(AN_ENTITY_ID)).thenReturn(credential);
+        when(credentialResolver.getEncryptingCredential(TestEntityIds.HUB_ENTITY_ID)).thenReturn(credential);
         SecretKeyEncrypter secretKeyEncrypter = new SecretKeyEncrypter(credentialResolver);
         final Response response = responseForMultipleAssertions(
                 anEncryptedAssertionBuilder().withPublicEncryptionCert(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT).withId(assertionId).build(),
                 anEncryptedAssertionBuilder().withPublicEncryptionCert(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT).withId(assertionId).build(),
                 anEncryptedAssertionBuilder().withPublicEncryptionCert(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT).withId(assertionId).build());
-        final List<String> base64EncryptedSymmetricKeys = assertionDecrypter.getReEncryptedKeys(new ValidatedResponse(response), secretKeyEncrypter, AN_ENTITY_ID);
+        final List<String> base64EncryptedSymmetricKeys = assertionDecrypter.getReEncryptedKeys(new ValidatedResponse(response), secretKeyEncrypter, TestEntityIds.HUB_ENTITY_ID);
         assertThat(base64EncryptedSymmetricKeys.size()).isEqualTo(3);
     }
 
     @Test
     public void shouldProvideZeroReEncryptedSymmetricKeys() throws Exception {
-        String AN_ENTITY_ID = "ministry-of-pies";
         KeyStoreBackedEncryptionCredentialResolver credentialResolver = mock(KeyStoreBackedEncryptionCredentialResolver.class);
 
         SecretKeyEncrypter secretKeyEncrypter = new SecretKeyEncrypter(credentialResolver);
         final Response response = responseWithZeroEncryptedAssertions();
-        final List<String> base64EncryptedSymmetricKeys = assertionDecrypter.getReEncryptedKeys(new ValidatedResponse(response), secretKeyEncrypter, AN_ENTITY_ID);
+        final List<String> base64EncryptedSymmetricKeys = assertionDecrypter.getReEncryptedKeys(new ValidatedResponse(response), secretKeyEncrypter, TestEntityIds.HUB_ENTITY_ID);
         assertThat(base64EncryptedSymmetricKeys.size()).isEqualTo(0);
     }
 
     @Test(expected = SamlFailedToDecryptException.class)
     public void shouldThrowExceptionIfNoKeyCanBeDecrypted() throws MarshallingException, SignatureException {
-        String AN_ENTITY_ID = "ministry-of-pies";
         KeyStoreBackedEncryptionCredentialResolver credentialResolver = mock(KeyStoreBackedEncryptionCredentialResolver.class);
 
         final EncryptedAssertion badlyEncryptedAssertion = anEncryptedAssertionBuilder().withId(assertionId).withEncrypterCredential(
@@ -140,15 +136,14 @@ public class AssertionDecrypterTest {
 
         final Response response = responseForAssertion(badlyEncryptedAssertion);
         SecretKeyEncrypter secretKeyEncrypter = new SecretKeyEncrypter(credentialResolver);
-        assertionDecrypter.getReEncryptedKeys(new ValidatedResponse(response), secretKeyEncrypter, AN_ENTITY_ID);
+        assertionDecrypter.getReEncryptedKeys(new ValidatedResponse(response), secretKeyEncrypter, TestEntityIds.HUB_ENTITY_ID);
     }
 
     @Test
     public void shouldNotThrowExceptionIfSomeKeyCanBeDecrypted() throws MarshallingException, SignatureException {
-        String AN_ENTITY_ID = "ministry-of-pies";
         KeyStoreBackedEncryptionCredentialResolver credentialResolver = mock(KeyStoreBackedEncryptionCredentialResolver.class);
         Credential credential = new TestCredentialFactory(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT, null).getEncryptingCredential();
-        when(credentialResolver.getEncryptingCredential(AN_ENTITY_ID)).thenReturn(credential);
+        when(credentialResolver.getEncryptingCredential(TestEntityIds.HUB_ENTITY_ID)).thenReturn(credential);
 
         EncryptedAssertion encryptedAssertion = anEncryptedAssertionBuilder().withPublicEncryptionCert(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT).withId(assertionId).build();
         EncryptedKey validEncryptedKey = encryptedAssertion.getEncryptedKeys().get(0);
@@ -159,7 +154,7 @@ public class AssertionDecrypterTest {
         final Response response = responseForMultipleAssertions(
                 encryptedAssertion);
         SecretKeyEncrypter secretKeyEncrypter = new SecretKeyEncrypter(credentialResolver);
-        final List<String> base64EncryptedSymmetricKeys = assertionDecrypter.getReEncryptedKeys(new ValidatedResponse(response), secretKeyEncrypter, AN_ENTITY_ID);
+        final List<String> base64EncryptedSymmetricKeys = assertionDecrypter.getReEncryptedKeys(new ValidatedResponse(response), secretKeyEncrypter, TestEntityIds.HUB_ENTITY_ID);
         assertThat(base64EncryptedSymmetricKeys.size()).isEqualTo(1);
     }
 
