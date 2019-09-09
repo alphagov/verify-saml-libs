@@ -21,6 +21,8 @@ public class GenericHubProfileValidationSpecification extends SamlValidationSpec
     public static final String UNSUPPORTED_SIGNATURE_ENCRYPTION_ALGORITHM = "Signature algorithm {0} is not supported.";
     public static final String ENCRYPTION_ALGORITHM_SHOULD_BE_AES128 = "Assertion encrypted with unsupported encryption algorithm {0}, should be AES128.";
     public static final String UNABLE_TO_LOCATE_ENCRYPTED_KEY = "Unable to located encrypted key within assertion.";
+    public static final String UNABLE_TO_DECRYPT_ENCRYPTED_KEY = "Unable to decrypt XML encryption key with algorithm {0}.";
+    public static final String UNABLE_TO_ENCRYPT_SYMMETRIC_KEY = "Unable to encrypt XML encryption key.";
     public static final String KEY_ENCRYPTION_ALGORITHM_SHOULD_BE_RSAOAEP = "Key encrypted with unsupported encryption algorithm {0}, should be RSAOAEP.";
 
 

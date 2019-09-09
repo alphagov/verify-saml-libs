@@ -26,6 +26,14 @@ public final class SamlTransformationErrorFactory {
         return new GenericHubProfileValidationSpecification(GenericHubProfileValidationSpecification.UNABLE_TO_DECRYPT, message);
     }
 
+    public static SamlValidationSpecificationFailure unableToDecryptXMLEncryptionKey(final String algorithm) {
+        return new GenericHubProfileValidationSpecification(GenericHubProfileValidationSpecification.UNABLE_TO_DECRYPT_ENCRYPTED_KEY, algorithm);
+    }
+
+    public static SamlValidationSpecificationFailure unableToEncryptXMLEncryptionKey() {
+        return new GenericHubProfileValidationSpecification(GenericHubProfileValidationSpecification.UNABLE_TO_ENCRYPT_SYMMETRIC_KEY);
+    }
+
     public static SamlValidationSpecificationFailure unsupportedSignatureEncryptionAlgortithm(final String algorithm) {
         return new GenericHubProfileValidationSpecification(GenericHubProfileValidationSpecification.UNSUPPORTED_SIGNATURE_ENCRYPTION_ALGORITHM, algorithm);
     }
