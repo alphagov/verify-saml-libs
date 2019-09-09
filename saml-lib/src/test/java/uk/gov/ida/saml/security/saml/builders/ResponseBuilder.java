@@ -17,6 +17,7 @@ import org.opensaml.xmlsec.algorithm.descriptors.DigestSHA256;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA256;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.Signer;
+import uk.gov.ida.saml.core.test.TestCertificateStrings;
 import uk.gov.ida.saml.security.saml.TestSamlObjectFactory;
 
 import java.util.ArrayList;
@@ -52,8 +53,12 @@ public class ResponseBuilder {
 
     public static ResponseBuilder aResponse() {
         ResponseBuilder responseBuilder = new ResponseBuilder();
-        responseBuilder.defaultEncryptedAssertion = EncryptedAssertionBuilder.anEncryptedAssertionBuilder().build();
+        responseBuilder.defaultEncryptedAssertion = EncryptedAssertionBuilder.anEncryptedAssertionBuilder().withPublicEncryptionCert(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT).withId("foo").build();
         return responseBuilder;
+    }
+
+    public static ResponseBuilder aResponseWithNoEncryptedAssertions() {
+        return new ResponseBuilder();
     }
 
     public Response build() throws MarshallingException, SignatureException {

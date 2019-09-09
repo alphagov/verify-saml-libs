@@ -21,9 +21,8 @@ import static org.mockito.Mockito.when;
 @RunWith(OpenSAMLMockitoRunner.class)
 public class SecretKeyEncrypterTest {
     @Mock
-    KeyStoreBackedEncryptionCredentialResolver credentialResolver;
+    private KeyStoreBackedEncryptionCredentialResolver credentialResolver;
 
-    private SecretKeyEncrypter testSubject;
     private static final String AN_ENTITY_ID = "ministry-of-pies";
 
     private Credential credential = new TestCredentialFactory(
@@ -33,6 +32,8 @@ public class SecretKeyEncrypterTest {
 
     @Test
     public void shouldSuccessfullyEncryptASecretKey() throws Exception {
+
+        SecretKeyEncrypter testSubject;
 
         when(credentialResolver.getEncryptingCredential(AN_ENTITY_ID)).thenReturn(credential);
 
