@@ -35,7 +35,7 @@ public class EidasUnsignedMatchingDatasetUnmarshaller extends EidasMatchingDatas
             SecretKeyDecryptorFactory secretKeyDecryptorFactory,
             StringToOpenSamlObjectTransformer<Response> stringtoOpenSamlObjectTransformer) {
         this.secretKeyDecryptorFactory = secretKeyDecryptorFactory;
-        this.stringtoOpenSamlObjectTransformer = stringtoOpenSamlObjectTransformer;
+        this.stringToOpenSamlObjectTransformer = stringToOpenSamlObjectTransformer;
     }
 
     @Override
