@@ -55,6 +55,18 @@ public interface IdaConstants {
             String FRIENDLY_NAME = "PlaceOfBirth";
             String NAME = "http://eidas.europa.eu/attributes/naturalperson/PlaceOfBirth";
         }
+
+        interface UnsignedAssertions {
+            interface EidasSamlResponse {
+                String FRIENDLY_NAME = "Base64 encoded eIDAS SAML response";
+                String NAME = "EIDAS_Unsigned_Assertion_SAML_Response";
+            }
+
+            interface EncryptedSecretKeys {
+                String FRIENDLY_NAME = "Set of ephemeral secret keys encrypted for a Government Service";
+                String NAME = "EIDAS_Unsigned_Assertion_encrypted_secret_keys";
+            }
+        }
     }
 
     interface Attributes_1_1 {
