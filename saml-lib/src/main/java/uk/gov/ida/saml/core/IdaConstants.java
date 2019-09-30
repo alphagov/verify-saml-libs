@@ -63,7 +63,7 @@ public interface IdaConstants {
             }
 
             interface EncryptedSecretKeys {
-                String FRIENDLY_NAME = "Set of ephemeral secret keys encryped for a Government Service";
+                String FRIENDLY_NAME = "Set of ephemeral secret keys encrypted for a Government Service";
                 String NAME = "EIDAS_Unsigned_Assertion_encrypted_secret_keys";
             }
         }
