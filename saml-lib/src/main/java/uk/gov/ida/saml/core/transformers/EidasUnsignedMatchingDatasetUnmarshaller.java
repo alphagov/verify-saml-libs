@@ -50,7 +50,7 @@ public class EidasUnsignedMatchingDatasetUnmarshaller extends EidasMatchingDatas
             List<Attribute> attributes = attributeStatements.get(0).getAttributes();
             Optional<String> encryptedTransientSecretKey = getAttributeStringValue(attributes, IdaConstants.Eidas_Attributes.UnsignedAssertions.EncryptedSecretKeys.NAME);
             Optional<String> eidasSaml = getAttributeStringValue(attributes, IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.NAME);
-            if (!(encryptedTransientSecretKey.isPresent() && eidasSaml.isPresent())) {
+            if (encryptedTransientSecretKey.isEmpty() || eidasSaml.isEmpty()) {
                 return null;
             }
 
