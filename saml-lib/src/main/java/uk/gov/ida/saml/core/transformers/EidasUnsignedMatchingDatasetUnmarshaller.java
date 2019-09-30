@@ -54,7 +54,7 @@ public class EidasUnsignedMatchingDatasetUnmarshaller extends EidasMatchingDatas
                 return null;
             }
 
-            Response response = stringtoOpenSamlObjectTransformer.apply(eidasSaml.get());
+            Response response = stringToOpenSamlObjectTransformer.apply(eidasSaml.get());
             ValidatedResponse validatedResponse = new ValidatedResponse(response);
             Decrypter decrypter = secretKeyDecryptorFactory.createDecrypter(encryptedTransientSecretKey.get());
             Optional<EncryptedAssertion> encryptedAssertion = validatedResponse.getEncryptedAssertions().stream().findFirst();
