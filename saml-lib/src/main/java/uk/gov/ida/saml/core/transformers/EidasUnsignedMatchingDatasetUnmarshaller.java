@@ -33,7 +33,7 @@ public class EidasUnsignedMatchingDatasetUnmarshaller extends EidasMatchingDatas
 
     public EidasUnsignedMatchingDatasetUnmarshaller(
             SecretKeyDecryptorFactory secretKeyDecryptorFactory,
-            StringToOpenSamlObjectTransformer<Response> stringtoOpenSamlObjectTransformer) {
+            StringToOpenSamlObjectTransformer<Response> stringToOpenSamlObjectTransformer) {
         this.secretKeyDecryptorFactory = secretKeyDecryptorFactory;
         this.stringToOpenSamlObjectTransformer = stringToOpenSamlObjectTransformer;
     }
@@ -50,9 +50,10 @@ public class EidasUnsignedMatchingDatasetUnmarshaller extends EidasMatchingDatas
             List<Attribute> attributes = attributeStatements.get(0).getAttributes();
             Optional<String> encryptedTransientSecretKey = getAttributeStringValue(attributes, IdaConstants.Eidas_Attributes.UnsignedAssertions.EncryptedSecretKeys.NAME);
             Optional<String> eidasSaml = getAttributeStringValue(attributes, IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.NAME);
-            if (encryptedTransientSecretKey.isEmpty() || eidasSaml.isEmpty()) {
+            if (!encryptedTransientSecretKey.isPresent() || !eidasSaml.isPresent()) {
                 return null;
             }
+
 
             Response response = stringToOpenSamlObjectTransformer.apply(eidasSaml.get());
             ValidatedResponse validatedResponse = new ValidatedResponse(response);
