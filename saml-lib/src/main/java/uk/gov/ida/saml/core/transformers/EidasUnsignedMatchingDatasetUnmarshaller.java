@@ -29,7 +29,7 @@ public class EidasUnsignedMatchingDatasetUnmarshaller extends EidasMatchingDatas
     private static final Logger LOG = LoggerFactory.getLogger(EidasUnsignedMatchingDatasetUnmarshaller.class);
 
     private final SecretKeyDecryptorFactory secretKeyDecryptorFactory;
-    private final StringToOpenSamlObjectTransformer<Response> stringtoOpenSamlObjectTransformer;
+    private final StringToOpenSamlObjectTransformer<Response> stringToOpenSamlObjectTransformer;
 
     public EidasUnsignedMatchingDatasetUnmarshaller(
             SecretKeyDecryptorFactory secretKeyDecryptorFactory,
