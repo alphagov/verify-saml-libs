@@ -100,6 +100,11 @@ public class ResponseBuilder {
         return this;
     }
 
+    public ResponseBuilder addAssertion(Assertion assertion) {
+        this.assertions.add(assertion);
+        return this;
+    }
+
     public ResponseBuilder addEncryptedAssertion(EncryptedAssertion encryptedAssertion) {
         addDefaultEncryptedAssertionIfNoneIsAdded = false;
         this.encryptedAssertions.add(encryptedAssertion);

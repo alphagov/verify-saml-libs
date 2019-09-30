@@ -4,13 +4,17 @@ import org.joda.time.LocalDate;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import uk.gov.ida.saml.core.IdaConstants;
+import uk.gov.ida.saml.core.extensions.eidas.CountrySamlResponse;
 import uk.gov.ida.saml.core.extensions.eidas.CurrentFamilyName;
 import uk.gov.ida.saml.core.extensions.eidas.CurrentGivenName;
 import uk.gov.ida.saml.core.extensions.eidas.DateOfBirth;
+import uk.gov.ida.saml.core.extensions.eidas.EncryptedAssertionKeys;
 import uk.gov.ida.saml.core.extensions.eidas.PersonIdentifier;
+import uk.gov.ida.saml.core.extensions.eidas.impl.CountrySamlResponseBuilder;
 import uk.gov.ida.saml.core.extensions.eidas.impl.CurrentFamilyNameBuilder;
 import uk.gov.ida.saml.core.extensions.eidas.impl.CurrentGivenNameBuilder;
 import uk.gov.ida.saml.core.extensions.eidas.impl.DateOfBirthBuilder;
+import uk.gov.ida.saml.core.extensions.eidas.impl.EncryptedAssertionKeysBuilder;
 import uk.gov.ida.saml.core.extensions.eidas.impl.PersonIdentifierBuilder;
 import uk.gov.ida.saml.core.test.OpenSamlXmlObjectFactory;
 
@@ -27,7 +31,7 @@ public class AttributeStatementBuilder {
     }
 
     public static AttributeStatementBuilder anEidasAttributeStatement() {
-        Attribute firstName =  anAttribute(IdaConstants.Eidas_Attributes.FirstName.NAME);
+        Attribute firstName = anAttribute(IdaConstants.Eidas_Attributes.FirstName.NAME);
         CurrentGivenName firstNameValue = new CurrentGivenNameBuilder().buildObject();
         firstNameValue.setFirstName("Joe");
         firstName.getAttributeValues().add(firstNameValue);
@@ -52,6 +56,22 @@ public class AttributeStatementBuilder {
             .addAttribute(familyName)
             .addAttribute(personIdentifier)
             .addAttribute(dateOfBirth);
+    }
+
+    public static AttributeStatementBuilder aCountryResponseAttributeStatement() {
+        Attribute countrySamlResponse = anAttribute(IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.NAME);
+        CountrySamlResponse countrySamlResponseValue = new CountrySamlResponseBuilder().buildObject();
+        countrySamlResponseValue.setCountrySamlResponse("base64SamlResponse");
+        countrySamlResponse.getAttributeValues().add(countrySamlResponseValue);
+
+        Attribute encryptedAssertionKeys = anAttribute(IdaConstants.Eidas_Attributes.UnsignedAssertions.EncryptedSecretKeys.NAME);
+        EncryptedAssertionKeys encryptedAssertionKeysValue = new EncryptedAssertionKeysBuilder().buildObject();
+        encryptedAssertionKeysValue.setEncryptedAssertionKeys("base64EncryptedAssertionKey");
+        encryptedAssertionKeys.getAttributeValues().add(encryptedAssertionKeysValue);
+
+        return anAttributeStatement()
+                .addAttribute(countrySamlResponse)
+                .addAttribute(encryptedAssertionKeys);
     }
 
     private static Attribute anAttribute(String name) {

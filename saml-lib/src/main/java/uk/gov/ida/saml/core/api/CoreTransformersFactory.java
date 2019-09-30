@@ -8,6 +8,7 @@ import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.transformers.inbound.Cycle3DatasetFactory;
 import uk.gov.ida.saml.core.transformers.inbound.HubAssertionUnmarshaller;
 import uk.gov.ida.saml.core.transformers.outbound.ResponseToSignedStringTransformer;
+import uk.gov.ida.saml.core.transformers.outbound.ResponseToSignedStringWithUnEncryptedAssertionsTransformer;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.ResponseAssertionSigner;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.ResponseSignatureCreator;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.SamlResponseAssertionEncrypter;
@@ -134,6 +135,20 @@ public class CoreTransformersFactory {
             final DigestAlgorithm digestAlgorithm) {
         SignatureFactory signatureFactory = new SignatureFactory(new IdaKeyStoreCredentialRetriever(keyStore), signatureAlgorithm, digestAlgorithm);
         return getResponseStringTransformer(publicKeyStore, entityToEncryptForLocator, new EncrypterFactory(), signatureFactory, responseAssertionSigner);
+    }
+
+    public ResponseToSignedStringWithUnEncryptedAssertionsTransformer getResponseStringTransformer(
+            final IdaKeyStore keyStore,
+            final ResponseAssertionSigner responseAssertionSigner,
+            final SignatureAlgorithm signatureAlgorithm,
+            final DigestAlgorithm digestAlgorithm) {
+        SignatureFactory signatureFactory = new SignatureFactory(new IdaKeyStoreCredentialRetriever(keyStore), signatureAlgorithm, digestAlgorithm);
+        return new ResponseToSignedStringWithUnEncryptedAssertionsTransformer(
+                new XmlObjectToBase64EncodedStringTransformer<>(),
+                new SamlSignatureSigner<>(),
+                responseAssertionSigner,
+                new ResponseSignatureCreator(signatureFactory)
+        );
     }
 
     private ResponseToSignedStringTransformer getResponseStringTransformer(

@@ -15,6 +15,5 @@ public interface EncryptedAssertionKeys extends AttributeValue {
 
     String getEncryptedAssertionKeys();
 
-    void setEncryptedAssertionKeys(String countrySamlResponse);
-
+    void setEncryptedAssertionKeys(String encryptedAssertionKey);
 }

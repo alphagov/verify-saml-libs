@@ -35,6 +35,7 @@ import static com.google.common.base.Throwables.propagate;
 import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_CONNECTOR_ENTITY_ID;
 import static uk.gov.ida.saml.core.test.builders.AttributeStatementBuilder.anAttributeStatement;
 import static uk.gov.ida.saml.core.test.builders.AttributeStatementBuilder.anEidasAttributeStatement;
+import static uk.gov.ida.saml.core.test.builders.AttributeStatementBuilder.aCountryResponseAttributeStatement;
 import static uk.gov.ida.saml.core.test.builders.AuthnStatementBuilder.anEidasAuthnStatement;
 import static uk.gov.ida.saml.core.test.builders.SubjectBuilder.aSubject;
 import static uk.gov.ida.saml.core.test.builders.SubjectConfirmationBuilder.aSubjectConfirmation;
@@ -80,6 +81,16 @@ public class AssertionBuilder {
                         .withSubjectConfirmationData(aSubjectConfirmationData().withRecipient(HUB_CONNECTOR_ENTITY_ID).build())
                         .build())
                     .build());
+    }
+
+    public static AssertionBuilder aCountryResponseAssertion() {
+        return anAssertion()
+                .withIssuer(
+                        new IssuerBuilder()
+                        .withIssuerId(TestEntityIds.HUB_ENTITY_ID)
+                        .build())
+                .addAttributeStatement(aCountryResponseAttributeStatement().build())
+                .withoutSigning();
     }
 
     public static AssertionBuilder anAuthnStatementAssertion() {
