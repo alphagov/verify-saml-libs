@@ -1,9 +1,7 @@
 package uk.gov.ida.saml.core.validators.conditions;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.opensaml.saml.saml2.core.AudienceRestriction;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
@@ -14,14 +12,12 @@ import uk.gov.ida.saml.core.validation.conditions.AudienceRestrictionValidator;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 @RunWith(OpenSAMLMockitoRunner.class)
 public class AudienceRestrictionValidatorMultipleEntityIdTests {
 
     private AudienceRestrictionValidator validator;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
 
     @Before
     public void setUp() {
@@ -44,10 +40,11 @@ public class AudienceRestrictionValidatorMultipleEntityIdTests {
         restrictions.add(AudienceRestrictionBuilder.anAudienceRestriction().withAudienceId("audience1").build());
         restrictions.add(AudienceRestrictionBuilder.anAudienceRestriction().withAudienceId("audience2").build());
 
-        expectedException.expect(SamlResponseValidationException.class);
-        expectedException.expectMessage("Exactly one audience restriction is expected.");
-
-        validator.validate(restrictions, acceptableAudiences);
+        assertThatThrownBy(() -> {
+                validator.validate(restrictions, acceptableAudiences);
+            })
+            .isInstanceOf(SamlResponseValidationException.class)
+            .hasMessageContaining("Exactly one audience restriction is expected.");
     }
 
     @Test
@@ -56,9 +53,11 @@ public class AudienceRestrictionValidatorMultipleEntityIdTests {
         List<AudienceRestriction> restrictions = new LinkedList<>();
         restrictions.add(AudienceRestrictionBuilder.anAudienceRestriction().withAudienceId("audience1").build());
 
-        expectedException.expect(SamlResponseValidationException.class);
-        expectedException.expectMessage("Audience must match an acceptable entity ID.");
-        validator.validate(restrictions, unacceptableAudiences);
+        assertThatThrownBy(() -> {
+                validator.validate(restrictions, unacceptableAudiences);
+            })
+            .isInstanceOf(SamlResponseValidationException.class)
+            .hasMessageContaining("Audience must match an acceptable entity ID.");
     }
 
     @Test

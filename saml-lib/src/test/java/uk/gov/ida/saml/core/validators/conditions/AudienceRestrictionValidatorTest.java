@@ -2,9 +2,7 @@ package uk.gov.ida.saml.core.validators.conditions;
 
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Answers;
 import org.opensaml.saml.saml2.core.Audience;
 import org.opensaml.saml.saml2.core.AudienceRestriction;
@@ -15,6 +13,7 @@ import uk.gov.ida.saml.core.validation.conditions.AudienceRestrictionValidator;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.saml.core.test.builders.AudienceRestrictionBuilder.anAudienceRestriction;
@@ -22,9 +21,6 @@ import static uk.gov.ida.saml.core.test.builders.AudienceRestrictionBuilder.anAu
 public class AudienceRestrictionValidatorTest {
 
     private AudienceRestrictionValidator validator;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setUp() {
@@ -45,24 +41,27 @@ public class AudienceRestrictionValidatorTest {
 
     @Test
     public void shouldThrowExceptionWhenAudienceRestrictionsIsNull() {
-        expectedException.expect(SamlResponseValidationException.class);
-        expectedException.expectMessage("Exactly one audience restriction is expected.");
-
         List<AudienceRestriction> audienceRestrictions = null;
-        validator.validate(audienceRestrictions, "any-entity-id");
+
+        assertThatThrownBy(() -> {
+                validator.validate(audienceRestrictions, "any-entity-id");
+            })
+            .isInstanceOf(SamlResponseValidationException.class)
+            .hasMessageContaining("Exactly one audience restriction is expected.");
     }
 
     @Test
     public void shouldThrowExceptionWhenAudienceRestrictionsHasMoreThanOneElements() {
-        expectedException.expect(SamlResponseValidationException.class);
-        expectedException.expectMessage("Exactly one audience restriction is expected.");
-
         List<AudienceRestriction> audienceRestrictions = ImmutableList.of(
             anAudienceRestriction().build(),
             anAudienceRestriction().build()
         );
 
-        validator.validate(audienceRestrictions, "any-entity-id");
+        assertThatThrownBy(() -> {
+                validator.validate(audienceRestrictions, "any-entity-id");
+            })
+            .isInstanceOf(SamlResponseValidationException.class)
+            .hasMessageContaining("Exactly one audience restriction is expected.");
     }
 
     @Test
@@ -70,10 +69,11 @@ public class AudienceRestrictionValidatorTest {
         AudienceRestriction audienceRestriction = mock(AudienceRestriction.class, Answers.RETURNS_DEEP_STUBS);
         when(audienceRestriction.getAudiences()).thenReturn(null);
 
-        expectedException.expect(SamlResponseValidationException.class);
-        expectedException.expectMessage("Exactly one audience is expected.");
-
-        validator.validate(ImmutableList.of(audienceRestriction), "any-entity-id");
+        assertThatThrownBy(() -> {
+                validator.validate(ImmutableList.of(audienceRestriction), "any-entity-id");
+            })
+            .isInstanceOf(SamlResponseValidationException.class)
+            .hasMessageContaining("Exactly one audience is expected.");
     }
 
     @Test
@@ -82,10 +82,11 @@ public class AudienceRestrictionValidatorTest {
         audienceRestriction.getAudiences().add(new AudienceBuilder().buildObject());
         audienceRestriction.getAudiences().add(new AudienceBuilder().buildObject());
 
-        expectedException.expect(SamlResponseValidationException.class);
-        expectedException.expectMessage("Exactly one audience is expected.");
-
-        validator.validate(ImmutableList.of(audienceRestriction), "any-entity-id");
+        assertThatThrownBy(() -> {
+                validator.validate(ImmutableList.of(audienceRestriction), "any-entity-id");
+            })
+            .isInstanceOf(SamlResponseValidationException.class)
+            .hasMessageContaining("Exactly one audience is expected.");
     }
 
     @Test
@@ -96,9 +97,13 @@ public class AudienceRestrictionValidatorTest {
         AudienceRestriction audienceRestriction = mock(AudienceRestriction.class, Answers.RETURNS_DEEP_STUBS);
         when(audienceRestriction.getAudiences()).thenReturn(ImmutableList.of(audience));
 
-        expectedException.expect(SamlResponseValidationException.class);
-        expectedException.expectMessage(String.format("Audience must match an acceptable entity ID. Acceptable entity IDs are: %s but audience was: %s", "unknown-entity-id", "some-entity-id"));
-
-        validator.validate(ImmutableList.of(audienceRestriction), "unknown-entity-id");
+        assertThatThrownBy(() -> {
+                validator.validate(ImmutableList.of(audienceRestriction), "unknown-entity-id");
+            })
+        .isInstanceOf(SamlResponseValidationException.class)
+        .hasMessageContaining(String.format(
+            "Audience must match an acceptable entity ID. Acceptable entity IDs are: %s but audience was: %s",
+            "unknown-entity-id",
+            "some-entity-id"));
     }
 }
