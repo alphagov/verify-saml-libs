@@ -3,11 +3,13 @@ package uk.gov.ida.saml.core.validators.conditions;
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.opensaml.saml.saml2.core.Audience;
 import org.opensaml.saml.saml2.core.AudienceRestriction;
 import org.opensaml.saml.saml2.core.impl.AudienceBuilder;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.validation.SamlResponseValidationException;
 import uk.gov.ida.saml.core.validation.conditions.AudienceRestrictionValidator;
 
@@ -18,6 +20,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.saml.core.test.builders.AudienceRestrictionBuilder.anAudienceRestriction;
 
+@RunWith(OpenSAMLMockitoRunner.class)
 public class AudienceRestrictionValidatorTest {
 
     private AudienceRestrictionValidator validator;
