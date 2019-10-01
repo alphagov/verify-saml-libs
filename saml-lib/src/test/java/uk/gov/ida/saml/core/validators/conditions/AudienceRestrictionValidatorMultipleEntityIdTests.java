@@ -22,7 +22,7 @@ public class AudienceRestrictionValidatorMultipleEntityIdTests {
     private AudienceRestrictionValidator validator;
 
     @Before
-    public void setup() {
+    public void setUp() {
         validator = new AudienceRestrictionValidator();
     }
 
