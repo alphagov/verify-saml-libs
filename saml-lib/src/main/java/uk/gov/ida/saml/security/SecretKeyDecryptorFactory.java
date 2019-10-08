@@ -1,9 +1,9 @@
 package uk.gov.ida.saml.security;
 
 import org.bouncycastle.util.encoders.Base64;
+import org.opensaml.saml.saml2.encryption.Decrypter;
 import org.opensaml.security.credential.BasicCredential;
 import org.opensaml.security.credential.Credential;
-import org.opensaml.xmlsec.encryption.support.Decrypter;
 import org.opensaml.xmlsec.keyinfo.impl.StaticKeyInfoCredentialResolver;
 
 import javax.crypto.Cipher;
