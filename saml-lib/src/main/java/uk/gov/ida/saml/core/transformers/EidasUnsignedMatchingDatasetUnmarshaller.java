@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.saml.core.IdaConstants;
 import uk.gov.ida.saml.core.domain.MatchingDataset;
-import uk.gov.ida.saml.core.extensions.StringValueSamlObject;
+import uk.gov.ida.saml.core.extensions.eidas.UnsignedAssertionAttributeValue;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.security.SecretKeyDecryptorFactory;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
@@ -48,8 +48,8 @@ public class EidasUnsignedMatchingDatasetUnmarshaller extends EidasMatchingDatas
         try {
 
             List<Attribute> attributes = attributeStatements.get(0).getAttributes();
-            Optional<String> encryptedTransientSecretKey = getAttributeStringValue(attributes, IdaConstants.Eidas_Attributes.UnsignedAssertions.EncryptedSecretKeys.NAME);
-            Optional<String> eidasSaml = getAttributeStringValue(attributes, IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.NAME);
+            Optional<String> encryptedTransientSecretKey = getUnsignedAssertionValue(attributes, IdaConstants.Eidas_Attributes.UnsignedAssertions.EncryptedSecretKeys.NAME);
+            Optional<String> eidasSaml = getUnsignedAssertionValue(attributes, IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.NAME);
             if (!encryptedTransientSecretKey.isPresent() || !eidasSaml.isPresent()) {
                 return null;
             }
@@ -74,15 +74,16 @@ public class EidasUnsignedMatchingDatasetUnmarshaller extends EidasMatchingDatas
 
     }
 
-    private Optional<String> getAttributeStringValue(List<Attribute> attributes, final String key) {
+    private Optional<String> getUnsignedAssertionValue(List<Attribute> attributes, final String key) {
         Optional<XMLObject> value = attributes.stream()
                 .filter(attribute -> key.equals(attribute.getName()))
                 .flatMap(attribute -> attribute.getAttributeValues().stream())
+                .filter(xmlObject -> xmlObject instanceof UnsignedAssertionAttributeValue)
                 .findFirst();
         String result = null;
         if (value.isPresent()) {
             XMLObject xmlObject = value.get();
-            result = ((StringValueSamlObject) xmlObject).getValue();
+            result = ((UnsignedAssertionAttributeValue) xmlObject).getValue();
         } else {
             LOG.warn("Could not find unsigned assertion attribute with key " + key);
         }

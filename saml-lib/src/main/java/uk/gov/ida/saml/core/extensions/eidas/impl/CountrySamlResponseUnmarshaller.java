@@ -10,6 +10,6 @@ public class CountrySamlResponseUnmarshaller extends AbstractSAMLObjectUnmarshal
     @Override
     protected void processElementContent(XMLObject samlObject, String elementContent) {
         CountrySamlResponse countrySamlResponse = (CountrySamlResponse) samlObject;
-        countrySamlResponse.setCountrySamlResponse(elementContent);
+        countrySamlResponse.setValue(elementContent);
     }
 }

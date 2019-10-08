@@ -10,6 +10,6 @@ public class EncryptedAssertionKeysMarshaller extends AbstractSAMLObjectMarshall
     @Override
     protected void marshallElementContent(XMLObject samlObject, Element domElement) {
         EncryptedAssertionKeys encryptedAssertionKeys = (EncryptedAssertionKeys) samlObject;
-        ElementSupport.appendTextContent(domElement, encryptedAssertionKeys.getEncryptedAssertionKeys());
+        ElementSupport.appendTextContent(domElement, encryptedAssertionKeys.getValue());
     }
 }

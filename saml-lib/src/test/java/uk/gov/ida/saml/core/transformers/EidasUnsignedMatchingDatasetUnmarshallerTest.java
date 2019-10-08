@@ -15,8 +15,9 @@ import org.opensaml.xmlsec.encryption.EncryptedData;
 import org.opensaml.xmlsec.encryption.support.Decrypter;
 import uk.gov.ida.saml.core.IdaConstants;
 import uk.gov.ida.saml.core.domain.MatchingDataset;
-import uk.gov.ida.saml.core.extensions.StringValueSamlObject;
+import uk.gov.ida.saml.core.extensions.eidas.CountrySamlResponse;
 import uk.gov.ida.saml.core.extensions.eidas.CurrentGivenName;
+import uk.gov.ida.saml.core.extensions.eidas.EncryptedAssertionKeys;
 import uk.gov.ida.saml.core.extensions.eidas.PersonIdentifier;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.security.SecretKeyDecryptorFactory;
@@ -65,10 +66,10 @@ public class EidasUnsignedMatchingDatasetUnmarshallerTest {
     private Attribute attributeEidasResponse;
 
     @Mock
-    private StringValueSamlObject attributeValueEncryptionKeys;
+    private EncryptedAssertionKeys attributeValueEncryptionKeys;
 
     @Mock
-    private StringValueSamlObject attributeValueEidasResponse;
+    private CountrySamlResponse attributeValueEidasResponse;
 
     @Mock
     private PersonIdentifier personIdentifierValue;
@@ -156,6 +157,9 @@ public class EidasUnsignedMatchingDatasetUnmarshallerTest {
         assertThat(matchingDataset).isNotNull();
         verify(firstNameValue).getFirstName();
         verify(personIdentifierValue).getPersonIdentifier();
+        verify(stringtoOpenSamlObjectTransformer).apply("an eidas response string");
+        verify(attributeValueEncryptionKeys).getValue();
+        verify(attributeValueEidasResponse).getValue();
     }
 
 }
