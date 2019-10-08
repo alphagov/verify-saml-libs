@@ -14,13 +14,19 @@ public class CountrySamlResponseImpl extends AbstractSAMLObject implements Count
         super(namespaceURI, elementLocalName, namespacePrefix);
     }
 
-    public String getCountrySamlResponse() { return countrySamlResponse; }
+    @Override
+    public String getValue() {
+        return countrySamlResponse;
+    }
 
-    public void setCountrySamlResponse(String s) {
-        countrySamlResponse = prepareForAssignment(countrySamlResponse, s);
+    @Override
+    public void setValue(String value) {
+        countrySamlResponse = prepareForAssignment(countrySamlResponse, value);
     }
 
     @Nullable
     @Override
-    public List<XMLObject> getOrderedChildren() { return null; }
+    public List<XMLObject> getOrderedChildren() {
+        return null;
+    }
 }

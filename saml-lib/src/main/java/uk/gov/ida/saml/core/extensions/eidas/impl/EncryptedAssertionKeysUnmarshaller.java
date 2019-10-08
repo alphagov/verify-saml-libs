@@ -8,6 +8,6 @@ public class EncryptedAssertionKeysUnmarshaller extends AbstractSAMLObjectUnmars
     @Override
     protected void processElementContent(XMLObject samlObject, String elementContent) {
         EncryptedAssertionKeys encryptedAssertionKeys = (EncryptedAssertionKeys) samlObject;
-        encryptedAssertionKeys.setEncryptedAssertionKeys(elementContent);
+        encryptedAssertionKeys.setValue(elementContent);
     }
 }

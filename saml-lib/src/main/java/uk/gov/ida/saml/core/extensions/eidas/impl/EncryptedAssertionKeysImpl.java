@@ -14,11 +14,19 @@ public class EncryptedAssertionKeysImpl extends AbstractSAMLObject implements En
         super(namespaceURI, elementLocalName, namespacePrefix);
     }
 
-    public String getEncryptedAssertionKeys() { return encryptedAssertionKeys; }
+    @Override
+    public String getValue() {
+        return encryptedAssertionKeys;
+    }
 
-    public void setEncryptedAssertionKeys(String s) { encryptedAssertionKeys = prepareForAssignment(encryptedAssertionKeys, s); }
+    @Override
+    public void setValue(String value) {
+        encryptedAssertionKeys = prepareForAssignment(encryptedAssertionKeys, value);
+    }
 
     @Nullable
     @Override
-    public List<XMLObject> getOrderedChildren() { return null; }
+    public List<XMLObject> getOrderedChildren() {
+        return null;
+    }
 }
