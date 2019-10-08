@@ -74,7 +74,7 @@ public class EidasUnsignedMatchingDatasetUnmarshaller extends EidasMatchingDatas
 
     }
 
-    private Optional<String> getUnsignedAssertionValue(List<Attribute> attributes, final String key) {
+    private Optional<String> getUnsignedAssertionAttributeValue(List<Attribute> attributes, final String key) {
         Optional<XMLObject> value = attributes.stream()
                 .filter(attribute -> key.equals(attribute.getName()))
                 .flatMap(attribute -> attribute.getAttributeValues().stream())
