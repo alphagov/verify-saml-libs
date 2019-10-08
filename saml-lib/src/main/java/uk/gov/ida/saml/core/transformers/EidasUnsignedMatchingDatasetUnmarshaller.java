@@ -48,8 +48,8 @@ public class EidasUnsignedMatchingDatasetUnmarshaller extends EidasMatchingDatas
         try {
 
             List<Attribute> attributes = attributeStatements.get(0).getAttributes();
-            Optional<String> encryptedTransientSecretKey = getUnsignedAssertionValue(attributes, IdaConstants.Eidas_Attributes.UnsignedAssertions.EncryptedSecretKeys.NAME);
-            Optional<String> eidasSaml = getUnsignedAssertionValue(attributes, IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.NAME);
+            Optional<String> encryptedTransientSecretKey = getUnsignedAssertionAttributeValue(attributes, IdaConstants.Eidas_Attributes.UnsignedAssertions.EncryptedSecretKeys.NAME);
+            Optional<String> eidasSaml = getUnsignedAssertionAttributeValue(attributes, IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.NAME);
             if (!encryptedTransientSecretKey.isPresent() || !eidasSaml.isPresent()) {
                 return null;
             }
