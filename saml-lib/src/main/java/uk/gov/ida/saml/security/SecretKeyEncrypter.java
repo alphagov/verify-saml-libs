@@ -15,9 +15,9 @@ import static uk.gov.ida.saml.security.errors.SamlTransformationErrorFactory.una
 
 public class SecretKeyEncrypter {
 
-    private KeyStoreBackedEncryptionCredentialResolver credentialFactory;
+    private EncryptionCredentialResolver credentialFactory;
 
-    public SecretKeyEncrypter(KeyStoreBackedEncryptionCredentialResolver credentialFactory) {
+    public SecretKeyEncrypter(EncryptionCredentialResolver credentialFactory) {
         this.credentialFactory = credentialFactory;
     }
 
