@@ -6,7 +6,7 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.slf4j.event.Level;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
-import uk.gov.ida.saml.metadata.EidasMetadataResolverRepository;
+import uk.gov.ida.saml.metadata.MetadataResolverRepository;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 import uk.gov.ida.saml.security.validators.signature.SamlResponseSignatureValidator;
 
@@ -16,10 +16,10 @@ import static java.text.MessageFormat.format;
 
 public class EidasValidatorFactory {
 
-    private EidasMetadataResolverRepository eidasMetadataResolverRepository;
+    private MetadataResolverRepository eidasMetadataResolverRepository;
 
     @Inject
-    public EidasValidatorFactory(EidasMetadataResolverRepository eidasMetadataResolverRepository) {
+    public EidasValidatorFactory(MetadataResolverRepository eidasMetadataResolverRepository) {
         this.eidasMetadataResolverRepository = eidasMetadataResolverRepository;
     }
 
