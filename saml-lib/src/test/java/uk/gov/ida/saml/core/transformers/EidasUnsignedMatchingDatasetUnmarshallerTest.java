@@ -13,14 +13,18 @@ import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.encryption.Decrypter;
 import org.opensaml.xmlsec.encryption.EncryptedData;
+import org.slf4j.event.Level;
 import uk.gov.ida.saml.core.IdaConstants;
 import uk.gov.ida.saml.core.domain.MatchingDataset;
 import uk.gov.ida.saml.core.extensions.eidas.CountrySamlResponse;
 import uk.gov.ida.saml.core.extensions.eidas.CurrentGivenName;
 import uk.gov.ida.saml.core.extensions.eidas.EncryptedAssertionKeys;
 import uk.gov.ida.saml.core.extensions.eidas.PersonIdentifier;
+import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
+import uk.gov.ida.saml.security.EidasValidatorFactory;
 import uk.gov.ida.saml.security.SecretKeyDecryptorFactory;
+import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
@@ -37,6 +41,9 @@ public class EidasUnsignedMatchingDatasetUnmarshallerTest {
 
     @Mock
     private SecretKeyDecryptorFactory secretKeyDecryptorFactory;
+
+    @Mock
+    private EidasValidatorFactory eidasValidatorFactory;
 
     @Mock
     private StringToOpenSamlObjectTransformer<Response> stringtoOpenSamlObjectTransformer;
@@ -88,6 +95,9 @@ public class EidasUnsignedMatchingDatasetUnmarshallerTest {
 
     @Mock
     private EncryptedData encryptedData;
+
+    @Mock
+    private ValidatedResponse validatedResponse;
 
     @Test
     public void whenAssertionHasNoAttributeStatementsThenMatchingDatasetIsNull() {
@@ -148,7 +158,8 @@ public class EidasUnsignedMatchingDatasetUnmarshallerTest {
         when(attributeValueEidasResponse.getValue()).thenReturn("an eidas response string");
         when(stringtoOpenSamlObjectTransformer.apply("an eidas response string")).thenReturn(response);
         when(secretKeyDecryptorFactory.createDecrypter("an encrypted  key string")).thenReturn(decrypter);
-        when(response.getEncryptedAssertions()).thenReturn(ImmutableList.of(encryptedAssertion));
+        when(eidasValidatorFactory.getValidatedResponse(response)).thenReturn(validatedResponse);
+        when(validatedResponse.getEncryptedAssertions()).thenReturn(ImmutableList.of(encryptedAssertion));
         when(encryptedAssertion.getEncryptedData()).thenReturn(encryptedData);
         when(decrypter.decryptData(encryptedData)).thenReturn(eidasAssertion);
 
@@ -160,6 +171,27 @@ public class EidasUnsignedMatchingDatasetUnmarshallerTest {
         verify(stringtoOpenSamlObjectTransformer).apply("an eidas response string");
         verify(attributeValueEncryptionKeys).getValue();
         verify(attributeValueEidasResponse).getValue();
+    }
+
+    @Test
+    public void shouldNotProvideAMatchingDataSetWhenResponseSignatureValidationThrowsException() throws Exception {
+        when(unsignedAssertion.getAttributeStatements()).thenReturn(ImmutableList.of(unsignedAttributeStatement));
+        when(eidasAssertion.getAttributeStatements()).thenReturn(ImmutableList.of(eidasAttributeStatement));
+        when(unsignedAttributeStatement.getAttributes()).thenReturn(ImmutableList.of(attributeEncryptionKeys, attributeEidasResponse));
+        when(eidasAttributeStatement.getAttributes()).thenReturn(ImmutableList.of(firstName, pid));
+        when(attributeEncryptionKeys.getName()).thenReturn(IdaConstants.Eidas_Attributes.UnsignedAssertions.EncryptedSecretKeys.NAME);
+        when(attributeEncryptionKeys.getAttributeValues()).thenReturn(ImmutableList.of(attributeValueEncryptionKeys));
+        when(attributeEidasResponse.getAttributeValues()).thenReturn(ImmutableList.of(attributeValueEidasResponse));
+        when(attributeEidasResponse.getName()).thenReturn(IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.NAME);
+        when(attributeValueEncryptionKeys.getValue()).thenReturn("an encrypted  key string");
+        when(attributeValueEidasResponse.getValue()).thenReturn("an eidas response string");
+        when(stringtoOpenSamlObjectTransformer.apply("an eidas response string")).thenReturn(response);
+        when(secretKeyDecryptorFactory.createDecrypter("an encrypted  key string")).thenReturn(decrypter);
+        when(eidasValidatorFactory.getValidatedResponse(response)).thenThrow(new SamlTransformationErrorException("an error message", Level.ERROR));
+        MatchingDataset matchingDataset = unmarshaller.fromAssertion(unsignedAssertion);
+        assertThat(matchingDataset).isNull();
+        verify(stringtoOpenSamlObjectTransformer).apply("an eidas response string");
+        verifyZeroInteractions(secretKeyDecryptorFactory, decrypter);
     }
 
 }
