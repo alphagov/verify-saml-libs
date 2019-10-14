@@ -27,8 +27,6 @@ import uk.gov.ida.saml.security.EidasValidatorFactory;
 import uk.gov.ida.saml.security.SecretKeyDecryptorFactory;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
-import java.util.function.Consumer;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -221,14 +219,5 @@ public class EidasUnsignedMatchingDatasetUnmarshallerTest {
         verify(decrypter).decryptData(encryptedData);
         verify(validator).apply(eidasAssertion);
     }
-
-    @Test(expected = RuntimeException.class)
-    public void testThatARuntimeExceptionIsPropagatedOutsideLambda() {
-        Consumer<String> fn = (c) -> {
-            throw new RuntimeException(c);
-        };
-        fn.accept("");
-    }
-
 
 }
