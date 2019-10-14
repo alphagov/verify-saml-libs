@@ -12,7 +12,6 @@ dist: xenial
 jdk:
   - openjdk11
   - openjdk8
-  - oraclejdk8
 
 before_install:
   - sudo apt-get install jq
