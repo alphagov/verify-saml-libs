@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.ida.saml.core.IdaConstants;
 import uk.gov.ida.saml.core.domain.MatchingDataset;
 import uk.gov.ida.saml.core.extensions.eidas.UnsignedAssertionAttributeValue;
+import uk.gov.ida.saml.core.validation.SamlResponseValidationException;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.security.EidasValidatorFactory;
@@ -25,6 +26,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class EidasUnsignedMatchingDatasetUnmarshaller extends EidasMatchingDatasetUnmarshaller {
 
@@ -33,14 +35,17 @@ public class EidasUnsignedMatchingDatasetUnmarshaller extends EidasMatchingDatas
     private final SecretKeyDecryptorFactory secretKeyDecryptorFactory;
     private final StringToOpenSamlObjectTransformer<Response> stringToOpenSamlObjectTransformer;
     private final EidasValidatorFactory eidasValidatorFactory;
+    private final Consumer<Assertion> validator;
 
     public EidasUnsignedMatchingDatasetUnmarshaller(
             SecretKeyDecryptorFactory secretKeyDecryptorFactory,
             StringToOpenSamlObjectTransformer<Response> stringToOpenSamlObjectTransformer,
-            EidasValidatorFactory eidasValidatorFactory) {
+            EidasValidatorFactory eidasValidatorFactory,
+            Consumer<Assertion> validator) {
         this.secretKeyDecryptorFactory = secretKeyDecryptorFactory;
         this.stringToOpenSamlObjectTransformer = stringToOpenSamlObjectTransformer;
         this.eidasValidatorFactory = eidasValidatorFactory;
+        this.validator = validator;
     }
 
     @Override
@@ -66,13 +71,15 @@ public class EidasUnsignedMatchingDatasetUnmarshaller extends EidasMatchingDatas
             Optional<EncryptedAssertion> encryptedAssertion = validatedResponse.getEncryptedAssertions().stream().findFirst();
             if (encryptedAssertion.isPresent()) {
                 EncryptedData encryptedData = encryptedAssertion.get().getEncryptedData();
-                return super.fromAssertion((Assertion) decrypter.decryptData(encryptedData));
+                Assertion eidasAssertion = (Assertion) decrypter.decryptData(encryptedData);
+                validator.accept(eidasAssertion);
+                return super.fromAssertion(eidasAssertion);
             } else {
                 LOG.warn("Error unmarshalling eIDAS unsigned assertions, encrypted assertions not present");
             }
 
 
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | DecryptionException | SamlTransformationErrorException e) {
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | DecryptionException | SamlTransformationErrorException | SamlResponseValidationException e) {
             LOG.warn("Error unmarshalling eIDAS unsigned assertions from eIDAS SAML Response", e);
         }
         return null;

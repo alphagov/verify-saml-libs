@@ -20,13 +20,17 @@ import uk.gov.ida.saml.core.extensions.eidas.CountrySamlResponse;
 import uk.gov.ida.saml.core.extensions.eidas.CurrentGivenName;
 import uk.gov.ida.saml.core.extensions.eidas.EncryptedAssertionKeys;
 import uk.gov.ida.saml.core.extensions.eidas.PersonIdentifier;
+import uk.gov.ida.saml.core.validation.SamlResponseValidationException;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.security.EidasValidatorFactory;
 import uk.gov.ida.saml.security.SecretKeyDecryptorFactory;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
+import java.util.function.Consumer;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -98,6 +102,9 @@ public class EidasUnsignedMatchingDatasetUnmarshallerTest {
 
     @Mock
     private ValidatedResponse validatedResponse;
+
+    @Mock
+    private Consumer<Assertion> validator;
 
     @Test
     public void whenAssertionHasNoAttributeStatementsThenMatchingDatasetIsNull() {
@@ -171,6 +178,7 @@ public class EidasUnsignedMatchingDatasetUnmarshallerTest {
         verify(stringtoOpenSamlObjectTransformer).apply("an eidas response string");
         verify(attributeValueEncryptionKeys).getValue();
         verify(attributeValueEidasResponse).getValue();
+        verify(validator).accept(eidasAssertion);
     }
 
     @Test
@@ -190,5 +198,37 @@ public class EidasUnsignedMatchingDatasetUnmarshallerTest {
         verify(stringtoOpenSamlObjectTransformer).apply("an eidas response string");
         verifyZeroInteractions(secretKeyDecryptorFactory, decrypter);
     }
+
+    @Test
+    public void shouldNotProvideAMatchingDataSetWhenValidatorOfEidasAssertionThrowsException() throws Exception {
+        when(unsignedAssertion.getAttributeStatements()).thenReturn(ImmutableList.of(unsignedAttributeStatement));
+        when(unsignedAttributeStatement.getAttributes()).thenReturn(ImmutableList.of(attributeEncryptionKeys, attributeEidasResponse));
+        when(attributeEncryptionKeys.getName()).thenReturn(IdaConstants.Eidas_Attributes.UnsignedAssertions.EncryptedSecretKeys.NAME);
+        when(attributeEncryptionKeys.getAttributeValues()).thenReturn(ImmutableList.of(attributeValueEncryptionKeys));
+        when(attributeEidasResponse.getAttributeValues()).thenReturn(ImmutableList.of(attributeValueEidasResponse));
+        when(attributeEidasResponse.getName()).thenReturn(IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.NAME);
+        when(attributeValueEncryptionKeys.getValue()).thenReturn("an encrypted  key string");
+        when(attributeValueEidasResponse.getValue()).thenReturn("an eidas response string");
+        when(stringtoOpenSamlObjectTransformer.apply("an eidas response string")).thenReturn(response);
+        when(secretKeyDecryptorFactory.createDecrypter("an encrypted  key string")).thenReturn(decrypter);
+        when(eidasValidatorFactory.getValidatedResponse(response)).thenReturn(validatedResponse);
+        when(validatedResponse.getEncryptedAssertions()).thenReturn(ImmutableList.of(encryptedAssertion));
+        when(encryptedAssertion.getEncryptedData()).thenReturn(encryptedData);
+        when(decrypter.decryptData(encryptedData)).thenReturn(eidasAssertion);
+        doThrow(new SamlResponseValidationException("")).when(validator).accept(eidasAssertion);
+        MatchingDataset matchingDataset = unmarshaller.fromAssertion(unsignedAssertion);
+        assertThat(matchingDataset).isNull();
+        verify(decrypter).decryptData(encryptedData);
+        verify(validator).accept(eidasAssertion);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testThatARuntimeExceptionIsPropagatedOutsideLambda() {
+        Consumer<String> fn = (c) -> {
+            throw new RuntimeException(c);
+        };
+        fn.accept("");
+    }
+
 
 }
