@@ -271,7 +271,7 @@ public final class SamlTransformationErrorFactory {
     }
 
     public static SamlValidationSpecificationFailure exceededNotOnOrAfter(DateTime expiredTime) {
-        return new BearerSubjectConfirmationValidationSpecification(BearerSubjectConfirmationValidationSpecification.EXCEEDED_NOT_ON_OR_AFTER, expiredTime);
+        return new BearerSubjectConfirmationValidationSpecification(Level.WARN, BearerSubjectConfirmationValidationSpecification.EXCEEDED_NOT_ON_OR_AFTER, expiredTime);
     }
 
     public static SamlValidationSpecificationFailure notBeforeExists() {
