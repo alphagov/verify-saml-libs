@@ -1,5 +1,6 @@
 package uk.gov.ida.saml.core.validation.errors;
 
+import org.slf4j.event.Level;
 import uk.gov.ida.saml.core.validation.SamlDocumentReference;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 
@@ -21,6 +22,10 @@ public class BearerSubjectConfirmationValidationSpecification extends SamlValida
 
     public BearerSubjectConfirmationValidationSpecification(String message, Object... parameters) {
         super(format(message, parameters), true);
+    }
+
+    public BearerSubjectConfirmationValidationSpecification(Level logLevel, String message, Object... parameters) {
+        super(format(message, parameters), true, logLevel);
     }
 
     @Override
