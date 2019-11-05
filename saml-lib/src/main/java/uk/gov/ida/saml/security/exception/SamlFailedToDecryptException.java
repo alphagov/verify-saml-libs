@@ -17,4 +17,8 @@ public class SamlFailedToDecryptException extends SamlTransformationErrorExcepti
     public SamlFailedToDecryptException(SamlValidationSpecificationFailure failure, Exception cause) {
         super(failure.getErrorMessage(), cause, failure.getLogLevel());
     }
+
+    public SamlFailedToDecryptException(SamlValidationSpecificationFailure failure) {
+        super(failure.getErrorMessage(), null, failure.getLogLevel());
+    }
 }

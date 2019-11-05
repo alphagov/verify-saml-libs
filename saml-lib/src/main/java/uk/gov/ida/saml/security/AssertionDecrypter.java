@@ -17,6 +17,7 @@ import java.util.List;
 
 import static uk.gov.ida.saml.security.errors.SamlTransformationErrorFactory.unableToDecrypt;
 import static uk.gov.ida.saml.security.errors.SamlTransformationErrorFactory.unableToDecryptXMLEncryptionKey;
+import static uk.gov.ida.saml.security.errors.SamlTransformationErrorFactory.unableToLocateEncryptedKey;
 
 public class AssertionDecrypter {
 
@@ -57,7 +58,15 @@ public class AssertionDecrypter {
         String algorithm = "";
 
         for (EncryptedAssertion encryptedAssertion : container.getEncryptedAssertions()) {
-            Iterator<EncryptedKey> encryptedKeyIterator = encryptedAssertion.getEncryptedKeys().iterator();
+            Iterator<EncryptedKey> encryptedKeyIterator;
+            if (encryptedAssertion.getEncryptedKeys().size() > 0) {
+                encryptedKeyIterator = encryptedAssertion.getEncryptedKeys().iterator();
+            } else if (encryptedAssertion.getEncryptedData().getKeyInfo().getEncryptedKeys().size() > 0) {
+                encryptedKeyIterator = encryptedAssertion.getEncryptedData().getKeyInfo().getEncryptedKeys().iterator();
+            } else {
+                throw new SamlFailedToDecryptException(unableToLocateEncryptedKey());
+            }
+
             Key decryptedKey = null;
             while (encryptedKeyIterator.hasNext() && decryptedKey == null) {
                 try {
