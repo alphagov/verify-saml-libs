@@ -11,6 +11,7 @@ import org.opensaml.xmlsec.encryption.support.Decrypter;
 import org.opensaml.xmlsec.encryption.support.DecryptionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import uk.gov.ida.saml.core.IdaConstants;
 import uk.gov.ida.saml.core.domain.MatchingDataset;
 import uk.gov.ida.saml.core.extensions.eidas.UnsignedAssertionAttributeValue;
@@ -55,14 +56,12 @@ public class EidasUnsignedMatchingDatasetUnmarshaller extends EidasMatchingDatas
         }
 
         try {
-
             List<Attribute> attributes = attributeStatements.get(0).getAttributes();
             Optional<String> encryptedTransientSecretKey = getUnsignedAssertionAttributeValue(attributes, IdaConstants.Eidas_Attributes.UnsignedAssertions.EncryptedSecretKeys.NAME);
             Optional<String> eidasSaml = getUnsignedAssertionAttributeValue(attributes, IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.NAME);
             if (!encryptedTransientSecretKey.isPresent() || !eidasSaml.isPresent()) {
-                return null;
+                throw new SamlTransformationErrorException("Missing assertion attribute value from eIDAS unsigned assertion", Level.ERROR);
             }
-
 
             Response response = stringToOpenSamlObjectTransformer.apply(eidasSaml.get());
             ValidatedResponse validatedResponse = eidasValidatorFactory.getValidatedResponse(response);
@@ -76,8 +75,6 @@ public class EidasUnsignedMatchingDatasetUnmarshaller extends EidasMatchingDatas
             } else {
                 LOG.warn("Error unmarshalling eIDAS unsigned assertions, encrypted assertions not present");
             }
-
-
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | DecryptionException | SamlTransformationErrorException | ExceptionThrowingValidator.ValidationException e) {
             LOG.warn("Error unmarshalling eIDAS unsigned assertions from eIDAS SAML Response", e);
         }
