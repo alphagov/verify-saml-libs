@@ -11,6 +11,7 @@ import uk.gov.ida.verifyserviceprovider.mappers.MatchingDatasetToNonMatchingAttr
 import uk.gov.ida.verifyserviceprovider.dto.NonMatchingAttributes;
 import uk.gov.ida.verifyserviceprovider.dto.NonMatchingVerifiableAttribute;
 
+import java.net.URI;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -20,26 +21,25 @@ public class EidasAttributesLogger {
 
     public EidasAttributesLogger(
             Supplier<EidasResponseAttributesHashLogger> loggerSupplier,
-            UserIdHashFactory userIdHashFactory
-    ) {
+            UserIdHashFactory userIdHashFactory) {
         this.loggerSupplier = loggerSupplier;
         this.userIdHashFactory = userIdHashFactory;
     }
 
     public void logEidasAttributesAsHash(
-            HubResponseTranslatorRequestInterface hubResponseTranslatorRequest,
-            TranslatedHubResponseInterface translatedHubResponse
-    ) {
+            NonMatchingAttributes attributes,
+            String pid,
+            String requestId,
+            URI destination) {
         EidasResponseAttributesHashLogger hashLogger = loggerSupplier.get();
-        NonMatchingAttributes attributes = translatedHubResponse.getAttributes();
 
-        hashLogger.setPid(translatedHubResponse.getPid());
+        hashLogger.setPid(pid);
 
         updateLoggerAndLog(
                 hashLogger,
                 attributes,
-                hubResponseTranslatorRequest.getRequestId(),
-                hubResponseTranslatorRequest.getDestinationUrl().toString()
+                requestId,
+                destination.toString()
         );
     }
 
@@ -63,8 +63,7 @@ public class EidasAttributesLogger {
             EidasResponseAttributesHashLogger hashLogger,
             NonMatchingAttributes attributes,
             String requestId,
-            String destination
-    ) {
+            String destination) {
         if (attributes != null) {
             attributes.getFirstNames().stream()
                     .filter(NonMatchingVerifiableAttribute::isVerified)
