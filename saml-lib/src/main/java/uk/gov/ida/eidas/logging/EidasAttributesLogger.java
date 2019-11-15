@@ -20,16 +20,14 @@ public class EidasAttributesLogger {
 
     public EidasAttributesLogger(
             Supplier<EidasResponseAttributesHashLogger> loggerSupplier,
-            UserIdHashFactory userIdHashFactory
-    ) {
+            UserIdHashFactory userIdHashFactory) {
         this.loggerSupplier = loggerSupplier;
         this.userIdHashFactory = userIdHashFactory;
     }
 
     public void logEidasAttributesAsHash(
             HubResponseTranslatorRequestInterface hubResponseTranslatorRequest,
-            TranslatedHubResponseInterface translatedHubResponse
-    ) {
+            TranslatedHubResponseInterface translatedHubResponse) {
         EidasResponseAttributesHashLogger hashLogger = loggerSupplier.get();
         NonMatchingAttributes attributes = translatedHubResponse.getAttributes();
 
@@ -63,8 +61,7 @@ public class EidasAttributesLogger {
             EidasResponseAttributesHashLogger hashLogger,
             NonMatchingAttributes attributes,
             String requestId,
-            String destination
-    ) {
+            String destination) {
         if (attributes != null) {
             attributes.getFirstNames().stream()
                     .filter(NonMatchingVerifiableAttribute::isVerified)
