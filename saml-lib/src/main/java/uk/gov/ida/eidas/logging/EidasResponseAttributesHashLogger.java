@@ -1,4 +1,4 @@
-package uk.gov.ida.saml.core.transformers;
+package uk.gov.ida.eidas.logging;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -7,11 +7,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.Lists;
 import org.apache.commons.codec.binary.Hex;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.opensaml.security.crypto.JCAConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +19,10 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
 import java.util.List;
 
-public final class EidasResponseAttributesHashLogger {
+public class EidasResponseAttributesHashLogger {
 
     public static final String MDC_KEY_EIDAS_REQUEST_ID = "hubRequestId";
     public static final String MDC_KEY_EIDAS_DESTINATION = "destination";
@@ -36,8 +35,8 @@ public final class EidasResponseAttributesHashLogger {
     private EidasResponseAttributesHashLogger() {
         responseAttributes = new ResponseAttributes();
         objectMapper = new ObjectMapper();
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        objectMapper.registerModule(new JodaModule());
+        objectMapper.registerModule(new JavaTimeModule());
+
     }
 
     public static EidasResponseAttributesHashLogger instance() {
@@ -60,8 +59,8 @@ public final class EidasResponseAttributesHashLogger {
         this.responseAttributes.addSurname(surname);
     }
 
-    public void setDateOfBirth(DateTime dateOfBirth) {
-        this.responseAttributes.setDateOfBirth(dateOfBirth.toLocalDate());
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.responseAttributes.setDateOfBirth(dateOfBirth);
     }
 
     public void logHashFor(String requestId, String destination) {

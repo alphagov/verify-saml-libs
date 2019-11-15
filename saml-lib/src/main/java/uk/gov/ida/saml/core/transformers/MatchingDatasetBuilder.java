@@ -13,7 +13,7 @@ import java.util.Optional;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-class MatchingDatasetBuilder {
+public class MatchingDatasetBuilder {
     private List<TransliterableMdsValue> firstnames = new ArrayList<>();
     private List<SimpleMdsValue<String>> middlenames = new ArrayList<>();
     private List<TransliterableMdsValue> surnames = new ArrayList<>();

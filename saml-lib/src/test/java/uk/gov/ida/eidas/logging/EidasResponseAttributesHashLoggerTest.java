@@ -1,11 +1,10 @@
-package uk.gov.ida.saml.core.transformers;
+package uk.gov.ida.eidas.logging;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import org.apache.commons.lang.reflect.FieldUtils;
-import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -13,14 +12,15 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.time.LocalDate;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static uk.gov.ida.saml.core.transformers.EidasResponseAttributesHashLogger.MDC_KEY_EIDAS_DESTINATION;
-import static uk.gov.ida.saml.core.transformers.EidasResponseAttributesHashLogger.MDC_KEY_EIDAS_REQUEST_ID;
-import static uk.gov.ida.saml.core.transformers.EidasResponseAttributesHashLogger.MDC_KEY_EIDAS_USER_HASH;
+import static uk.gov.ida.eidas.logging.EidasResponseAttributesHashLogger.MDC_KEY_EIDAS_DESTINATION;
+import static uk.gov.ida.eidas.logging.EidasResponseAttributesHashLogger.MDC_KEY_EIDAS_REQUEST_ID;
+import static uk.gov.ida.eidas.logging.EidasResponseAttributesHashLogger.MDC_KEY_EIDAS_USER_HASH;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EidasResponseAttributesHashLoggerTest {
@@ -34,7 +34,7 @@ public class EidasResponseAttributesHashLoggerTest {
 
     @Test
     public void testDifferentInputProduceDifferentHashes() {
-        DateTime now = DateTime.now();
+        LocalDate now = LocalDate.now();
 
         EidasResponseAttributesHashLogger logger1 = EidasResponseAttributesHashLogger.instance();
         logger1.setPid("a");
@@ -57,7 +57,7 @@ public class EidasResponseAttributesHashLoggerTest {
 
     @Test
     public void testSamePidsProduceSameHashes() {
-        DateTime now = DateTime.now();
+        LocalDate now = LocalDate.now();
 
         EidasResponseAttributesHashLogger logger1 = EidasResponseAttributesHashLogger.instance();
         logger1.setPid("a");
@@ -93,27 +93,6 @@ public class EidasResponseAttributesHashLoggerTest {
         logger3.addMiddleName("mn2");
         logger3.addMiddleName("mn1");
         assertThat(hash1).isNotEqualTo(buildHash(logger3));
-
-
-    }
-
-    @Test
-    public void testDateOfBirthIsStoredAndHashedAsLocalDate() {
-        DateTime beginningOfToday = new DateTime().withTimeAtStartOfDay();
-        DateTime oneHourLater = beginningOfToday.plusHours(1);
-        DateTime tomorrow = beginningOfToday.plusDays(1).withTimeAtStartOfDay();
-
-        EidasResponseAttributesHashLogger logger = EidasResponseAttributesHashLogger.instance();
-        logger.setDateOfBirth(beginningOfToday);
-        String hash1 = buildHash(logger);
-
-        logger.setDateOfBirth(oneHourLater);
-        String hash2 = buildHash(logger);
-        assertThat(hash1).isEqualTo(hash2);
-
-        logger.setDateOfBirth(tomorrow);
-        String hash3 = buildHash(logger);
-        assertThat(hash2).isNotEqualTo(hash3);
     }
 
     @Test
@@ -153,17 +132,13 @@ public class EidasResponseAttributesHashLoggerTest {
         String expectedStringToHash = "{\"pid\":\"a\",\"firstName\":\"fn\",\"middleNames\":[\"m1\",\"mn2\"],\"surnames\":[\"sn\"],\"dateOfBirth\":\"2019-03-24\"}";
         String expectedHash = getExpectedHash(logger, expectedStringToHash);
 
-        DateTime startOfToday = DateTime.now()
-                .withYear(2019)
-                .withMonthOfYear(3)
-                .withDayOfMonth(24)
-                .withTimeAtStartOfDay();
+        LocalDate dateOfBirth = LocalDate.of(2019, 3, 24);
         logger.setPid("a");
         logger.setFirstName("fn");
         logger.addMiddleName("m1");
         logger.addMiddleName("mn2");
         logger.addSurname("sn");
-        logger.setDateOfBirth(startOfToday);
+        logger.setDateOfBirth(dateOfBirth);
         assertThat(buildHash(logger)).isEqualTo(expectedHash);
     }
 
