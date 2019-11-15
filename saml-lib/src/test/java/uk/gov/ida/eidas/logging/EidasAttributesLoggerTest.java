@@ -43,12 +43,6 @@ public class EidasAttributesLoggerTest {
     private EidasResponseAttributesHashLogger hashLogger;
 
     @Mock
-    private HubResponseTranslatorRequestInterface hubResponseTranslatorRequest;
-
-    @Mock
-    private TranslatedHubResponseInterface translatedHubResponse;
-
-    @Mock
     private NonMatchingAttributes attributes;
 
     @Mock
@@ -84,12 +78,6 @@ public class EidasAttributesLoggerTest {
 
     @Before
     public void setUp() {
-        when(translatedHubResponse.getAttributes()).thenReturn(attributes);
-        when(translatedHubResponse.getPid()).thenReturn(hashedPid);
-
-        when(hubResponseTranslatorRequest.getRequestId()).thenReturn(requestId);
-        when(hubResponseTranslatorRequest.getDestinationUrl()).thenReturn(destination);
-
         when(response.getInResponseTo()).thenReturn(requestId);
         when(response.getDestination()).thenReturn(destination.toString());
 
@@ -125,7 +113,12 @@ public class EidasAttributesLoggerTest {
 
         when(attributes.getFirstNames()).thenReturn(firstNames);
 
-        preExtractedEidasAttributesLogger.logEidasAttributesAsHash(hubResponseTranslatorRequest, translatedHubResponse);
+        preExtractedEidasAttributesLogger.logEidasAttributesAsHash(
+                attributes,
+                hashedPid,
+                requestId,
+                destination
+        );
 
         verify(hashLogger).setPid(hashedPid);
         verify(hashLogger).setFirstName("Paul");
@@ -170,7 +163,12 @@ public class EidasAttributesLoggerTest {
 
         when(attributes.getFirstNames()).thenReturn(firstNames);
 
-        preExtractedEidasAttributesLogger.logEidasAttributesAsHash(hubResponseTranslatorRequest, translatedHubResponse);
+        preExtractedEidasAttributesLogger.logEidasAttributesAsHash(
+                attributes,
+                hashedPid,
+                requestId,
+                destination
+        );
 
         verify(hashLogger).setPid(hashedPid);
         verify(hashLogger, never()).setFirstName(any());
@@ -215,7 +213,12 @@ public class EidasAttributesLoggerTest {
 
         when(attributes.getDatesOfBirth()).thenReturn(datesOfBirth);
 
-        preExtractedEidasAttributesLogger.logEidasAttributesAsHash(hubResponseTranslatorRequest, translatedHubResponse);
+        preExtractedEidasAttributesLogger.logEidasAttributesAsHash(
+                attributes,
+                hashedPid,
+                requestId,
+                destination
+        );
 
         verify(hashLogger).setPid(hashedPid);
         verify(hashLogger).setDateOfBirth(LocalDate.of(1943, 2, 25));
@@ -260,7 +263,12 @@ public class EidasAttributesLoggerTest {
 
         when(attributes.getMiddleNames()).thenReturn(middleNames);
 
-        preExtractedEidasAttributesLogger.logEidasAttributesAsHash(hubResponseTranslatorRequest, translatedHubResponse);
+        preExtractedEidasAttributesLogger.logEidasAttributesAsHash(
+                attributes,
+                hashedPid,
+                requestId,
+                destination
+        );
 
         InOrder inOrder = inOrder(hashLogger);
         verify(hashLogger).setPid(hashedPid);
@@ -314,7 +322,12 @@ public class EidasAttributesLoggerTest {
 
         when(attributes.getSurnames()).thenReturn(surnames);
 
-        preExtractedEidasAttributesLogger.logEidasAttributesAsHash(hubResponseTranslatorRequest, translatedHubResponse);
+        preExtractedEidasAttributesLogger.logEidasAttributesAsHash(
+                attributes,
+                hashedPid,
+                requestId,
+                destination
+        );
 
         InOrder inOrder = inOrder(hashLogger);
         verify(hashLogger).setPid(hashedPid);

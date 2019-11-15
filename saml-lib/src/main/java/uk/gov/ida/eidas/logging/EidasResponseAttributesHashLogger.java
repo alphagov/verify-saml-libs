@@ -36,7 +36,6 @@ public class EidasResponseAttributesHashLogger {
         responseAttributes = new ResponseAttributes();
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-
     }
 
     public static EidasResponseAttributesHashLogger instance() {
