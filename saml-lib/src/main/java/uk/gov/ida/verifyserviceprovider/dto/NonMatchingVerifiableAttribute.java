@@ -47,7 +47,7 @@ public class NonMatchingVerifiableAttribute<T> {
     }
 
     public boolean isCurrent() {
-        return (this.from != null && this.from.isBefore(LocalDate.now())) &&
+        return (this.from == null || this.from.isBefore(LocalDate.now())) &&
                 (this.to == null || this.to.isAfter(LocalDate.now()));
     }
 

@@ -15,17 +15,17 @@ import java.util.stream.Collectors;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class NonMatchingAttributes {
     @JsonProperty("firstNames")
-    private final List<NonMatchingTransliterableAttribute> firstNames;
+    protected final List<NonMatchingTransliterableAttribute> firstNames;
     @JsonProperty("middleNames")
-    private final List<NonMatchingVerifiableAttribute<String>> middleNames;
+    protected final List<NonMatchingVerifiableAttribute<String>> middleNames;
     @JsonProperty("surnames")
-    private final List<NonMatchingTransliterableAttribute> surnames;
+    protected final List<NonMatchingTransliterableAttribute> surnames;
     @JsonProperty("datesOfBirth")
-    private final List<NonMatchingVerifiableAttribute<LocalDate>> datesOfBirth;
+    protected final List<NonMatchingVerifiableAttribute<LocalDate>> datesOfBirth;
     @JsonProperty("gender")
-    private final NonMatchingVerifiableAttribute<Gender> gender;
+    protected final NonMatchingVerifiableAttribute<Gender> gender;
     @JsonProperty("addresses")
-    private final List<NonMatchingVerifiableAttribute<NonMatchingAddress>> addresses;
+    protected final List<NonMatchingVerifiableAttribute<NonMatchingAddress>> addresses;
 
 
     @JsonCreator
