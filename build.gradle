@@ -90,15 +90,15 @@ subprojects {
         security 'com.nimbusds:nimbus-jose-jwt:7.3',
                 "uk.gov.ida:security-utils:2.0.0-$ida_utils_version"
 
-        test_deps "uk.gov.ida:common-test-utils:2.0.0-46",
-                "com.github.tomakehurst:wiremock-standalone:2.23.2",
-                "io.dropwizard:dropwizard-testing:$dropwizard_version",
-                'org.hamcrest:hamcrest-library:2.1',
-                'org.assertj:assertj-joda-time:1.1.0',
-                'org.assertj:assertj-core:3.9.1',
-                'org.junit.jupiter:junit-jupiter-api:5.0.0',
-                'uk.gov.ida:ida-dev-pki:1.1.0-37',
-                'org.mockito:mockito-core:1.9.5'
+        test_deps   'uk.gov.ida:common-test-utils:2.0.0-48',
+                    'com.github.tomakehurst:wiremock-standalone:2.23.2',
+                    "io.dropwizard:dropwizard-testing:$dropwizard_version",
+                    'org.hamcrest:hamcrest-library:2.1',
+                    'org.assertj:assertj-joda-time:2.2.0',
+                    'org.assertj:assertj-core:3.14.0',
+                    'org.junit.jupiter:junit-jupiter-api:5.0.0',
+                    'uk.gov.ida:ida-dev-pki:1.1.0-37',
+                    'org.mockito:mockito-core:3.1.0'
 
         xml_utils "uk.gov.ida:common-utils:2.0.0-$ida_utils_version"
     }
