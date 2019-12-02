@@ -1,11 +1,9 @@
-package uk.gov.ida.verifyserviceprovider.dto;
+package uk.gov.ida.saml.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.collections.CollectionUtils;
-
-import uk.gov.ida.saml.core.domain.Gender;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,35 +12,22 @@ import java.util.stream.Collectors;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class NonMatchingAttributes {
-    @JsonProperty("firstNames")
-    protected final List<NonMatchingTransliterableAttribute> firstNames;
-    @JsonProperty("middleNames")
-    protected final List<NonMatchingVerifiableAttribute<String>> middleNames;
-    @JsonProperty("surnames")
-    protected final List<NonMatchingTransliterableAttribute> surnames;
-    @JsonProperty("datesOfBirth")
-    protected final List<NonMatchingVerifiableAttribute<LocalDate>> datesOfBirth;
-    @JsonProperty("gender")
-    protected final NonMatchingVerifiableAttribute<Gender> gender;
-    @JsonProperty("addresses")
-    protected final List<NonMatchingVerifiableAttribute<NonMatchingAddress>> addresses;
 
+    protected final List<NonMatchingTransliterableAttribute> firstNames;
+    protected final List<NonMatchingVerifiableAttribute<String>> middleNames;
+    protected final List<NonMatchingTransliterableAttribute> surnames;
+    protected final List<NonMatchingVerifiableAttribute<LocalDate>> datesOfBirth;
+    protected final NonMatchingVerifiableAttribute<Gender> gender;
+    protected final List<NonMatchingVerifiableAttribute<NonMatchingAddress>> addresses;
 
     @JsonCreator
     public NonMatchingAttributes(
-            @JsonProperty("firstNames")
-                    List<NonMatchingTransliterableAttribute> firstNames,
-            @JsonProperty("middleNames")
-                    List<NonMatchingVerifiableAttribute<String>> middleNames,
-            @JsonProperty("surnames")
-                    List<NonMatchingTransliterableAttribute> surnames,
-            @JsonProperty("datesOfBirth")
-                    List<NonMatchingVerifiableAttribute<LocalDate>> datesOfBirth,
-            @JsonProperty("gender")
-                    NonMatchingVerifiableAttribute<Gender> gender,
-            @JsonProperty("addresses")
-                    List<NonMatchingVerifiableAttribute<NonMatchingAddress>> addresses
-    ) {
+            @JsonProperty("firstNames") List<NonMatchingTransliterableAttribute> firstNames,
+            @JsonProperty("middleNames") List<NonMatchingVerifiableAttribute<String>> middleNames,
+            @JsonProperty("surnames") List<NonMatchingTransliterableAttribute> surnames,
+            @JsonProperty("datesOfBirth") List<NonMatchingVerifiableAttribute<LocalDate>> datesOfBirth,
+            @JsonProperty("gender") NonMatchingVerifiableAttribute<Gender> gender,
+            @JsonProperty("addresses") List<NonMatchingVerifiableAttribute<NonMatchingAddress>> addresses) {
         this.firstNames = firstNames;
         this.middleNames = middleNames;
         this.surnames = surnames;
@@ -89,11 +74,19 @@ public class NonMatchingAttributes {
         if (o == null || getClass() != o.getClass()) return false;
 
         NonMatchingAttributes that = (NonMatchingAttributes) o;
-        if (firstNames != null ? !firstNames.equals(that.firstNames) : that.firstNames != null) return false;
-        if (middleNames != null ? !(that.middleNames != null && CollectionUtils.isEqualCollection(middleNames, that.middleNames)) : that.middleNames != null) return false;
-        if (surnames != null ? !(that.surnames != null && CollectionUtils.isEqualCollection(surnames, that.surnames)) : that.surnames != null) return false;
-        if (datesOfBirth != null ? !datesOfBirth.equals(that.datesOfBirth) : that.datesOfBirth != null) return false;
-        if (gender != null ? !gender.equals(that.gender) : that.gender != null) return false;
+        if (!Objects.equals(firstNames, that.firstNames)) return false;
+
+        if (middleNames != null ? !(that.middleNames != null && CollectionUtils.isEqualCollection(middleNames, that.middleNames)) : that.middleNames != null) {
+            return false;
+        }
+
+        if (surnames != null ? !(that.surnames != null && CollectionUtils.isEqualCollection(surnames, that.surnames)) : that.surnames != null) {
+            return false;
+        }
+
+        if (!Objects.equals(datesOfBirth, that.datesOfBirth)) return false;
+        if (!Objects.equals(gender, that.gender)) return false;
+
         return (addresses != null ? !(that.addresses != null && CollectionUtils.isEqualCollection(addresses, that.addresses)) : that.addresses != null);
     }
 
@@ -114,5 +107,4 @@ public class NonMatchingAttributes {
                 "Attributes{ firstNames=%s, middleNames=%s, surnames=%s, datesOfBirth=%s, gender=%s, addresses=%s}",
                 firstNames, middleNames, surnames, datesOfBirth, gender, addresses);
     }
-
 }

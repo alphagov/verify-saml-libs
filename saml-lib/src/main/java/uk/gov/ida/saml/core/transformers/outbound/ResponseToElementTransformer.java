@@ -1,4 +1,4 @@
-package uk.gov.ida.matchingserviceadapter.saml.transformers.outbound;
+package uk.gov.ida.saml.core.transformers.outbound;
 
 import org.opensaml.saml.saml2.core.Response;
 import org.w3c.dom.Element;
@@ -41,5 +41,4 @@ public class ResponseToElementTransformer implements Function<Response, Element>
         final Response signedResponse = samlSignatureSigner.sign(responseWithEncryptedAssertions);
         return xmlObjectToElementTransformer.apply(signedResponse);
     }
-
 }

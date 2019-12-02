@@ -1,4 +1,4 @@
-package uk.gov.ida.verifyserviceprovider.dto;
+package uk.gov.ida.saml.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -9,25 +9,18 @@ import java.time.LocalDate;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NonMatchingVerifiableAttribute<T> {
-    @JsonProperty("value")
+
     private final T value;
-    @JsonProperty("verified")
     private final boolean verified;
-    @JsonProperty("from") @JsonInclude(JsonInclude.Include.NON_NULL)
     private final LocalDate from;
-    @JsonProperty("to") @JsonInclude(JsonInclude.Include.NON_NULL)
     private final LocalDate to;
 
     @JsonCreator
     public NonMatchingVerifiableAttribute(
-            @JsonProperty("value")
-                T value,
-            @JsonProperty("verified")
-                boolean verified,
-            @JsonProperty("from") @JsonInclude(JsonInclude.Include.NON_NULL)
-                LocalDate from,
-            @JsonProperty("to") @JsonInclude(JsonInclude.Include.NON_NULL)
-                LocalDate to) {
+            @JsonProperty("value") T value,
+            @JsonProperty("verified") boolean verified,
+            @JsonProperty("from") @JsonInclude(JsonInclude.Include.NON_NULL) LocalDate from,
+            @JsonProperty("to") @JsonInclude(JsonInclude.Include.NON_NULL) LocalDate to) {
         this.value = value;
         this.verified = verified;
         this.from = from;
@@ -51,9 +44,13 @@ public class NonMatchingVerifiableAttribute<T> {
                 (this.to == null || this.to.isAfter(LocalDate.now()));
     }
 
-    public LocalDate getFrom() { return from; }
+    public LocalDate getFrom() {
+        return from;
+    }
 
-    public LocalDate getTo() { return to; }
+    public LocalDate getTo() {
+        return to;
+    }
 
     @Override
     public boolean equals(Object o) {

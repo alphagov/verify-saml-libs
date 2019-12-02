@@ -18,9 +18,9 @@ import uk.gov.ida.saml.core.IdaConstants;
 import uk.gov.ida.saml.core.extensions.Date;
 import uk.gov.ida.saml.core.extensions.PersonName;
 import uk.gov.ida.saml.hub.factories.UserIdHashFactory;
-import uk.gov.ida.verifyserviceprovider.dto.NonMatchingAttributes;
-import uk.gov.ida.verifyserviceprovider.dto.NonMatchingTransliterableAttribute;
-import uk.gov.ida.verifyserviceprovider.dto.NonMatchingVerifiableAttribute;
+import uk.gov.ida.saml.core.domain.NonMatchingAttributes;
+import uk.gov.ida.saml.core.domain.NonMatchingTransliterableAttribute;
+import uk.gov.ida.saml.core.domain.NonMatchingVerifiableAttribute;
 
 import java.net.URI;
 import java.time.LocalDate;

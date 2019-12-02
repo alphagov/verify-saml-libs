@@ -7,9 +7,9 @@ import uk.gov.ida.saml.core.domain.AuthnContext;
 import uk.gov.ida.saml.core.domain.MatchingDataset;
 import uk.gov.ida.saml.core.transformers.VerifyMatchingDatasetUnmarshaller;
 import uk.gov.ida.saml.hub.factories.UserIdHashFactory;
-import uk.gov.ida.verifyserviceprovider.mappers.MatchingDatasetToNonMatchingAttributesMapper;
-import uk.gov.ida.verifyserviceprovider.dto.NonMatchingAttributes;
-import uk.gov.ida.verifyserviceprovider.dto.NonMatchingVerifiableAttribute;
+import uk.gov.ida.saml.core.transformers.MatchingDatasetToNonMatchingAttributesMapper;
+import uk.gov.ida.saml.core.domain.NonMatchingAttributes;
+import uk.gov.ida.saml.core.domain.NonMatchingVerifiableAttribute;
 
 import java.net.URI;
 import java.util.Optional;

@@ -7,10 +7,11 @@ import uk.gov.ida.saml.core.domain.Gender;
 import uk.gov.ida.saml.core.domain.MatchingDataset;
 import uk.gov.ida.saml.core.domain.SimpleMdsValue;
 import uk.gov.ida.saml.core.domain.TransliterableMdsValue;
-import uk.gov.ida.verifyserviceprovider.dto.NonMatchingAddress;
-import uk.gov.ida.verifyserviceprovider.dto.NonMatchingAttributes;
-import uk.gov.ida.verifyserviceprovider.dto.NonMatchingTransliterableAttribute;
-import uk.gov.ida.verifyserviceprovider.dto.NonMatchingVerifiableAttribute;
+import uk.gov.ida.saml.core.transformers.MatchingDatasetToNonMatchingAttributesMapper;
+import uk.gov.ida.saml.core.domain.NonMatchingAddress;
+import uk.gov.ida.saml.core.domain.NonMatchingAttributes;
+import uk.gov.ida.saml.core.domain.NonMatchingTransliterableAttribute;
+import uk.gov.ida.saml.core.domain.NonMatchingVerifiableAttribute;
 import uk.gov.ida.verifyserviceprovider.dto.NonMatchingVerifiableAttributeBuilder;
 
 import java.time.LocalDate;
