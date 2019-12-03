@@ -23,14 +23,17 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class MatchingDatasetToNonMatchingAttributesMapperTest {
 
-    private final DateTime fromTwo = DateTime.now().minusDays(30);
+    private final MatchingDatasetToNonMatchingAttributesMapper matchingDatasetMapper = new MatchingDatasetToNonMatchingAttributesMapper();
+
     private final DateTime fromOne = DateTime.now();
-    private final DateTime fromThree = DateTime.now().minusDays(6);
+    private final DateTime fromTwo = DateTime.now().minusDays(6);
+    private final DateTime fromThree = DateTime.now().minusDays(30);
     private final DateTime fromFour = null;
 
     private final String foo = "Foo";
@@ -39,15 +42,14 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
     private final String fuu = "Fuu";
 
     @Test
-    public void shouldMapFirstNames() {
-        List<TransliterableMdsValue> firstNames = asList(
-                createTransliterableValue(fromThree, foo),
-                createTransliterableValue(fromTwo, bar),
+    public void shouldMapFirstNamesOrderedByFromDate() {
+        final List<TransliterableMdsValue> firstNames = asList(
+                createTransliterableValue(fromTwo, foo),
+                createTransliterableValue(fromThree, bar),
                 createTransliterableValue(fromOne, baz),
-                createTransliterableValue(fromFour, fuu)
-        );
+                createTransliterableValue(fromFour, fuu));
 
-        MatchingDataset matchingDataset = new MatchingDataset(
+        final MatchingDataset matchingDataset = new MatchingDataset(
                 firstNames,
                 Collections.emptyList(),
                 Collections.emptyList(),
@@ -55,9 +57,9 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList(),
-                null
-        );
-        NonMatchingAttributes nonMatchingAttributes = new MatchingDatasetToNonMatchingAttributesMapper().mapToNonMatchingAttributes(matchingDataset);
+                null);
+
+        final NonMatchingAttributes nonMatchingAttributes = matchingDatasetMapper.mapToNonMatchingAttributes(matchingDataset);
 
         assertThat(nonMatchingAttributes.getFirstNames().stream()
                 .map(NonMatchingVerifiableAttribute::getValue)
@@ -68,12 +70,10 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
 
     @Test
     public void shouldMapFirstNamesWithNonLatinScriptValue() {
-        String nonLatinScript = "nonLatinScript";
-        List<TransliterableMdsValue> firstNames = asList(
-                createTransliterableValue(foo, nonLatinScript)
-        );
+        final String nonLatinScript = "nonLatinScript✨";
+        final List<TransliterableMdsValue> firstNames = singletonList(createTransliterableValue(foo, nonLatinScript));
 
-        MatchingDataset matchingDataset = new MatchingDataset(
+        final MatchingDataset matchingDataset = new MatchingDataset(
                 firstNames,
                 Collections.emptyList(),
                 Collections.emptyList(),
@@ -81,25 +81,24 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList(),
-                null
-        );
-        NonMatchingAttributes nonMatchingAttributes = new MatchingDatasetToNonMatchingAttributesMapper().mapToNonMatchingAttributes(matchingDataset);
+                null);
 
-        NonMatchingTransliterableAttribute nonMatchingTransliterableAttribute = nonMatchingAttributes.getFirstNames().get(0);
+        final NonMatchingAttributes nonMatchingAttributes = matchingDatasetMapper.mapToNonMatchingAttributes(matchingDataset);
+        final NonMatchingTransliterableAttribute nonMatchingTransliterableAttribute = nonMatchingAttributes.getFirstNames().get(0);
+
         assertThat(nonMatchingTransliterableAttribute.getValue()).isEqualTo(foo);
         assertThat(nonMatchingTransliterableAttribute.getNonLatinScriptValue()).isEqualTo(nonLatinScript);
     }
 
     @Test
-    public void shouldMapMiddlenames() {
-        List<SimpleMdsValue<String>> middleNames = asList(
-                createSimpleMdsValue(fromThree, foo),
-                createSimpleMdsValue(fromTwo, bar),
+    public void shouldMapMiddleNamesOrderedByFromDate() {
+        final List<SimpleMdsValue<String>> middleNames = asList(
+                createSimpleMdsValue(fromTwo, foo),
+                createSimpleMdsValue(fromThree, bar),
                 createSimpleMdsValue(fromOne, baz),
-                createSimpleMdsValue(fromFour, fuu)
-        );
+                createSimpleMdsValue(fromFour, fuu));
 
-        MatchingDataset matchingDataset = new MatchingDataset(
+        final MatchingDataset matchingDataset = new MatchingDataset(
                 Collections.emptyList(),
                 middleNames,
                 Collections.emptyList(),
@@ -107,9 +106,9 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList(),
-                null
-        );
-        NonMatchingAttributes nonMatchingAttributes = new MatchingDatasetToNonMatchingAttributesMapper().mapToNonMatchingAttributes(matchingDataset);
+                null);
+
+        final NonMatchingAttributes nonMatchingAttributes = matchingDatasetMapper.mapToNonMatchingAttributes(matchingDataset);
 
         assertThat(nonMatchingAttributes.getMiddleNames().stream()
                 .map(NonMatchingVerifiableAttribute::getValue)
@@ -119,15 +118,14 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
     }
 
     @Test
-    public void shouldMapSurnames() {
-        List<TransliterableMdsValue> surnames = asList(
-                createTransliterableValue(fromThree, foo),
-                createTransliterableValue(fromTwo, bar),
+    public void shouldMapSurnamesOrderedByFromDate() {
+        final List<TransliterableMdsValue> surnames = asList(
+                createTransliterableValue(fromTwo, foo),
+                createTransliterableValue(fromThree, bar),
                 createTransliterableValue(fromOne, baz),
-                createTransliterableValue(fromFour, fuu)
-        );
+                createTransliterableValue(fromFour, fuu));
 
-        MatchingDataset matchingDataset = new MatchingDataset(
+        final MatchingDataset matchingDataset = new MatchingDataset(
                 Collections.emptyList(),
                 Collections.emptyList(),
                 surnames,
@@ -135,9 +133,9 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList(),
-                null
-        );
-        NonMatchingAttributes nonMatchingAttributes = new MatchingDatasetToNonMatchingAttributesMapper().mapToNonMatchingAttributes(matchingDataset);
+                null);
+
+        final NonMatchingAttributes nonMatchingAttributes = matchingDatasetMapper.mapToNonMatchingAttributes(matchingDataset);
 
         assertThat(nonMatchingAttributes.getSurnames().stream()
                 .map(NonMatchingVerifiableAttribute::getValue)
@@ -148,12 +146,10 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
 
     @Test
     public void shouldMapSurnamesWithNonLatinScriptValue() {
-        String nonLatinScript = "nonLatinScript";
-        List<TransliterableMdsValue> surnames = asList(
-                createTransliterableValue(foo, nonLatinScript)
-        );
+        final String nonLatinScript = "nonLatinScript";
+        final List<TransliterableMdsValue> surnames = singletonList(createTransliterableValue(foo, nonLatinScript));
 
-        MatchingDataset matchingDataset = new MatchingDataset(
+        final MatchingDataset matchingDataset = new MatchingDataset(
                 Collections.emptyList(),
                 Collections.emptyList(),
                 surnames,
@@ -161,29 +157,28 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList(),
-                null
-        );
-        NonMatchingAttributes nonMatchingAttributes = new MatchingDatasetToNonMatchingAttributesMapper().mapToNonMatchingAttributes(matchingDataset);
+                null);
 
-        NonMatchingTransliterableAttribute nonMatchingTransliterableAttribute = nonMatchingAttributes.getSurnames().get(0);
+        final NonMatchingAttributes nonMatchingAttributes = matchingDatasetMapper.mapToNonMatchingAttributes(matchingDataset);
+        final NonMatchingTransliterableAttribute nonMatchingTransliterableAttribute = nonMatchingAttributes.getSurnames().get(0);
+
         assertThat(nonMatchingTransliterableAttribute.getValue()).isEqualTo(foo);
         assertThat(nonMatchingTransliterableAttribute.getNonLatinScriptValue()).isEqualTo(nonLatinScript);
     }
 
     @Test
-    public void shouldMapDatesOfBirth() {
-        org.joda.time.LocalDate fooDate = org.joda.time.LocalDate.now();
-        org.joda.time.LocalDate barDate = org.joda.time.LocalDate.now().minusDays(5);
-        org.joda.time.LocalDate bazDate = org.joda.time.LocalDate.now().minusDays(10);
-        org.joda.time.LocalDate fuuDate = org.joda.time.LocalDate.now().minusDays(15);
-        List<SimpleMdsValue<org.joda.time.LocalDate>> datesOfBirth = asList(
-                createDateValue(fromThree, fooDate),
-                createDateValue(fromTwo, barDate),
+    public void shouldMapDatesOfBirthOrderedByFromDate() {
+        final org.joda.time.LocalDate fooDate = org.joda.time.LocalDate.now();
+        final org.joda.time.LocalDate barDate = org.joda.time.LocalDate.now().minusDays(5);
+        final org.joda.time.LocalDate bazDate = org.joda.time.LocalDate.now().minusDays(10);
+        final org.joda.time.LocalDate fuuDate = org.joda.time.LocalDate.now().minusDays(15);
+        final List<SimpleMdsValue<org.joda.time.LocalDate>> datesOfBirth = asList(
+                createDateValue(fromTwo, fooDate),
+                createDateValue(fromThree, barDate),
                 createDateValue(fromOne, bazDate),
-                createDateValue(fromFour, fuuDate)
-        );
+                createDateValue(fromFour, fuuDate));
 
-        MatchingDataset matchingDataset = new MatchingDataset(
+        final MatchingDataset matchingDataset = new MatchingDataset(
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList(),
@@ -191,13 +186,13 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
                 datesOfBirth,
                 Collections.emptyList(),
                 Collections.emptyList(),
-                null
-        );
-        NonMatchingAttributes nonMatchingAttributes = new MatchingDatasetToNonMatchingAttributesMapper().mapToNonMatchingAttributes(matchingDataset);
+                null);
 
-        List<String> expectedDates = Stream.of(bazDate, fooDate, barDate, fuuDate)
+        final NonMatchingAttributes nonMatchingAttributes = matchingDatasetMapper.mapToNonMatchingAttributes(matchingDataset);
+        final List<String> expectedDates = Stream.of(bazDate, fooDate, barDate, fuuDate)
                 .map(org.joda.time.LocalDate::toString)
                 .collect(Collectors.toList());
+
         assertThat(nonMatchingAttributes.getDatesOfBirth().stream()
                 .map(NonMatchingVerifiableAttribute::getValue)
                 .map(LocalDate::toString)
@@ -208,21 +203,21 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
 
     @Test
     public void shouldMapAddressesAndNotDiscardAttributes() {
-        Address addressIn = createAddress(fromOne, baz);
+        final Address addressIn = createAddress(fromOne, baz);
 
-        MatchingDataset matchingDataset = new MatchingDataset(
+        final MatchingDataset matchingDataset = new MatchingDataset(
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Optional.empty(),
                 Collections.emptyList(),
-                Collections.singletonList(addressIn),
+                singletonList(addressIn),
                 Collections.emptyList(),
-                null
-        );
-        NonMatchingAttributes nonMatchingAttributes = new MatchingDatasetToNonMatchingAttributesMapper().mapToNonMatchingAttributes(matchingDataset);
+                null);
 
-        NonMatchingAddress addressOut = nonMatchingAttributes.getAddresses().get(0).getValue();
+        final NonMatchingAttributes nonMatchingAttributes = matchingDatasetMapper.mapToNonMatchingAttributes(matchingDataset);
+        final NonMatchingAddress addressOut = nonMatchingAttributes.getAddresses().get(0).getValue();
+
         assertThat(addressOut.getPostCode()).isEqualTo(addressIn.getPostCode().get());
         assertThat(addressOut.getInternationalPostCode()).isEqualTo(addressIn.getInternationalPostCode().get());
         assertThat(addressOut.getUprn()).isEqualTo(addressIn.getUPRN().get());
@@ -232,15 +227,14 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
     }
 
     @Test
-    public void shouldMapCurrentAddress() {
-        List<Address> currentAddress = asList(
-                createAddress(fromThree, foo),
-                createAddress(fromTwo, bar),
+    public void shouldMapCurrentAddressOrderedByFromDate() {
+        final List<Address> currentAddress = asList(
+                createAddress(fromTwo, foo),
+                createAddress(fromThree, bar),
                 createAddress(fromOne, baz),
-                createAddress(fromFour, fuu)
-        );
+                createAddress(fromFour, fuu));
 
-        MatchingDataset matchingDataset = new MatchingDataset(
+        final MatchingDataset matchingDataset = new MatchingDataset(
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList(),
@@ -248,9 +242,9 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
                 Collections.emptyList(),
                 currentAddress,
                 Collections.emptyList(),
-                null
-        );
-        NonMatchingAttributes nonMatchingAttributes = new MatchingDatasetToNonMatchingAttributesMapper().mapToNonMatchingAttributes(matchingDataset);
+                null);
+
+        final NonMatchingAttributes nonMatchingAttributes = matchingDatasetMapper.mapToNonMatchingAttributes(matchingDataset);
 
         assertThat(nonMatchingAttributes.getAddresses().stream()
                 .map(NonMatchingVerifiableAttribute::getValue)
@@ -261,15 +255,14 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
     }
 
     @Test
-    public void shouldMapPreviousAddress() {
-        List<Address> previousAddress = asList(
-                createAddress(fromThree, foo),
-                createAddress(fromTwo, bar),
+    public void shouldMapPreviousAddressOrderedByFromDate() {
+        final List<Address> previousAddress = asList(
+                createAddress(fromTwo, foo),
+                createAddress(fromThree, bar),
                 createAddress(fromOne, baz),
-                createAddress(fromFour, fuu)
-        );
+                createAddress(fromFour, fuu));
 
-        MatchingDataset matchingDataset = new MatchingDataset(
+        final MatchingDataset matchingDataset = new MatchingDataset(
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList(),
@@ -277,9 +270,9 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 previousAddress,
-                null
-        );
-        NonMatchingAttributes nonMatchingAttributes = new MatchingDatasetToNonMatchingAttributesMapper().mapToNonMatchingAttributes(matchingDataset);
+                null);
+
+        final NonMatchingAttributes nonMatchingAttributes = matchingDatasetMapper.mapToNonMatchingAttributes(matchingDataset);
 
         assertThat(nonMatchingAttributes.getAddresses().stream()
                 .map(NonMatchingVerifiableAttribute::getValue)
@@ -290,17 +283,18 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
     }
 
     @Test
-    public void shouldMapAndMergeAddress() {
-        List<Address> previousAddress = asList(
-                createAddress(fromThree, foo),
+    public void shouldMapAndMergeAddressOrderedByFromDate() {
+        final List<Address> previousAddress = asList(
+                createAddress(fromTwo, foo),
                 createAddress(fromFour, fuu)
         );
-        List<Address> currentAddress = asList(
+
+        final List<Address> currentAddress = asList(
                 createAddress(fromOne, baz),
-                createAddress(fromTwo, bar)
+                createAddress(fromThree, bar)
         );
 
-        MatchingDataset matchingDataset = new MatchingDataset(
+        final MatchingDataset matchingDataset = new MatchingDataset(
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList(),
@@ -308,9 +302,9 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
                 Collections.emptyList(),
                 currentAddress,
                 previousAddress,
-                null
-        );
-        NonMatchingAttributes nonMatchingAttributes = new MatchingDatasetToNonMatchingAttributesMapper().mapToNonMatchingAttributes(matchingDataset);
+                null);
+
+        final NonMatchingAttributes nonMatchingAttributes = matchingDatasetMapper.mapToNonMatchingAttributes(matchingDataset);
 
         assertThat(nonMatchingAttributes.getAddresses().stream()
                 .map(NonMatchingVerifiableAttribute::getValue)
@@ -322,8 +316,8 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
 
     @Test
     public void shouldMapGender() {
-        Gender gender = Gender.NOT_SPECIFIED;
-        MatchingDataset matchingDataset = new MatchingDataset(
+        final Gender gender = Gender.NOT_SPECIFIED;
+        final MatchingDataset matchingDataset = new MatchingDataset(
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList(),
@@ -331,27 +325,27 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList(),
-                null
-        );
-        NonMatchingAttributes nonMatchingAttributes = new MatchingDatasetToNonMatchingAttributesMapper().mapToNonMatchingAttributes(matchingDataset);
+                null);
+
+        final NonMatchingAttributes nonMatchingAttributes = matchingDatasetMapper.mapToNonMatchingAttributes(matchingDataset);
 
         assertThat(nonMatchingAttributes.getGender().getValue()).isEqualTo(gender);
     }
 
     @Test
     public void sortTheListByToDateThenIsVerifiedThenFromDate() {
-        LocalDate now = LocalDate.now();
-        LocalDate fiveDaysAgo = now.minusDays(5);
-        LocalDate threeDaysAgo = now.minusDays(3);
-        NonMatchingVerifiableAttribute<String> attributeOne = new NonMatchingVerifiableAttributeBuilder().withVerified(true).withTo(null).withFrom(now).build();
-        NonMatchingVerifiableAttribute<String> attributeTwo = new NonMatchingVerifiableAttributeBuilder().withVerified(true).withTo(null).withFrom(fiveDaysAgo).build();
-        NonMatchingVerifiableAttribute<String> attributeThree = new NonMatchingVerifiableAttributeBuilder().withVerified(false).withTo(null).withFrom(now).build();
-        NonMatchingVerifiableAttribute<String> attributeFour = new NonMatchingVerifiableAttributeBuilder().withVerified(false).withTo(now).withFrom(now).build();
-        NonMatchingVerifiableAttribute<String> attributeFive = new NonMatchingVerifiableAttributeBuilder().withVerified(false).withTo(now).withFrom(fiveDaysAgo).build();
-        NonMatchingVerifiableAttribute<String> attributeSix = new NonMatchingVerifiableAttributeBuilder().withVerified(true).withTo(fiveDaysAgo).withFrom(now).build();
-        NonMatchingVerifiableAttribute<String> attributeSeven = new NonMatchingVerifiableAttributeBuilder().withVerified(true).withTo(fiveDaysAgo).withFrom(threeDaysAgo).build();
-        NonMatchingVerifiableAttribute<String> attributeEight = new NonMatchingVerifiableAttributeBuilder().withVerified(false).withTo(fiveDaysAgo).withFrom(null).build();
-        List<NonMatchingVerifiableAttribute<String>> unsorted = asList(
+        final LocalDate now = LocalDate.now();
+        final LocalDate fiveDaysAgo = now.minusDays(5);
+        final LocalDate threeDaysAgo = now.minusDays(3);
+        final NonMatchingVerifiableAttribute<String> attributeOne = new NonMatchingVerifiableAttributeBuilder().withVerified(true).withTo(null).withFrom(now).build();
+        final NonMatchingVerifiableAttribute<String> attributeTwo = new NonMatchingVerifiableAttributeBuilder().withVerified(true).withTo(null).withFrom(fiveDaysAgo).build();
+        final NonMatchingVerifiableAttribute<String> attributeThree = new NonMatchingVerifiableAttributeBuilder().withVerified(false).withTo(null).withFrom(now).build();
+        final NonMatchingVerifiableAttribute<String> attributeFour = new NonMatchingVerifiableAttributeBuilder().withVerified(false).withTo(now).withFrom(now).build();
+        final NonMatchingVerifiableAttribute<String> attributeFive = new NonMatchingVerifiableAttributeBuilder().withVerified(false).withTo(now).withFrom(fiveDaysAgo).build();
+        final NonMatchingVerifiableAttribute<String> attributeSix = new NonMatchingVerifiableAttributeBuilder().withVerified(true).withTo(fiveDaysAgo).withFrom(now).build();
+        final NonMatchingVerifiableAttribute<String> attributeSeven = new NonMatchingVerifiableAttributeBuilder().withVerified(true).withTo(fiveDaysAgo).withFrom(threeDaysAgo).build();
+        final NonMatchingVerifiableAttribute<String> attributeEight = new NonMatchingVerifiableAttributeBuilder().withVerified(false).withTo(fiveDaysAgo).withFrom(null).build();
+        final List<NonMatchingVerifiableAttribute<String>> unsorted = asList(
                 attributeFour,
                 attributeOne,
                 attributeSix,
@@ -359,8 +353,8 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
                 attributeSeven,
                 attributeFive,
                 attributeThree,
-                attributeEight
-        );
+                attributeEight);
+
         assertThat(unsorted.stream().sorted(MatchingDatasetToNonMatchingAttributesMapper.attributeComparator()).collect(Collectors.toList())).isEqualTo(
                 asList(
                         attributeOne,
@@ -370,8 +364,7 @@ public class MatchingDatasetToNonMatchingAttributesMapperTest {
                         attributeFive,
                         attributeSix,
                         attributeSeven,
-                        attributeEight
-                )
+                        attributeEight)
         );
     }
 
