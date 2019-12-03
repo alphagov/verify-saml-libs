@@ -1,15 +1,19 @@
-plugins { id "com.jfrog.bintray" version "1.8.4" }
+plugins {
+    id "com.jfrog.bintray" version "1.8.4"
+    id 'java-library'
+}
 dependencies {
-    compile configurations.opensaml,
-            configurations.slf4j,
+    implementation configurations.slf4j,
             configurations.jaxb,
             configurations.guice,
             configurations.dropwizard,
-            configurations.xml_utils,
+            configurations.xml_utils
+
+    api configurations.opensaml,
             configurations.security
 
-    testCompile configurations.test_deps,
-                project(':saml-test')
+    testImplementation configurations.test_deps,
+            project(':saml-test')
 }
 
 bintray {
@@ -28,4 +32,3 @@ bintray {
         }
     }
 }
-

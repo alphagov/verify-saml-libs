@@ -8,7 +8,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opensaml.core.xml.io.MarshallingException;
-import org.opensaml.saml.metadata.resolver.impl.BasicRoleDescriptorResolver;
+import org.opensaml.saml.metadata.resolver.impl.PredicateRoleDescriptorResolver;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -49,8 +49,8 @@ import java.security.cert.X509Certificate;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -174,11 +174,11 @@ public class MetadataBackedSignatureValidatorTest {
         metadataResolver.setId("arbitrary id");
         metadataResolver.initialize();
 
-        BasicRoleDescriptorResolver basicRoleDescriptorResolver = new BasicRoleDescriptorResolver(metadataResolver);
-        basicRoleDescriptorResolver.initialize();
+        PredicateRoleDescriptorResolver predicateRoleDescriptorResolver = new PredicateRoleDescriptorResolver(metadataResolver);
+        predicateRoleDescriptorResolver.initialize();
 
         MetadataCredentialResolver metadataCredentialResolver = new MetadataCredentialResolver();
-        metadataCredentialResolver.setRoleDescriptorResolver(basicRoleDescriptorResolver);
+        metadataCredentialResolver.setRoleDescriptorResolver(predicateRoleDescriptorResolver);
         metadataCredentialResolver.setKeyInfoCredentialResolver(DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver());
         metadataCredentialResolver.initialize();
         return metadataCredentialResolver;
@@ -222,7 +222,7 @@ public class MetadataBackedSignatureValidatorTest {
     public void shouldNotValidateBadSignatureAlgorithm() throws Exception {
         URL authnRequestUrl = getClass().getClassLoader().getResource("authnRequestBadAlgorithm.xml");
         String input = StringEncoding.toBase64Encoded(Resources.toString(authnRequestUrl, Charsets.UTF_8));
-        AuthnRequest request = getStringtoOpenSamlObjectTransformer().apply(input);
+        AuthnRequest request = getStringToOpenSamlObjectTransformer().apply(input);
         assertThat(createMetadataBackedSignatureValidator().validate(request, issuerId, SPSSODescriptor.DEFAULT_ELEMENT_NAME)).isFalse();
     }
 
@@ -317,11 +317,11 @@ public class MetadataBackedSignatureValidatorTest {
     private void validateAuthnRequestFile(String fileName) throws Exception {
         URL authnRequestUrl = getClass().getClassLoader().getResource(fileName);
         String input = StringEncoding.toBase64Encoded(Resources.toString(authnRequestUrl, Charsets.UTF_8));
-        AuthnRequest request = getStringtoOpenSamlObjectTransformer().apply(input);
+        AuthnRequest request = getStringToOpenSamlObjectTransformer().apply(input);
         createMetadataBackedSignatureValidator().validate(request, issuerId, SPSSODescriptor.DEFAULT_ELEMENT_NAME);
     }
 
-    private StringToOpenSamlObjectTransformer getStringtoOpenSamlObjectTransformer() {
+    private StringToOpenSamlObjectTransformer getStringToOpenSamlObjectTransformer() {
         return new StringToOpenSamlObjectTransformer(new AuthnRequestUnmarshaller(new SamlObjectParser()));
     }
 }
