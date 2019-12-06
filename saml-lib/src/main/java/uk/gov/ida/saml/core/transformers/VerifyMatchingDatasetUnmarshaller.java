@@ -48,7 +48,7 @@ public class VerifyMatchingDatasetUnmarshaller extends MatchingDatasetUnmarshall
                 break;
 
             case IdaConstants.Attributes_1_1.DateOfBirth.NAME:
-                datasetBuilder.dateOfBirth(getBirthdates(attribute));
+                datasetBuilder.dateOfBirth(getBirthDates(attribute));
                 break;
 
             case IdaConstants.Attributes_1_1.CurrentAddress.NAME:

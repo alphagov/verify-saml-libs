@@ -2,7 +2,7 @@ package uk.gov.ida.saml.core.transformers.outbound.decorators;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.Response;
@@ -36,7 +36,7 @@ public class SamlResponseAssertionEncrypterTest {
 
         Credential credential = mock(Credential.class);
         EntityToEncryptForLocator entityToEncryptForLocator = mock(EntityToEncryptForLocator.class);
-        when(entityToEncryptForLocator.fromRequestId(Matchers.anyString())).thenReturn("some id");
+        when(entityToEncryptForLocator.fromRequestId(ArgumentMatchers.anyString())).thenReturn("some id");
         when(credentialFactory.getEncryptingCredential("some id")).thenReturn(credential);
 
 
@@ -73,7 +73,7 @@ public class SamlResponseAssertionEncrypterTest {
 
         Credential credential = mock(Credential.class);
         EntityToEncryptForLocator entityToEncryptForLocator = mock(EntityToEncryptForLocator.class);
-        when(entityToEncryptForLocator.fromRequestId(Matchers.anyString())).thenReturn("some id");
+        when(entityToEncryptForLocator.fromRequestId(ArgumentMatchers.anyString())).thenReturn("some id");
         when(credentialFactory.getEncryptingCredential("some id")).thenReturn(credential);
 
         Response response = mock(Response.class);

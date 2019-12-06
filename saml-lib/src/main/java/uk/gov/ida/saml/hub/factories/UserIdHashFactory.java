@@ -19,6 +19,10 @@ public class UserIdHashFactory {
     }
 
     public String hashId(String issuerEntityId, String persistentId, Optional<AuthnContext> authnContext) {
+        return UserIdHashFactory.hashId(this.hashingEntityId, issuerEntityId, persistentId, authnContext);
+    }
+
+    public static String hashId(String hashingEntityId, String issuerEntityId, String persistentId, Optional<AuthnContext> authnContext) {
         MessageDigest messageDigest;
         try {
             messageDigest = MessageDigest.getInstance(JCAConstants.DIGEST_SHA256);
@@ -26,7 +30,7 @@ public class UserIdHashFactory {
             throw new RuntimeException(e);
         }
 
-        final String toHash = idToHash(issuerEntityId, persistentId, authnContext);
+        final String toHash = idToHash(hashingEntityId, issuerEntityId, persistentId, authnContext);
 
         try {
             messageDigest.update(toHash.getBytes("UTF-8"));
@@ -38,7 +42,7 @@ public class UserIdHashFactory {
         return Hex.encodeHexString(digest);
     }
 
-    private String idToHash(String issuerEntityId, String persistentId, Optional<AuthnContext> context) {
+    private static String idToHash(String hashingEntityId, String issuerEntityId, String persistentId, Optional<AuthnContext> context) {
         String persistentIdHash;
 
         final AuthnContext authnContext = context.orElseThrow(() -> new AuthnContextMissingException(String.format("Authn context absent for persistent id %s", persistentId)));
@@ -53,9 +57,9 @@ public class UserIdHashFactory {
         return persistentIdHash;
     }
 
-    class AuthnContextMissingException extends RuntimeException {
-      AuthnContextMissingException(String message) {
-        super(message);
-      }
+    static class AuthnContextMissingException extends RuntimeException {
+        AuthnContextMissingException(String message) {
+            super(message);
+        }
     }
 }

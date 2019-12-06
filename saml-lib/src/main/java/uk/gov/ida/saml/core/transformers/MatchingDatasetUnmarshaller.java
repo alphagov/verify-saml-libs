@@ -40,7 +40,7 @@ public abstract class MatchingDatasetUnmarshaller {
 
     protected abstract String getPersonalIdentifier(Assertion assertion);
 
-    final List<SimpleMdsValue<LocalDate>> getBirthdates(Attribute attribute) {
+    final List<SimpleMdsValue<LocalDate>> getBirthDates(Attribute attribute) {
         List<SimpleMdsValue<LocalDate>> birthDates = new ArrayList<>();
 
         for (XMLObject xmlObject : attribute.getAttributeValues()) {
