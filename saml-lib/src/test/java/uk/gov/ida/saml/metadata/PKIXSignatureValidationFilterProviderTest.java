@@ -5,7 +5,6 @@ import certificates.values.CACertificates;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
-import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.core.xml.XMLObject;
@@ -25,6 +24,8 @@ import uk.gov.ida.saml.metadata.test.factories.metadata.EntitiesDescriptorFactor
 import uk.gov.ida.saml.metadata.test.factories.metadata.MetadataFactory;
 import uk.gov.ida.saml.metadata.test.factories.metadata.TestCredentialFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
@@ -51,7 +52,7 @@ public class PKIXSignatureValidationFilterProviderTest {
         List<Certificate> certificateList = new ArrayList<>();
         CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
         for (String certificate : certificates) {
-            Certificate cert = certificateFactory.generateCertificate(IOUtils.toInputStream(certificate));
+            Certificate cert = certificateFactory.generateCertificate(new ByteArrayInputStream(certificate.getBytes()));
             certificateList.add(cert);
         }
 
@@ -167,7 +168,7 @@ public class PKIXSignatureValidationFilterProviderTest {
     private XMLObject validateMetadata(String metadataContent) throws XMLParserException, UnmarshallingException, FilterException, ComponentInitializationException {
         BasicParserPool parserPool = new BasicParserPool();
         parserPool.initialize();
-        XMLObject metadata = XMLObjectSupport.unmarshallFromInputStream(parserPool, IOUtils.toInputStream(metadataContent));
+        XMLObject metadata = XMLObjectSupport.unmarshallFromInputStream(parserPool, new ByteArrayInputStream(metadataContent.getBytes()));
         return signatureValidationFilter.filter(metadata);
     }
 
