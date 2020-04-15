@@ -4,7 +4,6 @@ import certificates.values.CACertificates;
 import keystore.KeyStoreRule;
 import keystore.builders.KeyStoreRuleBuilder;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
-import org.apache.commons.io.IOUtils;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +21,8 @@ import uk.gov.ida.saml.metadata.test.factories.metadata.EntityDescriptorFactory;
 import uk.gov.ida.saml.metadata.test.factories.metadata.MetadataFactory;
 
 import javax.xml.namespace.QName;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -144,7 +145,7 @@ public class CertificateChainValidationFilterTest {
     private XMLObject validateMetadata(final CertificateChainValidationFilter certificateChainValidationFilter, String metadataContent) throws Exception {
         BasicParserPool parserPool = new BasicParserPool();
         parserPool.initialize();
-        XMLObject metadata = XMLObjectSupport.unmarshallFromInputStream(parserPool, IOUtils.toInputStream(metadataContent));
+        XMLObject metadata = XMLObjectSupport.unmarshallFromInputStream(parserPool, new ByteArrayInputStream(metadataContent.getBytes()));
         return certificateChainValidationFilter.filter(metadata);
     }
 
