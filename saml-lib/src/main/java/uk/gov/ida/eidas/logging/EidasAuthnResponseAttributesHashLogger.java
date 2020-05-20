@@ -51,16 +51,16 @@ public final class EidasAuthnResponseAttributesHashLogger {
     private EidasAuthnResponseAttributesHashLogger() {
     }
 
-    public static void logEidasAttributesHash(NonMatchingAttributes attributes, String pid, String requestId, URI destination) {
-        logExtractedAttributes(attributes, requestId, destination.toString(), pid);
+    public static void logEidasAttributesHash(NonMatchingAttributes attributes, String requestId, URI destination) {
+        logExtractedAttributes(attributes, requestId, destination.toString());
     }
 
     public static void logEidasAttributesHash(Assertion assertion, Response response, String hashingEntityId) {
         final NonMatchingAttributes attributes = MATCHING_DATASET_MAPPER.mapToNonMatchingAttributes(MATCHING_DATASET_UNMARSHALLER.fromAssertion(assertion));
-        logExtractedAttributes(attributes, response.getInResponseTo(), response.getDestination(), getHashedPid(assertion, hashingEntityId));
+        logExtractedAttributes(attributes, response.getInResponseTo(), response.getDestination());
     }
 
-    private static void logExtractedAttributes(NonMatchingAttributes attributes, String requestId, String destination, String pid) {
+    private static void logExtractedAttributes(NonMatchingAttributes attributes, String requestId, String destination) {
         final HashableResponseAttributes attributesToHash = new HashableResponseAttributes();
 
         if (attributes != null) {
@@ -83,16 +83,8 @@ public final class EidasAuthnResponseAttributesHashLogger {
                     .ifPresent(dateOfBirth -> attributesToHash.setDateOfBirth(dateOfBirth.getValue()));
         }
 
-        attributesToHash.setPid(pid);
+        attributesToHash.setRequestId(requestId);
         logHash(requestId, destination, attributesToHash);
-    }
-
-    private static String getHashedPid(Assertion assertion, String hashingEntityId) {
-        return UserIdHashFactory.hashId(
-                hashingEntityId,
-                assertion.getIssuer().getValue(),
-                assertion.getSubject().getNameID().getValue(),
-                Optional.of(AuthnContext.LEVEL_2));
     }
 
     private static void logHash(String requestId, String destination, HashableResponseAttributes responseAttributes) {

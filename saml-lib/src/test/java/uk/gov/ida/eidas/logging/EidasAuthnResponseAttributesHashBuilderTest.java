@@ -42,7 +42,7 @@ public class EidasAuthnResponseAttributesHashBuilderTest {
         final LocalDate now = LocalDate.now();
 
         final HashableResponseAttributes responseAttributes1 = new HashableResponseAttributes();
-        responseAttributes1.setPid("a");
+        responseAttributes1.setRequestId("a");
         responseAttributes1.setFirstName("fn");
         responseAttributes1.addMiddleName("mn");
         responseAttributes1.addSurname("sn");
@@ -50,7 +50,7 @@ public class EidasAuthnResponseAttributesHashBuilderTest {
         final String hash1 = buildHash(responseAttributes1);
 
         final HashableResponseAttributes responseAttributes2 = new HashableResponseAttributes();
-        responseAttributes2.setPid("different pid");
+        responseAttributes2.setRequestId("different pid");
         responseAttributes2.setFirstName("fn");
         responseAttributes2.addMiddleName("mn");
         responseAttributes2.addSurname("sn");
@@ -65,7 +65,7 @@ public class EidasAuthnResponseAttributesHashBuilderTest {
         final LocalDate now = LocalDate.now();
 
         final HashableResponseAttributes responseAttributes1 = new HashableResponseAttributes();
-        responseAttributes1.setPid("a");
+        responseAttributes1.setRequestId("a");
         responseAttributes1.setFirstName("fn");
         responseAttributes1.addMiddleName("mn");
         responseAttributes1.addSurname("sn");
@@ -73,7 +73,7 @@ public class EidasAuthnResponseAttributesHashBuilderTest {
         final String hash1 = buildHash(responseAttributes1);
 
         final HashableResponseAttributes responseAttributes2 = new HashableResponseAttributes();
-        responseAttributes2.setPid("a");
+        responseAttributes2.setRequestId("a");
         responseAttributes2.setFirstName("fn");
         responseAttributes2.addMiddleName("mn");
         responseAttributes2.addSurname("sn");
@@ -103,10 +103,10 @@ public class EidasAuthnResponseAttributesHashBuilderTest {
     @Test
     public void testUpdatingFieldsChangesHash() {
         final HashableResponseAttributes responseAttributes = new HashableResponseAttributes();
-        responseAttributes.setPid("a");
+        responseAttributes.setRequestId("a");
         final String hash1 = buildHash(responseAttributes);
 
-        responseAttributes.setPid("b");
+        responseAttributes.setRequestId("b");
         assertThat(hash1).isNotEqualTo(buildHash(responseAttributes));
     }
 
@@ -116,7 +116,7 @@ public class EidasAuthnResponseAttributesHashBuilderTest {
         logger.addAppender(appender);
 
         final HashableResponseAttributes responseAttributes = new HashableResponseAttributes();
-        responseAttributes.setPid("a");
+        responseAttributes.setRequestId("a");
 
         final String hash = buildHash(responseAttributes);
         logHash(responseAttributes);

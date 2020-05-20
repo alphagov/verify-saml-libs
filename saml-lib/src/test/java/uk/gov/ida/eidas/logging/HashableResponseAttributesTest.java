@@ -21,7 +21,7 @@ public class HashableResponseAttributesTest {
     public void shouldBeSerialisedToStringCorrectly() throws JsonProcessingException {
         final HashableResponseAttributes responseAttributes = new HashableResponseAttributes();
         LocalDate dateOfBirth = LocalDate.of(2019, 3, 24);
-        responseAttributes.setPid("a");
+        responseAttributes.setRequestId("a");
         responseAttributes.setFirstName("fn");
         responseAttributes.addMiddleName("m1");
         responseAttributes.addMiddleName("mn2");
@@ -29,7 +29,7 @@ public class HashableResponseAttributesTest {
         responseAttributes.setDateOfBirth(dateOfBirth);
 
         final String attributesString = OBJECT_MAPPER.writeValueAsString(responseAttributes);
-        final String expectedAttributesString = "{\"pid\":\"a\",\"firstName\":\"fn\",\"middleNames\":[\"m1\",\"mn2\"],\"surnames\":[\"sn\"],\"dateOfBirth\":\"2019-03-24\"}";
+        final String expectedAttributesString = "{\"requestId\":\"a\",\"firstName\":\"fn\",\"middleNames\":[\"m1\",\"mn2\"],\"surnames\":[\"sn\"],\"dateOfBirth\":\"2019-03-24\"}";
 
         assertThat(attributesString).isEqualTo(expectedAttributesString);
     }
@@ -37,12 +37,12 @@ public class HashableResponseAttributesTest {
     @Test
     public void shouldBeSerialisedToStringCorrectlyWithMinimumAttributeSet() throws JsonProcessingException {
         final HashableResponseAttributes responseAttributes = new HashableResponseAttributes();
-        responseAttributes.setPid("a");
+        responseAttributes.setRequestId("a");
         responseAttributes.setFirstName("fn");
         responseAttributes.addSurname("sn");
 
         final String attributesString = OBJECT_MAPPER.writeValueAsString(responseAttributes);
-        final String expectedAttributesString = "{\"pid\":\"a\",\"firstName\":\"fn\",\"surnames\":[\"sn\"]}";
+        final String expectedAttributesString = "{\"requestId\":\"a\",\"firstName\":\"fn\",\"surnames\":[\"sn\"]}";
 
         assertThat(attributesString).isEqualTo(expectedAttributesString);
     }
