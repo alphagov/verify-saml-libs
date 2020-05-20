@@ -11,11 +11,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder(value = {"pid", "firstName", "middleNames", "surnames", "dateOfBirth"})
+@JsonPropertyOrder(value = {"requestId", "firstName", "middleNames", "surnames", "dateOfBirth"})
 final class HashableResponseAttributes implements Serializable {
 
     @JsonProperty
-    private String pid;
+    private String requestId;
 
     @JsonProperty
     private String firstName;
@@ -30,8 +30,8 @@ final class HashableResponseAttributes implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
 
-    public void setPid(String pid) {
-        this.pid = pid;
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 
     public void setFirstName(String firstName) {

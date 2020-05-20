@@ -15,7 +15,6 @@ import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
-import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Subject;
@@ -70,16 +69,12 @@ public class EidasAuthnResponseAttributesHashLoggerTest {
     private Subject subject;
 
     @Mock
-    private Issuer issuer;
-
-    @Mock
     private Assertion assertion;
 
     private List<Attribute> attributes;
 
     private final LocalDate now = LocalDate.now();
     private final String entityId = "entityId";
-    private final String hashedPid = "f5f02791bb8eb83e81759b6f1ee744795048c2b45484842e403a42034fddd2c9";
     private final String unHashedPid = "unHashedPid";
     private final String requestId = "requestId";
     private final String issuerId = "issuer";
@@ -100,11 +95,8 @@ public class EidasAuthnResponseAttributesHashLoggerTest {
 
         when(subject.getNameID()).thenReturn(nameID);
 
-        when(issuer.getValue()).thenReturn(issuerId);
-
         when(assertion.getAttributeStatements()).thenReturn(singletonList(attributeStatement));
         when(assertion.getSubject()).thenReturn(subject);
-        when(assertion.getIssuer()).thenReturn(issuer);
     }
 
     @Test
@@ -115,7 +107,7 @@ public class EidasAuthnResponseAttributesHashLoggerTest {
                 new NonMatchingTransliterableAttribute("George", "George", true, now, now));
 
         final HashableResponseAttributes validAttributesToHash = new HashableResponseAttributes();
-        validAttributesToHash.setPid(hashedPid);
+        validAttributesToHash.setRequestId(requestId);
         validAttributesToHash.setFirstName("George");
 
         checkThatSameHashesAreLoggedForBothMethods(firstNames, null, null, null, validAttributesToHash);
@@ -129,7 +121,7 @@ public class EidasAuthnResponseAttributesHashLoggerTest {
                 new NonMatchingTransliterableAttribute("George", "George", true, null, null));
 
         final HashableResponseAttributes validAttributesToHash = new HashableResponseAttributes();
-        validAttributesToHash.setPid(hashedPid);
+        validAttributesToHash.setRequestId(requestId);
         validAttributesToHash.setFirstName("Paul");
 
         checkThatSameHashesAreLoggedForBothMethods(firstNames, null, null, null, validAttributesToHash);
@@ -143,7 +135,7 @@ public class EidasAuthnResponseAttributesHashLoggerTest {
                 new NonMatchingTransliterableAttribute("George", "George", false, now, now));
 
         final HashableResponseAttributes validAttributesToHash = new HashableResponseAttributes();
-        validAttributesToHash.setPid(hashedPid);
+        validAttributesToHash.setRequestId(requestId);
 
         checkThatSameHashesAreLoggedForBothMethods(firstNames, null, null, null, validAttributesToHash);
     }
@@ -156,7 +148,7 @@ public class EidasAuthnResponseAttributesHashLoggerTest {
                 new NonMatchingVerifiableAttribute<>(LocalDate.of(1943, 2, 25), true, now, now));
 
         final HashableResponseAttributes validAttributesToHash = new HashableResponseAttributes();
-        validAttributesToHash.setPid(hashedPid);
+        validAttributesToHash.setRequestId(requestId);
         validAttributesToHash.setDateOfBirth(LocalDate.of(1943, 2, 25));
 
         checkThatSameHashesAreLoggedForBothMethods(null, datesOfBirth, null, null, validAttributesToHash);
@@ -170,7 +162,7 @@ public class EidasAuthnResponseAttributesHashLoggerTest {
                 new NonMatchingVerifiableAttribute<>("Carl", false, now, now));
 
         final HashableResponseAttributes validAttributesToHash = new HashableResponseAttributes();
-        validAttributesToHash.setPid(hashedPid);
+        validAttributesToHash.setRequestId(requestId);
         validAttributesToHash.addMiddleName("Winston");
         validAttributesToHash.addMiddleName("James");
         validAttributesToHash.addMiddleName("Carl");
@@ -186,7 +178,7 @@ public class EidasAuthnResponseAttributesHashLoggerTest {
                 new NonMatchingVerifiableAttribute<>("Carl", true, null, now));
 
         final HashableResponseAttributes validAttributesToHash = new HashableResponseAttributes();
-        validAttributesToHash.setPid(hashedPid);
+        validAttributesToHash.setRequestId(requestId);
         validAttributesToHash.addMiddleName("Carl");
         validAttributesToHash.addMiddleName("James");
         validAttributesToHash.addMiddleName("Winston");
@@ -202,7 +194,7 @@ public class EidasAuthnResponseAttributesHashLoggerTest {
                 new NonMatchingTransliterableAttribute("Harrison", "Harrison", true, now, now));
 
         final HashableResponseAttributes validAttributesToHash = new HashableResponseAttributes();
-        validAttributesToHash.setPid(hashedPid);
+        validAttributesToHash.setRequestId(requestId);
         validAttributesToHash.addSurname("McCartney");
         validAttributesToHash.addSurname("Lennon");
         validAttributesToHash.addSurname("Harrison");
@@ -218,7 +210,7 @@ public class EidasAuthnResponseAttributesHashLoggerTest {
                 new NonMatchingTransliterableAttribute("Harrison", "Harrison", true, now, null));
 
         final HashableResponseAttributes validAttributesToHash = new HashableResponseAttributes();
-        validAttributesToHash.setPid(hashedPid);
+        validAttributesToHash.setRequestId(requestId);
         validAttributesToHash.addSurname("Harrison");
         validAttributesToHash.addSurname("Lennon");
         validAttributesToHash.addSurname("McCartney");
@@ -249,7 +241,7 @@ public class EidasAuthnResponseAttributesHashLoggerTest {
                 new NonMatchingTransliterableAttribute("Harrison", "Harrison", true, now, null));
 
         final HashableResponseAttributes validAttributesToHash = new HashableResponseAttributes();
-        validAttributesToHash.setPid(hashedPid);
+        validAttributesToHash.setRequestId(requestId);
         validAttributesToHash.setFirstName("George");
         validAttributesToHash.setDateOfBirth(LocalDate.of(1943, 2, 25));
         validAttributesToHash.addMiddleName("Carl");
@@ -289,7 +281,7 @@ public class EidasAuthnResponseAttributesHashLoggerTest {
             addAssertionContainedAttributes(surnames, PersonName.class, IdaConstants.Attributes_1_1.Surname.NAME);
         }
 
-        EidasAuthnResponseAttributesHashLogger.logEidasAttributesHash(preExtractedAttributes, hashedPid, requestId, destination);
+        EidasAuthnResponseAttributesHashLogger.logEidasAttributesHash(preExtractedAttributes, requestId, destination);
         verify(appender, times(1)).doAppend(loggingEventArgumentCaptor.capture());
         final String preExtractedAttributesHash = loggingEventArgumentCaptor.getValue().getMDCPropertyMap().get(MDC_KEY_EIDAS_USER_HASH);
 
