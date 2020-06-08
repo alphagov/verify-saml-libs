@@ -21,19 +21,22 @@ import java.util.Optional;
 
 public class MetadataResolverBundle<T extends Configuration> implements io.dropwizard.ConfiguredBundle<T> {
     private final MetadataConfigurationExtractor<T> configExtractor;
+    private final MetadataSignatureTrustEngineFactory metadataSignatureTrustEngineFactory;
+    private final CredentialResolverFactory credentialResolverFactory;
     private MetadataResolver metadataResolver;
-    private DropwizardMetadataResolverFactory dropwizardMetadataResolverFactory = new DropwizardMetadataResolverFactory();
+    private final DropwizardMetadataResolverFactory dropwizardMetadataResolverFactory;
     private ExplicitKeySignatureTrustEngine signatureTrustEngine;
     private MetadataCredentialResolver credentialResolver;
     private final boolean validateSignatures;
+    private final boolean healthcheck;
 
-    public MetadataResolverBundle(MetadataConfigurationExtractor<T> configExtractor) {
-        this(configExtractor, true);
-    }
-
-    public MetadataResolverBundle(MetadataConfigurationExtractor<T> configExtractor, boolean validateSignatures) {
+    private MetadataResolverBundle(MetadataConfigurationExtractor<T> configExtractor, MetadataSignatureTrustEngineFactory metadataSignatureTrustEngineFactory, CredentialResolverFactory credentialResolverFactory, DropwizardMetadataResolverFactory dropwizardMetadataResolverFactory, boolean validateSignatures, boolean healthcheck) {
         this.configExtractor = configExtractor;
+        this.metadataSignatureTrustEngineFactory = metadataSignatureTrustEngineFactory;
+        this.credentialResolverFactory = credentialResolverFactory;
+        this.dropwizardMetadataResolverFactory = dropwizardMetadataResolverFactory;
         this.validateSignatures = validateSignatures;
+        this.healthcheck = healthcheck;
     }
 
     @Override
@@ -41,18 +44,24 @@ public class MetadataResolverBundle<T extends Configuration> implements io.dropw
         configExtractor.getMetadataConfiguration(configuration).ifPresent(mc -> {
             metadataResolver = dropwizardMetadataResolverFactory.createMetadataResolver(environment, mc, validateSignatures);
             try {
-                signatureTrustEngine = new MetadataSignatureTrustEngineFactory().createSignatureTrustEngine(metadataResolver);
-                credentialResolver = new CredentialResolverFactory().create(metadataResolver);
+                signatureTrustEngine = metadataSignatureTrustEngineFactory.createSignatureTrustEngine(metadataResolver);
+                credentialResolver = credentialResolverFactory.create(metadataResolver);
             } catch (ComponentInitializationException e) {
                 throw new MetadataResolverCreationException(mc.getUri(), e.getMessage());
             }
 
-            MetadataHealthCheck healthCheck = new MetadataHealthCheck(
-                    metadataResolver,
-                    mc.getExpectedEntityId()
-            );
-            environment.healthChecks().register(mc.getUri().toString(), healthCheck);
+            if (healthcheck) {
+                registerMetadataHealthcheck(environment, mc);
+            }
         });
+    }
+
+    private void registerMetadataHealthcheck(Environment environment, MetadataResolverConfiguration mc) {
+        MetadataHealthCheck healthCheck = new MetadataHealthCheck(
+                metadataResolver,
+                mc.getExpectedEntityId()
+        );
+        environment.healthChecks().register(mc.getUri().toString(), healthCheck);
     }
 
     @Override
@@ -94,6 +103,60 @@ public class MetadataResolverBundle<T extends Configuration> implements io.dropw
 
     public interface MetadataConfigurationExtractor<T> {
         Optional<MetadataResolverConfiguration> getMetadataConfiguration(T configuration);
+    }
+
+    public static class Builder<T> {
+
+        private final MetadataConfigurationExtractor<T> configExtractor;
+        private MetadataSignatureTrustEngineFactory metadataSignatureTrustEngineFactory;
+        private CredentialResolverFactory credentialResolverFactory;
+        private DropwizardMetadataResolverFactory dropwizardMetadataResolverFactory;
+        private boolean validateSignatures;
+        private boolean healthcheck;
+
+        public Builder(MetadataConfigurationExtractor<T> configExtractor) {
+            this.configExtractor = configExtractor;
+            this.metadataSignatureTrustEngineFactory = new MetadataSignatureTrustEngineFactory();
+            this.credentialResolverFactory = new CredentialResolverFactory();
+            this.dropwizardMetadataResolverFactory = new DropwizardMetadataResolverFactory();
+            this.validateSignatures = true;
+            this.healthcheck = true;
+        }
+
+        public Builder<T> withMetadataSignatureTrustEngineFactory(MetadataSignatureTrustEngineFactory factory) {
+            this.metadataSignatureTrustEngineFactory = factory;
+            return this;
+        }
+
+        public Builder<T> withCredentialResolverFactory(CredentialResolverFactory factory) {
+            this.credentialResolverFactory = factory;
+            return this;
+        }
+
+        public Builder<T> withDropwizardMetadataResolverFactory(DropwizardMetadataResolverFactory factory) {
+            this.dropwizardMetadataResolverFactory = factory;
+            return this;
+        }
+
+        public Builder<T> withValidateSignatures(boolean validateSignatures) {
+            this.validateSignatures = validateSignatures;
+            return this;
+        }
+
+        public Builder<T> withHealthcheck(boolean healthcheck) {
+            this.healthcheck = healthcheck;
+            return this;
+        }
+
+        public MetadataResolverBundle build() {
+            return new MetadataResolverBundle(
+                    configExtractor,
+                    metadataSignatureTrustEngineFactory,
+                    credentialResolverFactory,
+                    dropwizardMetadataResolverFactory,
+                    validateSignatures,
+                    healthcheck);
+        }
     }
 
 }

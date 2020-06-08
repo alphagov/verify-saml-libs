@@ -99,7 +99,7 @@ public class FederationMetadataBundleTest {
         @Override
         public void initialize(Bootstrap<TestConfiguration> bootstrap) {
             super.initialize(bootstrap);
-            bundle = new MetadataResolverBundle<>(TestConfiguration::getMetadataConfiguration);
+            bundle = new MetadataResolverBundle.Builder<>(TestConfiguration::getMetadataConfiguration).build();
             bootstrap.addBundle(bundle);
         }
 
