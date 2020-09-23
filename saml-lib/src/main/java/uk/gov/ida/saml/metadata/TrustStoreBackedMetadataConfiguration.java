@@ -14,7 +14,6 @@ import java.security.KeyStore;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TrustStoreBackedMetadataConfiguration extends MetadataConfiguration {
 
-    @NotNull
     @Valid
     private TrustStoreConfiguration trustStore;
 
