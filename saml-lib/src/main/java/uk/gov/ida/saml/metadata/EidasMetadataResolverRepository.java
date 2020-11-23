@@ -3,9 +3,8 @@ package uk.gov.ida.saml.metadata;
 import com.google.common.collect.ImmutableMap;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.util.X509CertUtils;
-import net.shibboleth.utilities.java.support.component.AbstractInitializableComponent;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
-import org.apache.commons.collections.ListUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.xml.security.exceptions.Base64DecodingException;
 import org.apache.xml.security.utils.Base64;
 import org.joda.time.DateTime;
@@ -103,15 +102,19 @@ public class EidasMetadataResolverRepository implements MetadataResolverReposito
 
     @Override
     public void refresh() {
-        delayBeforeNextRefresh = eidasMetadataConfiguration.getTrustAnchorMaxRefreshDelay();
-
         try {
-            trustAnchors = trustAnchorResolver.getTrustAnchors();
-            refreshMetadataResolvers();
+            List<JWK> newTrustAnchors = trustAnchorResolver.getTrustAnchors();
+            if (trustAnchorsAreDifferent(trustAnchors, newTrustAnchors)) {
+                log.info("Trust anchors have changed. Refreshing metadata resolvers");
+                trustAnchors = newTrustAnchors;
+                setMaxTrustAnchorRefreshDelay();
+                refreshMetadataResolvers();
+            }
         } catch (Exception e) {
             log.error("Error fetching trust anchor or validating it", e);
-            setShortRefreshDelay();
+            setMinTrustAnchorRefreshDelay();
         } finally {
+            log.info("Scheduling refresh in " + delayBeforeNextRefresh + " ms");
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -123,28 +126,21 @@ public class EidasMetadataResolverRepository implements MetadataResolverReposito
 
     private void refreshMetadataResolvers() {
         List<String> trustAnchorsEntityIds = getTrustAnchorsEntityIds();
-        List<String> currentResolverEntityIds = getResolverEntityIds();
-
-        List<String> resolversToRemove = ListUtils.subtract(currentResolverEntityIds, trustAnchorsEntityIds);
         ImmutableMap.Builder<String, MetadataResolverContainer> newMetadataResolvers = new ImmutableMap.Builder<>();
 
         trustAnchorsEntityIds.forEach(trustAnchorsEntityId -> {
             try {
-                MetadataResolverContainer metadataResolverContainer = metadataResolvers.containsKey(trustAnchorsEntityId) ?
-                        metadataResolvers.get(trustAnchorsEntityId) : createMetadataResolverContainer(trustAnchorsEntityId);
-                newMetadataResolvers.put(trustAnchorsEntityId, metadataResolverContainer);
+                newMetadataResolvers.put(trustAnchorsEntityId, createMetadataResolverContainer(trustAnchorsEntityId));
             } catch (Exception e) {
                 log.error("Error creating MetadataResolver for " + trustAnchorsEntityId, e);
             }
         });
 
-        List<JerseyClientMetadataResolver> metadataResolversToRemove = resolversToRemove.stream()
-                .map(resolverToRemove -> metadataResolvers.get(resolverToRemove).getMetadataResolver())
-                .collect(toList());
-
+        ImmutableMap<String, MetadataResolverContainer> oldMetadataResolvers = this.metadataResolvers;
         this.metadataResolvers = newMetadataResolvers.build();
-
-        metadataResolversToRemove.forEach(AbstractInitializableComponent::destroy);
+        oldMetadataResolvers.entrySet()
+                .stream()
+                .forEach(e -> e.getValue().getMetadataResolver().destroy());
     }
 
     private MetadataResolverContainer createMetadataResolverContainer(String resolverToAddEntityId) throws CertificateException, UnsupportedEncodingException, ComponentInitializationException {
@@ -160,7 +156,7 @@ public class EidasMetadataResolverRepository implements MetadataResolverReposito
         Date metadataSigningCertExpiryDate = sortCertsByDate(trustAnchor).get(0).getNotAfter();
         Date nextRunTime = DateTime.now().plus(delayBeforeNextRefresh).toDate();
         if (metadataSigningCertExpiryDate.before(nextRunTime)) {
-            setShortRefreshDelay();
+            setMinTrustAnchorRefreshDelay();
         }
 
         return createMetadataResolverContainer(trustAnchor);
@@ -186,8 +182,12 @@ public class EidasMetadataResolverRepository implements MetadataResolverReposito
         return new MetadataResolverContainer(metadataResolver, metadataSignatureTrustEngineFactory.createSignatureTrustEngine(metadataResolver));
     }
 
-    private void setShortRefreshDelay() {
+    private void setMinTrustAnchorRefreshDelay() {
         delayBeforeNextRefresh = eidasMetadataConfiguration.getTrustAnchorMinRefreshDelay();
+    }
+
+    private void setMaxTrustAnchorRefreshDelay() {
+        delayBeforeNextRefresh = eidasMetadataConfiguration.getTrustAnchorMaxRefreshDelay();
     }
 
     private class MetadataResolverContainer {
@@ -214,5 +214,9 @@ public class EidasMetadataResolverRepository implements MetadataResolverReposito
             .filter(message -> message.contains("X.509 certificate has expired"))
             .findFirst();
         if (certExpiryErrorMessage.isPresent()) throw new CertificateException(certExpiryErrorMessage.get());
+    }
+
+    private boolean trustAnchorsAreDifferent(List<JWK> list1, List<JWK> list2) {
+        return !CollectionUtils.isEqualCollection(list1, list2);
     }
 }
