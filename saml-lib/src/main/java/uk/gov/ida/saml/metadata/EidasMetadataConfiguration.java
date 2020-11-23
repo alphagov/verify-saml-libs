@@ -46,7 +46,7 @@ public class EidasMetadataConfiguration {
         this.minRefreshDelay = Optional.ofNullable(minRefreshDelay).orElse(60000L);
         this.maxRefreshDelay = Optional.ofNullable(maxRefreshDelay).orElse(600000L);
         this.trustAnchorMinRefreshDelay = Optional.ofNullable(trustAnchorMinRefreshDelay).orElse(60000L);
-        this.trustAnchorMaxRefreshDelay = Optional.ofNullable(trustAnchorMaxRefreshDelay).orElse(3600000L);
+        this.trustAnchorMaxRefreshDelay = Optional.ofNullable(trustAnchorMaxRefreshDelay).orElse(300000L);
         this.client = Optional.ofNullable(client).orElse(new JerseyClientConfiguration());
         this.jerseyClientName = Optional.ofNullable(jerseyClientName).orElse("MetadataClient");
         this.trustStore = trustStore;
