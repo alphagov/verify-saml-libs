@@ -102,6 +102,7 @@ public class EidasMetadataResolverRepository implements MetadataResolverReposito
 
     @Override
     public void refresh() {
+        setMaxTrustAnchorRefreshDelay();
         try {
             List<JWK> newTrustAnchors = trustAnchorResolver.getTrustAnchors();
             if (trustAnchorsAreDifferent(trustAnchors, newTrustAnchors)) {
