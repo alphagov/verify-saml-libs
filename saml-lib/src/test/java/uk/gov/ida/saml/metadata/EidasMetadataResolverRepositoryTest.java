@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Timer;
+import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
@@ -391,6 +392,15 @@ public class EidasMetadataResolverRepositoryTest {
         verifyZeroInteractions(dropwizardMetadataResolverFactory);
         Map<String, MetadataResolver> refreshedMetadataResolvers = metadataResolverRepository.getMetadataResolvers();
         refreshedMetadataResolvers.forEach((key, value) -> assertThat(value == originalMetadataResolvers.get(key)).isTrue());
+    }
+
+    @Test
+    public void shouldBeInitializedWithMinRefreshDelay() throws CertificateException, SignatureException, ParseException, JOSEException {
+        when(metadataConfiguration.getTrustAnchorMinRefreshDelay()).thenReturn((long) 17);
+
+        createMetadataResolverRepositoryWithTrustAnchors();
+
+        verify(timer).schedule(any(TimerTask.class), eq((long) 17));
     }
 
     private EidasMetadataResolverRepository createMetadataResolverRepositoryWithTrustAnchors(JWK... trustAnchors) throws ParseException, CertificateException, JOSEException, SignatureException {

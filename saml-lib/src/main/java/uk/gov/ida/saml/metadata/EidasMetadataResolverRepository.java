@@ -64,6 +64,7 @@ public class EidasMetadataResolverRepository implements MetadataResolverReposito
         this.metadataSignatureTrustEngineFactory = metadataSignatureTrustEngineFactory;
         this.metadataResolverConfigBuilder = metadataResolverConfigBuilder;
         this.client = client;
+        setMinTrustAnchorRefreshDelay();
         refresh();
     }
 
