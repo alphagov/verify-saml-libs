@@ -40,16 +40,12 @@ public class IdentityProviderAssertionUnmarshallerTest {
     @Mock
     private IdentityProviderAuthnStatementUnmarshaller idaAuthnStatementUnmarshaller;
 
-    @Mock
-    private EidasMatchingDatasetUnmarshaller eidasMatchingDatasetUnmarshaller;
-
     private IdentityProviderAssertionUnmarshaller unmarshaller;
 
     @Before
     public void setUp() throws Exception {
         unmarshaller = new IdentityProviderAssertionUnmarshaller(
                 matchingDatasetUnmarshaller,
-                eidasMatchingDatasetUnmarshaller,
                 idaAuthnStatementUnmarshaller,
                 "hubEntityId");
     }

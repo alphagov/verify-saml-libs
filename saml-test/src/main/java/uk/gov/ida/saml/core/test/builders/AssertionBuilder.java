@@ -1,7 +1,6 @@
 package uk.gov.ida.saml.core.test.builders;
 
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -32,13 +31,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Throwables.propagate;
-import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_CONNECTOR_ENTITY_ID;
 import static uk.gov.ida.saml.core.test.builders.AttributeStatementBuilder.anAttributeStatement;
-import static uk.gov.ida.saml.core.test.builders.AttributeStatementBuilder.anEidasAttributeStatement;
-import static uk.gov.ida.saml.core.test.builders.AuthnStatementBuilder.anEidasAuthnStatement;
 import static uk.gov.ida.saml.core.test.builders.SubjectBuilder.aSubject;
-import static uk.gov.ida.saml.core.test.builders.SubjectConfirmationBuilder.aSubjectConfirmation;
-import static uk.gov.ida.saml.core.test.builders.SubjectConfirmationDataBuilder.aSubjectConfirmationData;
 
 public class AssertionBuilder {
 
@@ -58,28 +52,6 @@ public class AssertionBuilder {
 
     public static AssertionBuilder anAssertion() {
         return new AssertionBuilder();
-    }
-
-    public static AssertionBuilder anEidasAssertion() {
-        return anAssertion()
-            .withConditions(
-                new ConditionsBuilder()
-                .validFor(Duration.standardMinutes(10))
-                .restrictedToAudience(HUB_CONNECTOR_ENTITY_ID)
-                .build())
-            .withIssuer(
-                new IssuerBuilder()
-                .withIssuerId(TestEntityIds.STUB_COUNTRY_ONE)
-                .build())
-            .addAttributeStatement(anEidasAttributeStatement().build())
-            .addAuthnStatement(anEidasAuthnStatement().build())
-            .withSubject(
-                    aSubject()
-                    .withSubjectConfirmation(
-                        aSubjectConfirmation()
-                        .withSubjectConfirmationData(aSubjectConfirmationData().withRecipient(HUB_CONNECTOR_ENTITY_ID).build())
-                        .build())
-                    .build());
     }
 
     public static AssertionBuilder anAuthnStatementAssertion() {
