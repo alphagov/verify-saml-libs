@@ -6,9 +6,6 @@ import uk.gov.ida.saml.core.extensions.IdaAuthnContext;
 import javax.inject.Inject;
 
 import static java.text.MessageFormat.format;
-import static uk.gov.ida.saml.core.extensions.EidasAuthnContext.EIDAS_LOA_HIGH;
-import static uk.gov.ida.saml.core.extensions.EidasAuthnContext.EIDAS_LOA_LOW;
-import static uk.gov.ida.saml.core.extensions.EidasAuthnContext.EIDAS_LOA_SUBSTANTIAL;
 
 public class AuthnContextFactory {
 
@@ -16,30 +13,6 @@ public class AuthnContextFactory {
 
     @Inject
     public AuthnContextFactory() {}
-
-    public AuthnContext mapFromEidasToLoA(String eIDASLevelOfAssurance) {
-        switch (eIDASLevelOfAssurance) {
-            case EIDAS_LOA_LOW:
-                return AuthnContext.LEVEL_1;
-            case EIDAS_LOA_SUBSTANTIAL:
-            case EIDAS_LOA_HIGH:
-                return AuthnContext.LEVEL_2;
-            default:
-                throw new IllegalStateException(format(LEVEL_OF_ASSURANCE_IS_NOT_A_RECOGNISED_VALUE, eIDASLevelOfAssurance));
-        }
-    }
-
-    public String mapFromLoAToEidas(AuthnContext levelOfAssurance) {
-        switch (levelOfAssurance) {
-            case LEVEL_1:
-                return EIDAS_LOA_LOW;
-            case LEVEL_2:
-                return EIDAS_LOA_SUBSTANTIAL;
-            default:
-                // We currently don't support anything above Level 2.
-                throw new IllegalStateException(format(LEVEL_OF_ASSURANCE_IS_NOT_A_RECOGNISED_VALUE, levelOfAssurance.toString()));
-        }
-    }
 
     public AuthnContext authnContextForLevelOfAssurance(String levelOfAssurance) {
         switch (levelOfAssurance) {

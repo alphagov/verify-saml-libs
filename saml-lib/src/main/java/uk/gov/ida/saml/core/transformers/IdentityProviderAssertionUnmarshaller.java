@@ -12,17 +12,14 @@ import java.util.Optional;
 
 public class IdentityProviderAssertionUnmarshaller {
     private final VerifyMatchingDatasetUnmarshaller verifyMatchingDatasetUnmarshaller;
-    private final EidasMatchingDatasetUnmarshaller eidasMatchingDatasetUnmarshaller;
     private final IdentityProviderAuthnStatementUnmarshaller identityProviderAuthnStatementUnmarshaller;
     private final String hubEntityId;
 
     public IdentityProviderAssertionUnmarshaller(
             VerifyMatchingDatasetUnmarshaller verifyMatchingDatasetUnmarshaller,
-            EidasMatchingDatasetUnmarshaller eidasMatchingDatasetUnmarshaller,
             IdentityProviderAuthnStatementUnmarshaller identityProviderAuthnStatementUnmarshaller,
             String hubEntityId) {
         this.verifyMatchingDatasetUnmarshaller = verifyMatchingDatasetUnmarshaller;
-        this.eidasMatchingDatasetUnmarshaller = eidasMatchingDatasetUnmarshaller;
         this.identityProviderAuthnStatementUnmarshaller = identityProviderAuthnStatementUnmarshaller;
         this.hubEntityId = hubEntityId;
     }
@@ -45,12 +42,6 @@ public class IdentityProviderAssertionUnmarshaller {
      */
     public IdentityProviderAssertion fromAssertion(Assertion assertion) {
         return fromVerifyAssertion(assertion);
-    }
-
-    public IdentityProviderAssertion fromCountryAssertion(Assertion assertion) {
-        MatchingDataset matchingDataset = this.eidasMatchingDatasetUnmarshaller.fromAssertion(assertion);
-        IdentityProviderAuthnStatement authnStatement = this.identityProviderAuthnStatementUnmarshaller.fromAssertion(assertion);
-        return getIdentityProviderAssertion(assertion, matchingDataset, authnStatement);
     }
 
     private IdentityProviderAssertion getIdentityProviderAssertion(Assertion assertion, MatchingDataset matchingDataset, IdentityProviderAuthnStatement authnStatement) {
