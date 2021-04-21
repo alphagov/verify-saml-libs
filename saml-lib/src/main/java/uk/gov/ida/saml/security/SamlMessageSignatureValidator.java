@@ -55,6 +55,7 @@ public class SamlMessageSignatureValidator {
 
     /**
      * @param request - an AttributeQuery or AuthnRequest to validate
+     * @param role - a QName role
      * @return a SamlValidationResponse indicating if the signature was valid
      */
     public SamlValidationResponse validate(RequestAbstractType request, QName role) {
