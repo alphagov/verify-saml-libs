@@ -42,7 +42,7 @@ configure(subprojects.findAll {it.name != 'buildSrc'}) {
                 pom {
                     name = project.name
                     packaging = 'jar'
-                    description = project.description
+                    description = 'Library for ' + project.name
                     url = 'https://github.com/alphagov/verify-saml-libs'
                     artifactId = project.name
 
