@@ -1,12 +1,13 @@
 package uk.gov.ida.saml.metadata;
 
-import com.google.common.collect.ImmutableMultimap;
 import io.dropwizard.servlets.tasks.Task;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.saml.metadata.resolver.impl.AbstractReloadingMetadataResolver;
 
 import javax.inject.Inject;
 import java.io.PrintWriter;
+import java.util.List;
+import java.util.Map;
 
 public class MetadataRefreshTask extends Task {
     private AbstractReloadingMetadataResolver metadataProvider;
@@ -18,7 +19,7 @@ public class MetadataRefreshTask extends Task {
     }
 
     @Override
-    public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) throws Exception {
+    public void execute(Map<String, List<String>> parameters, PrintWriter output) throws Exception {
         metadataProvider.refresh();
     }
 }
