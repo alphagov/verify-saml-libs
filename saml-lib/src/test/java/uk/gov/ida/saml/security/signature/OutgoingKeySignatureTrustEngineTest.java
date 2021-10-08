@@ -2,6 +2,7 @@ package uk.gov.ida.saml.security.signature;
 
 import io.prometheus.client.Counter;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opensaml.core.criterion.EntityIdCriterion;
@@ -61,12 +62,12 @@ public class OutgoingKeySignatureTrustEngineTest {
         assertThat(trustEngine.doValidate(assertion.getSignature(), trustBasisCriteria)).isTrue();
         verifyNoInteractions(outgoingSignatureVerifyingErrorCounter);
     }
-    
+
     @Test
     public void shouldSendErrorCounterValidatingWithOutgoingSigningCertificate() throws Exception {
         final Credential incomingSigningCredential = new TestCredentialFactory(
-                TestCertificateStrings.EXPIRED_SIGNING_PUBLIC_CERT,
-                TestCertificateStrings.EXPIRED_SIGNING_PRIVATE_KEY
+                TestCertificateStrings.TEST_PUBLIC_CERT,
+                TestCertificateStrings.TEST_PRIVATE_KEY
         ).getSigningCredential();
         final Credential outgoingSigningCredential = new TestCredentialFactory(
                 TestCertificateStrings.HUB_TEST_PUBLIC_SIGNING_CERT,

@@ -10,6 +10,7 @@ import org.opensaml.xmlsec.config.impl.DefaultSecurityConfigurationBootstrap;
 import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
+import uk.gov.ida.saml.security.signature.OutgoingKeySignatureTrustEngine;
 
 import javax.xml.namespace.QName;
 import java.util.Arrays;
@@ -34,6 +35,6 @@ public class CredentialFactorySignatureValidator extends SignatureValidator {
 
         CredentialResolver credResolver = new StaticCredentialResolver(credentials);
         KeyInfoCredentialResolver kiResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
-        return new ExplicitKeySignatureTrustEngine(credResolver, kiResolver);
+        return new OutgoingKeySignatureTrustEngine(credResolver, kiResolver);
     }
 }
