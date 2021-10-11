@@ -5,6 +5,7 @@ import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import net.shibboleth.utilities.java.support.resolver.Criterion;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.security.credential.BasicCredential;
 import org.opensaml.security.credential.CredentialResolver;
@@ -15,8 +16,6 @@ import uk.gov.ida.saml.security.saml.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.security.saml.builders.AssertionBuilder;
 import uk.gov.ida.saml.security.saml.builders.SignatureBuilder;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -35,7 +34,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(OpenSAMLMockitoRunner.class)
 public class OutgoingKeySignatureTrustEngineTest {
-
+    @Mock
+    private Counter outgoingSignatureVerifyingErrorCounter = mock(Counter.class);
     public void shouldVerifyIdpWithAValidSigningCertificate() throws Exception {
         BasicCredential outgoingSigningCredential = getCredentialsFromRSAKeyPair();
         
@@ -44,14 +44,11 @@ public class OutgoingKeySignatureTrustEngineTest {
         );
         
         KeyInfoCredentialResolver keyInfoResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
-        OutgoingKeySignatureTrustEngine trustEngine = new OutgoingKeySignatureTrustEngine(credentialResolver, keyInfoResolver);
+        OutgoingKeySignatureTrustEngine trustEngine = new OutgoingKeySignatureTrustEngine(credentialResolver, keyInfoResolver, outgoingSignatureVerifyingErrorCounter);
 
         CriteriaSet trustBasisCriteria = new CriteriaSet();
         trustBasisCriteria.add(mock(Criterion.class));
-
-        Counter outgoingSignatureVerifyingErrorCounter = mock(Counter.class);
-        setFinalStatic(OutgoingKeySignatureTrustEngine.class.getDeclaredField("outgoingSignatureVerifyingErrorCounter"), outgoingSignatureVerifyingErrorCounter);
-
+        
         BasicCredential incomingSigningCredential = getCredentialsFromRSAKeyPair();
         Assertion assertion = AssertionBuilder.anAssertion().withSignature(SignatureBuilder.aSignature().withSigningCredential(incomingSigningCredential).build()).build();
 
@@ -70,14 +67,12 @@ public class OutgoingKeySignatureTrustEngineTest {
         );
         
         KeyInfoCredentialResolver keyInfoResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
-        OutgoingKeySignatureTrustEngine trustEngine = new OutgoingKeySignatureTrustEngine(credentialResolver, keyInfoResolver);
+        OutgoingKeySignatureTrustEngine trustEngine = new OutgoingKeySignatureTrustEngine(credentialResolver, keyInfoResolver, outgoingSignatureVerifyingErrorCounter);
 
         CriteriaSet trustBasisCriteria = new CriteriaSet();
         trustBasisCriteria.add(mock(Criterion.class));
 
-        Counter outgoingSignatureVerifyingErrorCounter = mock(Counter.class);
         Counter.Child childCounter = mock(Counter.Child.class);
-        setFinalStatic(OutgoingKeySignatureTrustEngine.class.getDeclaredField("outgoingSignatureVerifyingErrorCounter"), outgoingSignatureVerifyingErrorCounter);
 
         Assertion outgoing_assertion = AssertionBuilder.anAssertion().withSignature(SignatureBuilder.aSignature().withSigningCredential(outgoingSigningCredential).build()).build();
 
@@ -87,14 +82,6 @@ public class OutgoingKeySignatureTrustEngineTest {
         assertThat(trustEngine.doValidate(outgoing_assertion.getSignature(), trustBasisCriteria)).isTrue();
         verify(outgoingSignatureVerifyingErrorCounter).labels("verification_failed");
         verify(childCounter).inc();
-    }
-
-    private static void setFinalStatic(Field field, Object newValue) throws Exception {
-        field.setAccessible(true);
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-        field.set(null, newValue);
     }
 
     private BasicCredential getCredentialsFromRSAKeyPair() throws NoSuchAlgorithmException {

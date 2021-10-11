@@ -29,15 +29,15 @@ public class OutgoingKeySignatureTrustEngine extends ExplicitKeySignatureTrustEn
      *                        trusted credential store
      */
     private final Logger log = LoggerFactory.getLogger(OutgoingKeySignatureTrustEngine.class);
+    private final Counter outgoingSignatureVerifyingErrorCounter;
 
-    private static final Counter outgoingSignatureVerifyingErrorCounter = Counter.build(
-                    "verify_saml_lib_signature_verifying_error_counter",
-                    "Counter to detect errors on the outgoing signature, reports the number of errors")
-            .labelNames("error_type")
-            .register();
-
-    public OutgoingKeySignatureTrustEngine(@Nonnull CredentialResolver resolver, @Nonnull KeyInfoCredentialResolver keyInfoResolver) {
+    public OutgoingKeySignatureTrustEngine(
+            @Nonnull CredentialResolver resolver,
+            @Nonnull KeyInfoCredentialResolver keyInfoResolver,
+            @Nonnull Counter outgoingSignatureVerifyingErrorCounter
+    ) {
         super(resolver, keyInfoResolver);
+        this.outgoingSignatureVerifyingErrorCounter = outgoingSignatureVerifyingErrorCounter;
     }
 
     @Override
