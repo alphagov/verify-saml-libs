@@ -2,25 +2,25 @@ package uk.gov.ida.saml.security.signature;
 
 import io.prometheus.client.Counter;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
-import net.shibboleth.utilities.java.support.resolver.Criterion;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.saml.saml2.core.Assertion;
-import org.opensaml.security.credential.BasicCredential;
+import org.opensaml.security.credential.Credential;
 import org.opensaml.security.credential.CredentialResolver;
 import org.opensaml.security.credential.impl.StaticCredentialResolver;
 import org.opensaml.xmlsec.config.impl.DefaultSecurityConfigurationBootstrap;
 import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
+import uk.gov.ida.saml.core.test.TestCertificateStrings;
+import uk.gov.ida.saml.core.test.TestCredentialFactory;
+import uk.gov.ida.saml.core.test.TestEntityIds;
 import uk.gov.ida.saml.security.saml.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.security.saml.builders.AssertionBuilder;
 import uk.gov.ida.saml.security.saml.builders.SignatureBuilder;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPrivateCrtKey;
-import java.security.interfaces.RSAPublicKey;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -35,22 +35,28 @@ import static org.mockito.Mockito.when;
 @RunWith(OpenSAMLMockitoRunner.class)
 public class OutgoingKeySignatureTrustEngineTest {
     @Mock
-    private Counter outgoingSignatureVerifyingErrorCounter = mock(Counter.class);
+    private final Counter outgoingSignatureVerifyingErrorCounter = mock(Counter.class);
+
+    @Test
     public void shouldVerifyIdpWithAValidSigningCertificate() throws Exception {
-        BasicCredential outgoingSigningCredential = getCredentialsFromRSAKeyPair();
+        final Credential outgoingSigningCredential = new TestCredentialFactory(
+                TestCertificateStrings.HUB_TEST_PUBLIC_SIGNING_CERT,
+                TestCertificateStrings.HUB_TEST_PRIVATE_SIGNING_KEY
+        ).getSigningCredential();
         
-        CredentialResolver credentialResolver = new StaticCredentialResolver(
+        final CredentialResolver credentialResolver = new StaticCredentialResolver(
                 Collections.singletonList(outgoingSigningCredential)
         );
         
-        KeyInfoCredentialResolver keyInfoResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
-        OutgoingKeySignatureTrustEngine trustEngine = new OutgoingKeySignatureTrustEngine(credentialResolver, keyInfoResolver, outgoingSignatureVerifyingErrorCounter);
+        final KeyInfoCredentialResolver keyInfoResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
+        final OutgoingKeySignatureTrustEngine trustEngine = new OutgoingKeySignatureTrustEngine(credentialResolver, keyInfoResolver);
+        setFinalStatic(OutgoingKeySignatureTrustEngine.class.getDeclaredField("outgoingSignatureVerifyingErrorCounter"), outgoingSignatureVerifyingErrorCounter);
 
-        CriteriaSet trustBasisCriteria = new CriteriaSet();
-        trustBasisCriteria.add(mock(Criterion.class));
-        
-        BasicCredential incomingSigningCredential = getCredentialsFromRSAKeyPair();
-        Assertion assertion = AssertionBuilder.anAssertion().withSignature(SignatureBuilder.aSignature().withSigningCredential(incomingSigningCredential).build()).build();
+        final CriteriaSet trustBasisCriteria = new CriteriaSet();
+        trustBasisCriteria.add(new EntityIdCriterion(TestEntityIds.HUB_ENTITY_ID));
+
+        final Credential incomingSigningCredential = new TestCredentialFactory(TestCertificateStrings.HUB_TEST_PUBLIC_SIGNING_CERT, TestCertificateStrings.HUB_TEST_PRIVATE_SIGNING_KEY).getSigningCredential();
+        final Assertion assertion = AssertionBuilder.anAssertion().withSignature(SignatureBuilder.aSignature().withSigningCredential(incomingSigningCredential).build()).build();
 
         assertThat(trustEngine.doValidate(assertion.getSignature(), trustBasisCriteria)).isTrue();
         verifyNoInteractions(outgoingSignatureVerifyingErrorCounter);
@@ -58,23 +64,30 @@ public class OutgoingKeySignatureTrustEngineTest {
     
     @Test
     public void shouldSendErrorCounterValidatingWithOutgoingSigningCertificate() throws Exception {
-
-        BasicCredential outgoingSigningCredential = getCredentialsFromRSAKeyPair();
-        BasicCredential incomingSigningCredential =  getCredentialsFromRSAKeyPair();
+        final Credential incomingSigningCredential = new TestCredentialFactory(
+                TestCertificateStrings.HUB_TEST_SECONDARY_PUBLIC_SIGNING_CERT,
+                TestCertificateStrings.HUB_TEST_PRIVATE_SECONDARY_SIGNING_KEY
+        ).getSigningCredential();
         
-        CredentialResolver credentialResolver = new StaticCredentialResolver(
+        final Credential outgoingSigningCredential = new TestCredentialFactory(
+                TestCertificateStrings.HUB_TEST_PUBLIC_SIGNING_CERT,
+                TestCertificateStrings.HUB_TEST_PRIVATE_SIGNING_KEY
+        ).getSigningCredential();
+        
+        final CredentialResolver credentialResolver = new StaticCredentialResolver(
                 Arrays.asList(incomingSigningCredential, outgoingSigningCredential)
         );
         
-        KeyInfoCredentialResolver keyInfoResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
-        OutgoingKeySignatureTrustEngine trustEngine = new OutgoingKeySignatureTrustEngine(credentialResolver, keyInfoResolver, outgoingSignatureVerifyingErrorCounter);
+        final KeyInfoCredentialResolver keyInfoResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
+        setFinalStatic(OutgoingKeySignatureTrustEngine.class.getDeclaredField("outgoingSignatureVerifyingErrorCounter"), outgoingSignatureVerifyingErrorCounter);
+        final OutgoingKeySignatureTrustEngine trustEngine = new OutgoingKeySignatureTrustEngine(credentialResolver, keyInfoResolver);
 
-        CriteriaSet trustBasisCriteria = new CriteriaSet();
-        trustBasisCriteria.add(mock(Criterion.class));
+        final CriteriaSet trustBasisCriteria = new CriteriaSet();
+        trustBasisCriteria.add(new EntityIdCriterion(TestEntityIds.HUB_ENTITY_ID));
 
-        Counter.Child childCounter = mock(Counter.Child.class);
+        final Counter.Child childCounter = mock(Counter.Child.class);
 
-        Assertion outgoing_assertion = AssertionBuilder.anAssertion().withSignature(SignatureBuilder.aSignature().withSigningCredential(outgoingSigningCredential).build()).build();
+        final Assertion outgoing_assertion = AssertionBuilder.anAssertion().withSignature(SignatureBuilder.aSignature().withSigningCredential(outgoingSigningCredential).build()).build();
 
         when(outgoingSignatureVerifyingErrorCounter.labels(anyString())).thenReturn(childCounter);
         doNothing().when(childCounter).inc();
@@ -84,14 +97,12 @@ public class OutgoingKeySignatureTrustEngineTest {
         verify(childCounter).inc();
     }
 
-    private BasicCredential getCredentialsFromRSAKeyPair() throws NoSuchAlgorithmException {
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(2048);
 
-        KeyPair keyPair = keyGen.generateKeyPair();
-        return new BasicCredential(
-                (RSAPublicKey) keyPair.getPublic(),
-                (RSAPrivateCrtKey) keyPair.getPrivate()
-        );
+    static void setFinalStatic(Field field, Object newValue) throws Exception {
+        field.setAccessible(true);
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        field.set(null, newValue);
     }
 }
