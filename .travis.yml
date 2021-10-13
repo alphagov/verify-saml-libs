@@ -3,10 +3,9 @@ env:
   global:
     - VERIFY_USE_PUBLIC_BINARIES=true
 
-dist: xenial
+dist: focal  
 
 jdk:
-  - openjdk8
   - openjdk11
 
 before_cache:
