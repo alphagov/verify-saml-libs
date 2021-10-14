@@ -19,6 +19,8 @@ import io.prometheus.client.Counter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class OutgoingKeySignatureTrustEngine extends ExplicitKeySignatureTrustEngine {
     /**
@@ -29,14 +31,12 @@ public class OutgoingKeySignatureTrustEngine extends ExplicitKeySignatureTrustEn
      *                        trusted credential store
      */
     private final Logger log = LoggerFactory.getLogger(OutgoingKeySignatureTrustEngine.class);
-    private static Counter outgoingSignatureVerifyingErrorCounter = Counter.build(
-                    "verify_saml_lib_signature_verifying_error_counter",
-                    "Counter to detect errors on the outgoing signature, reports the number of errors")
-            .labelNames("error_type")
-            .register();
-
+    private static final Map<String, Counter> counters = new HashMap<>();
+    private Counter outgoingSignatureVerifyingErrorCounter;
+    
     public OutgoingKeySignatureTrustEngine(@Nonnull CredentialResolver resolver, @Nonnull KeyInfoCredentialResolver keyInfoResolver) {
         super(resolver, keyInfoResolver);
+        setOutgoingSignatureVerifyingErrorCounter();
     }
 
     @Override
@@ -74,10 +74,25 @@ public class OutgoingKeySignatureTrustEngine extends ExplicitKeySignatureTrustEn
                 log.debug("Successfully verified signature using resolved trusted credential");
                 return true;
             }
-            outgoingSignatureVerifyingErrorCounter.labels("verification_failed").inc();
+            
+            getOutgoingSignatureVerifyingErrorCounter().labels("verification_failed").inc();
             log.warn("Failed to verify signature using trusted credentials");
         }
         log.debug("Failed to verify signature using either KeyInfo-derived or directly trusted credentials");
         return false;
+    }
+
+    private void setOutgoingSignatureVerifyingErrorCounter() {
+        outgoingSignatureVerifyingErrorCounter = counters.computeIfAbsent("outgoingSignatureUnVerifiedCounter", k->
+                Counter.build()
+                        .name("verify_saml_lib_signature_verifying_error_counter")
+                        .help("Counter to detect errors on the outgoing signature, reports the number of errors")
+                        .labelNames("error_type")
+                        .register()
+        );
+    }
+    
+    Counter getOutgoingSignatureVerifyingErrorCounter() {
+        return outgoingSignatureVerifyingErrorCounter;
     }
 }
