@@ -44,15 +44,6 @@ public class SamlMessageSignatureValidator {
         return validateSignature(assertion, issuer.getValue(), role);
     }
 
-    public SamlValidationResponse validateEidasAssertion(Assertion assertion, QName role) {
-        Issuer issuer = assertion.getIssuer();
-        Optional<SamlValidationResponse> issuerResponse = validateIssuer(issuer);
-        if (issuerResponse.isPresent()) return issuerResponse.get();
-
-        if (assertion.getSignature() == null) return SamlValidationResponse.aValidResponse();
-        return validateSignature(assertion, issuer.getValue(), role);
-    }
-
     /**
      * @param request - an AttributeQuery or AuthnRequest to validate
      * @param role - a QName role

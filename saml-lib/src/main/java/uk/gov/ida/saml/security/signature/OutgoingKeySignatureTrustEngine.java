@@ -1,6 +1,7 @@
 package uk.gov.ida.saml.security.signature;
 
 import com.google.common.base.Strings;
+import io.prometheus.client.Counter;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
 import org.opensaml.security.SecurityException;
@@ -15,12 +16,9 @@ import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.prometheus.client.Counter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class OutgoingKeySignatureTrustEngine extends ExplicitKeySignatureTrustEngine {
     /**
@@ -31,12 +29,14 @@ public class OutgoingKeySignatureTrustEngine extends ExplicitKeySignatureTrustEn
      *                        trusted credential store
      */
     private final Logger log = LoggerFactory.getLogger(OutgoingKeySignatureTrustEngine.class);
-    private static final Map<String, Counter> counters = new HashMap<>();
-    private Counter outgoingSignatureVerifyingErrorCounter;
-    
+    private static Counter outgoingSignatureVerifyingErrorCounter = Counter.build()
+            .name("verify_saml_lib_signature_verifying_error_counter")
+            .help("Counter to detect errors on the outgoing signature, reports the number of errors")
+            .register();
+
+
     public OutgoingKeySignatureTrustEngine(@Nonnull CredentialResolver resolver, @Nonnull KeyInfoCredentialResolver keyInfoResolver) {
         super(resolver, keyInfoResolver);
-        setOutgoingSignatureVerifyingErrorCounter();
     }
 
     @Override
@@ -74,25 +74,10 @@ public class OutgoingKeySignatureTrustEngine extends ExplicitKeySignatureTrustEn
                 log.debug("Successfully verified signature using resolved trusted credential");
                 return true;
             }
-            
-            getOutgoingSignatureVerifyingErrorCounter().labels("verification_failed").inc();
+            outgoingSignatureVerifyingErrorCounter.inc();
             log.warn("Failed to verify signature using trusted credentials");
         }
         log.debug("Failed to verify signature using either KeyInfo-derived or directly trusted credentials");
         return false;
-    }
-
-    private void setOutgoingSignatureVerifyingErrorCounter() {
-        outgoingSignatureVerifyingErrorCounter = counters.computeIfAbsent("outgoingSignatureUnVerifiedCounter", k->
-                Counter.build()
-                        .name("verify_saml_lib_signature_verifying_error_counter")
-                        .help("Counter to detect errors on the outgoing signature, reports the number of errors")
-                        .labelNames("error_type")
-                        .register()
-        );
-    }
-    
-    Counter getOutgoingSignatureVerifyingErrorCounter() {
-        return outgoingSignatureVerifyingErrorCounter;
     }
 }

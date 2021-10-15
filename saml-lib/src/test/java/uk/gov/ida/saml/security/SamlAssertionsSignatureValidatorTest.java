@@ -17,10 +17,7 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static uk.gov.ida.saml.security.errors.SamlTransformationErrorFactory.invalidSignatureForAssertion;
 import static uk.gov.ida.saml.security.saml.builders.IssuerBuilder.anIssuer;
 
@@ -50,18 +47,6 @@ public class SamlAssertionsSignatureValidatorTest {
 
         verify(samlMessageSignatureValidator).validate(assertion1, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
         verify(samlMessageSignatureValidator).validate(assertion2, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
-    }
-
-    @Test
-    public void shouldValidateEidasAssertionsWithAndWithoutSignature() {
-        final Assertion assertion1 = AssertionBuilder.anAssertion().withSignature(null).build();
-        final Assertion assertion2 = AssertionBuilder.anAssertion().build();
-        final List<Assertion> assertions = asList(assertion1, assertion2);
-
-        samlAssertionsSignatureValidator.validateEidas(assertions, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
-
-        verify(samlMessageSignatureValidator).validateEidasAssertion(assertion1, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
-        verify(samlMessageSignatureValidator).validateEidasAssertion(assertion2, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
     }
 
     @Test(expected = SamlTransformationErrorException.class)
@@ -94,7 +79,7 @@ public class SamlAssertionsSignatureValidatorTest {
 
             final SamlValidationSpecificationFailure samlValidationSpecificationFailure = invalidSignatureForAssertion("ID");
 
-            when(samlMessageSignatureValidator.validate(badAssertion, IDPSSODescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(SamlValidationResponse.anInvalidResponse(samlValidationSpecificationFailure));
+            doReturn(SamlValidationResponse.anInvalidResponse(samlValidationSpecificationFailure)).when(samlMessageSignatureValidator).validate(badAssertion, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
             samlAssertionsSignatureValidator.validate(asList(assertion, badAssertion), IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
 
             fail("expected exception");

@@ -3,7 +3,7 @@ env:
   global:
     - VERIFY_USE_PUBLIC_BINARIES=true
 
-dist: focal  
+dist: focal
 
 jdk:
   - openjdk11
