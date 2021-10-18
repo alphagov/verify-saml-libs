@@ -45,20 +45,6 @@ public class SamlMessageSignatureValidatorTest {
     }
 
     @Test
-    public void validateEidasAssertionShouldAcceptUnsignedAssertionsFromEidasCountries() {
-        final Assertion unsignedAssertion = anAssertion()
-            .withIssuer(anIssuer().withIssuerId(issuerId).build())
-            .withSignature(null)
-            .build();
-
-        SamlMessageSignatureValidator eidasSamlMessageSignatureValidator = new SamlMessageSignatureValidator(signatureValidator);
-
-        SamlValidationResponse signatureValidationResponse = eidasSamlMessageSignatureValidator.validateEidasAssertion(unsignedAssertion, SPSSODescriptor.DEFAULT_ELEMENT_NAME);
-
-        assertThat(signatureValidationResponse.isOK()).isTrue();
-    }
-
-    @Test
     public void validateShouldReturnBadResponseIfRequestIsNotSigned() {
         final AuthnRequest unsignedAuthnRequest = anAuthnRequest()
                 .withIssuer(anIssuer().withIssuerId(issuerId).build())

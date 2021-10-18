@@ -25,14 +25,6 @@ public class SamlAssertionsSignatureValidator {
         return new ValidatedAssertions(assertions);
     }
 
-    public ValidatedAssertions validateEidas(List<Assertion> assertions, QName role) {
-        for (Assertion assertion : assertions) {
-            final SamlValidationResponse samlValidationResponse = samlMessageSignatureValidator.validateEidasAssertion(assertion, role);
-            checkResponseisOk(samlValidationResponse);
-        }
-        return new ValidatedAssertions(assertions);
-    }
-
     private void checkResponseisOk(SamlValidationResponse samlValidationResponse) {
         if(!samlValidationResponse.isOK()) {
             SamlValidationSpecificationFailure failure = samlValidationResponse.getSamlValidationSpecificationFailure();
