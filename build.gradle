@@ -87,7 +87,7 @@ subprojects {
                     'org.junit.jupiter:junit-jupiter-api:5.5.2',
                     'uk.gov.ida:verify-dev-pki:2.0.0-46',
                     'org.mockito:mockito-core:3.2.0',
-                    "org.mockito:mockito-junit-jupiter:3.2.0"
+                    "org.mockito:mockito-junit-jupiter:4.6.1"
 
         xml_utils "uk.gov.ida:common-utils:2.0.0-$ida_utils_version"
     }
