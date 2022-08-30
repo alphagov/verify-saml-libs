@@ -83,7 +83,7 @@ subprojects {
                     "io.dropwizard:dropwizard-testing:$dropwizard_version",
                     'org.hamcrest:hamcrest-library:2.2',
                     'org.assertj:assertj-joda-time:2.2.0',
-                    'org.assertj:assertj-core:3.14.0',
+                    'org.assertj:assertj-core:3.23.1',
                     'org.junit.jupiter:junit-jupiter-api:5.5.2',
                     'uk.gov.ida:verify-dev-pki:2.0.0-48',
                     'org.mockito:mockito-core:3.2.0',
