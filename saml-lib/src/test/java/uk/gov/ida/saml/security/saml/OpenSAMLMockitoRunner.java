@@ -1,7 +1,7 @@
 package uk.gov.ida.saml.security.saml;
 
 import org.junit.runners.model.InitializationError;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 
 import java.lang.reflect.InvocationTargetException;
