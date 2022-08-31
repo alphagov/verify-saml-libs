@@ -4,7 +4,7 @@ plugins {
 
 ext {
     opensaml_version = "3.4.6"
-    dropwizard_version = "2.0.21"
+    dropwizard_version = "2.1.1"
     ida_utils_version = "397"
     build_version = "$opensaml_version-${System.env.BUILD_NUMBER ?: 'SNAPSHOT'}"
 }
