@@ -59,7 +59,7 @@ subprojects {
 
         jaxb 'javax.xml.bind:jaxb-api:2.3.1'
 
-        guice 'com.google.guava:guava:28.0-jre',
+        guice 'com.google.guava:guava:31.1-jre',
                 'com.google.inject:guice:5.1.0'
 
         dropwizard "io.dropwizard:dropwizard-core:$dropwizard_version",
