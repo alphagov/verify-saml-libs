@@ -79,7 +79,7 @@ subprojects {
                 "uk.gov.ida:security-utils:2.0.0-$ida_utils_version"
 
         test_deps   'uk.gov.ida:common-test-utils:2.0.0-67',
-                    'com.github.tomakehurst:wiremock-standalone:2.23.2',
+                    'com.github.tomakehurst:wiremock-standalone:2.27.2',
                     "io.dropwizard:dropwizard-testing:$dropwizard_version",
                     'org.hamcrest:hamcrest-library:2.2',
                     'org.assertj:assertj-joda-time:2.2.0',
