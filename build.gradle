@@ -72,7 +72,6 @@ subprojects {
                 "org.opensaml:opensaml-security-api:$opensaml_version",
                 "org.opensaml:opensaml-saml-api:$opensaml_version",
                 "org.opensaml:opensaml-xmlsec-impl:$opensaml_version",
-                "org.opensaml:xmltooling:1.4.4",
                 'net.shibboleth.utilities:java-support:7.5.0'
 
         security 'com.nimbusds:nimbus-jose-jwt:9.24.3',
