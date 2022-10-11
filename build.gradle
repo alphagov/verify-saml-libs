@@ -74,7 +74,7 @@ subprojects {
                 "org.opensaml:opensaml-xmlsec-impl:$opensaml_version",
                 'net.shibboleth.utilities:java-support:7.5.0'
 
-        security 'com.nimbusds:nimbus-jose-jwt:9.24.3',
+        security 'com.nimbusds:nimbus-jose-jwt:9.25.5',
                 "uk.gov.ida:security-utils:2.0.0-$ida_utils_version"
 
         test_deps   'uk.gov.ida:common-test-utils:2.0.0-67',
