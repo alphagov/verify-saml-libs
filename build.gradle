@@ -87,7 +87,7 @@ subprojects {
                     'org.assertj:assertj-core:3.23.1',
                     'org.junit.jupiter:junit-jupiter-api:5.9.0',
                     'uk.gov.ida:verify-dev-pki:2.0.0-48',
-                    'org.mockito:mockito-core:4.7.0',
+                    'org.mockito:mockito-core:5.1.1',
                     "org.mockito:mockito-junit-jupiter:4.7.0"
 
         xml_utils "uk.gov.ida:common-utils:2.0.0-$ida_utils_version"
